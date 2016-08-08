@@ -1,0 +1,74 @@
+<GridLayout>:
+    cols: 2
+<ActionSpinner@Spinner+ActionItem>
+    canvas.before:
+        Color:
+            rgba: 0.128, 0.128, 0.128, 1
+        Rectangle:
+            size: self.size
+            pos: self.pos
+    border: 27, 20, 12, 12
+
+
+
+
+#:import win kivy.core.window
+<Info>:
+    screen_manager: screen_manager
+
+    ScreenManager:
+        id: screen_manager
+        Screen:
+            name: 'inicio'
+            id: inicio
+            BoxLayout:
+                orientation: 'vertical'
+                GridLayout:
+                    Label:
+                        text: 'Usuario:'
+                        size_hint: (0.4, 1)
+                        valign: 'bottom'
+
+                    TextInput:
+                        id: usuario
+                        cursor_blink: True
+                        hint_text: 'nombre'
+                        text: 'nombre'
+                        multiline: False
+
+                GridLayout:
+                    Button:
+                        id: conectar
+                        text: 'Conectar'
+                        background_color: (1.5, 1.0, 0.0, 1.0)
+                        on_release: root.iniciar(inicio, "info")
+
+                    Button:
+                        text: 'Quit'
+                        on_release: root.onBackBtn()
+
+        Screen:
+
+            name: 'info'
+            id: ventinfo
+            GridLayout:
+                Label:
+                    id: movimiento
+                    text: 'Movimiento'
+                    #background_color: (1.5, 1.0, 0.0, 1.0)
+                    size_hint: (0.4, 1)
+                    valign: 'bottom'
+
+
+
+                Label:
+                    id: temperatura
+                    text: 'Temperatura'
+                    size_hint: (0.4, 1)
+                    valign: 'bottom'
+                Button:
+                    id: actualizar
+                    text: 'Actualizar'
+                    on_press: root.actualizar()
+
+
