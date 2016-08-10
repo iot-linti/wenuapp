@@ -64,23 +64,50 @@
             name: 'info'
             id: ventinfo
             GridLayout:
-                Label:
-                    id: movimiento
-                    text: 'Movimiento'
-                    #background_color: (1.5, 1.0, 0.0, 1.0)
-                    size_hint: (0.4, 1)
-                    valign: 'bottom'
-
-
-
-                Label:
-                    id: temperatura
-                    text: 'Temperatura'
-                    size_hint: (0.4, 1)
-                    valign: 'bottom'
-                Button:
-                    id: actualizar
-                    text: 'Actualizar'
-                    on_press: root.actualizar()
+                id: info_grid
+                cols: 1
+                rows: 3
+                GridLayout:
+					cols: 5
+					spacing: 10
+					Label:
+						id: tiempo
+						text: 'Tiempo'
+						#background_color: (1.5, 1.0, 0.0, 1.0)
+						size_hint: (0.4, .1)
+						valign: 'bottom'
+					Label:
+						id: current
+						text: 'Actual'
+						#background_color: (1.5, 1.0, 0.0, 1.0)
+						size_hint: (0.4, .1)
+						valign: 'bottom'
+					Label:
+						id: mote_id
+						text: 'Mota id'
+						#background_color: (1.5, 1.0, 0.0, 1.0)
+						size_hint: (0.4, .1)
+						valign: 'bottom'
+					Label:
+						id: motion
+						text: 'Movimiento'
+						#background_color: (1.5, 1.0, 0.0, 1.0)
+						size_hint: (0.4, .1)
+						valign: 'bottom'
+					Label:
+						id: temperatura
+						text: 'Temperatura'
+						size_hint: (0.4, .1)
+						valign: 'bottom'
+				ScrollView:
+					id: scroll_grid
+					#size_hint_y: None
+					#size: self.size
+					size_hint: None, None
+				Button:
+					id: actualizar
+					size_hint: .2,.2
+					text: 'Actualizar'
+					on_press: root.actualizar()
 
 

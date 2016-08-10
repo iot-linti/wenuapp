@@ -9,6 +9,9 @@ from kivy.core.window import Window as win
 from kivy.logger import Logger
 from kivy.uix.widget import Widget
 from kivy.clock import Clock
+from kivy.uix.scrollview import ScrollView
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.label import Label
 import os
 #influx
 from influxdb import InfluxDBClient
@@ -32,19 +35,25 @@ class Info(FloatLayout):
     def actualizar(self):
 		print self.ids
 		try:
-			res = self.client.query('SELECT mean(temperature) as temperatura FROM climatizacion GROUP BY mote_id')
+			res = self.client.query('SELECT * as temperatura FROM climatizacion LIMIT 50') #Consulta meramente de prueba
 		except:
 			print("Error al efectuar la consulta")
 		else:
-			self.ids["temperatura"].text = ""
-			self.ids["movimiento"].text = ""
 			print "--------------------------"
 			print res
-			for r in res:
+			self.ids["scroll_grid"].clear_widgets()
+			for re in res:
 				print "............."
-				print r
-				self.ids["temperatura"].text += "\n"+str(r[0]["temperatura"])
-				self.ids["movimiento"].text += "\n"+str(r[0]["time"])
+				line = GridLayout(cols=5, spacing=30)
+				line.bind(minimum_height=line.setter('height'))
+				for r in re:
+					print r
+					line.add_widget(Label(text=str(r["temperature"])))
+					line.add_widget(Label(text=str(r["current"])))
+					line.add_widget(Label(text=str(r["time"])))
+					line.add_widget(Label(text=r["mote_id"]))
+					line.add_widget(Label(text=str(r["motion"])))
+				self.ids["scroll_grid"].add_widget(line)
 
     def iniciar(self, actual_screen, next_screen):
         Logger.info('datos: cambio pantalla')
