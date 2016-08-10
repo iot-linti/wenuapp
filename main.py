@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from kivy.app import App
 from kivy.uix.screenmanager import Screen
 from kivy.uix.floatlayout import FloatLayout
@@ -7,6 +10,8 @@ from kivy.logger import Logger
 from kivy.uix.widget import Widget
 from kivy.clock import Clock
 import os
+#influx
+from influxdb import InfluxDBClient
 
 class Info(FloatLayout):
 
@@ -25,14 +30,33 @@ class Info(FloatLayout):
 
 
     def actualizar(self):
-        pass
+		print self.ids
+		try:
+			res = self.client.query('SELECT mean(temperature) as temperatura FROM climatizacion GROUP BY mote_id')
+		except:
+			print("Error al efectuar la consulta")
+		else:
+			self.ids["temperatura"].text = ""
+			self.ids["movimiento"].text = ""
+			print "--------------------------"
+			print res
+			for r in res:
+				print "............."
+				print r
+				self.ids["temperatura"].text += "\n"+str(r[0]["temperatura"])
+				self.ids["movimiento"].text += "\n"+str(r[0]["time"])
 
     def iniciar(self, actual_screen, next_screen):
         Logger.info('datos: cambio pantalla')
         #if next_screen == "info":
             #Clock.schedule_interval(self.update, 0.5)
-
-        self.onNextScreen(actual_screen, next_screen)
+        try:
+			self.client = InfluxDBClient('influxdb.linti.unlp.edu.ar', 8086, self.ids["usuario"].text, self.ids['password'].text, 'uso_racional')
+			self.client.query('SELECT mote_id FROM climatizacion LIMIT 1') #por ahora la unica forma de testear la conexion.
+        except:
+			print("Error al efectuar la conexion")
+        else:
+			self.onNextScreen(actual_screen, next_screen)
 
     def onBackBtn(self):
         # Check if there are any screens to go back to
