@@ -109,7 +109,7 @@
 					size_hint: 1, 1#None
 					#height: 400
 				GridLayout:
-					cols: 3
+					cols: 5
 					rows: 1
 					height: 30
 					size_hint: .02,None
@@ -119,12 +119,22 @@
 						height: 30
 						text: 'Actualizar'
 						on_press: root.actualizar()
+					Label:
+						id: label_ini
+						text: 'Inicio:'
+						size_hint: .01,None
+						height: 30
 					Spinner:
 						id: cantidad_ini
 						size_hint: .01,None
 						height: 30
 						text: "1"
 						values: "1","21","61","81","101"
+					Label:
+						id: label_fin
+						text: 'Fin:'
+						size_hint: .01,None
+						height: 30
 					Spinner:
 						id: cantidad_fin
 						size_hint: .01,None
