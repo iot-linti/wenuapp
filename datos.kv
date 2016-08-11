@@ -105,12 +105,32 @@
 					id: scroll_grid
 					#size_hint_y: None
 					#size: self.size
-					size_hint: 1, 1
-				Button:
-					id: actualizar
-					size_hint: .02,None
+					#size: self.parent.size[0],self.parent.size[1] -20
+					size_hint: 1, 1#None
+					#height: 400
+				GridLayout:
+					cols: 3
+					rows: 1
 					height: 30
-					text: 'Actualizar'
-					on_press: root.actualizar()
+					size_hint: .02,None
+					Button:
+						id: actualizar
+						size_hint: .02,None
+						height: 30
+						text: 'Actualizar'
+						on_press: root.actualizar()
+					Spinner:
+						id: cantidad_ini
+						size_hint: .01,None
+						height: 30
+						text: "1"
+						values: "1","21","61","81","101"
+					Spinner:
+						id: cantidad_fin
+						size_hint: .01,None
+						height: 30
+						text: "20"
+						values: "20","40","60","80","100"
+
 
 
