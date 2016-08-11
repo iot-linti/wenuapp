@@ -70,6 +70,8 @@
                 GridLayout:
 					cols: 5
 					spacing: 10
+					size_hint_y: None
+					height: 20
 					Label:
 						id: tiempo
 						text: 'Tiempo'
@@ -103,10 +105,11 @@
 					id: scroll_grid
 					#size_hint_y: None
 					#size: self.size
-					size_hint: None, None
+					size_hint: 1, 1
 				Button:
 					id: actualizar
-					size_hint: .2,.2
+					size_hint: .02,None
+					height: 30
 					text: 'Actualizar'
 					on_press: root.actualizar()
 
