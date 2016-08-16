@@ -12,6 +12,7 @@ from kivy.clock import Clock
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
+from kivy.uix.spinner import Spinner
 import os
 #influx
 from influxdb import InfluxDBClient
@@ -47,14 +48,15 @@ class Info(FloatLayout):
 
 
 	def actualizar(self):
-		print self.ids
 		try:
-			res = self.client.query('SELECT * as temperatura FROM climatizacion LIMIT 50') #Consulta meramente de prueba
+			query = 'SELECT * as temperatura FROM climatizacion ORDER BY time asc LIMIT '+self.ids["cantidad_fin"].text+' OFFSET '+self.ids["cantidad_ini"].text
+			print query
+			res = self.client.query(query) #Consulta meramente de prueba
 		except:
 			print("Error al efectuar la consulta")
 		else:
 			print "--------------------------"
-			print res
+			#~ print res
 			self.ids["scroll_grid"].clear_widgets()
 			for re in res:
 				print "............."
@@ -70,7 +72,7 @@ class Info(FloatLayout):
 					
 					
 				for r in re:
-					print r
+					#~ print r
 					line.add_widget(Label(text=str(r["temperature"])))
 					line.add_widget(Label(text=str(r["current"])))
 					line.add_widget(Label(text=str(r["time"])))
