@@ -49,14 +49,14 @@ class Info(FloatLayout):
 
 	def actualizar(self):
 		try:
-			query = 'SELECT * as temperatura FROM climatizacion ORDER BY time asc LIMIT '+self.ids["cantidad_fin"].text+' OFFSET '+self.ids["cantidad_ini"].text
+			query = 'SELECT * as temperatura FROM climatizacion ORDER BY time desc LIMIT '+self.ids["cantidad_fin"].text+' OFFSET '+self.ids["cantidad_ini"].text
 			print query
 			res = self.client.query(query) #Consulta meramente de prueba
 		except:
 			print("Error al efectuar la consulta")
 		else:
 			print "--------------------------"
-			#~ print res
+			print res
 			self.ids["scroll_grid"].clear_widgets()
 			for re in res:
 				print "............."
