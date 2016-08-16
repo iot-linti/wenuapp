@@ -13,6 +13,8 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.spinner import Spinner
+from kivy.uix.tabbedpanel import TabbedPanel
+from kivy.uix.tabbedpanel import TabbedPanelHeader
 import os
 #influx
 from influxdb import InfluxDBClient
@@ -39,11 +41,11 @@ class Info(FloatLayout):
 		#datos sensor cocina
 		datos =[]
 		datos.append(str(data['current']))
-		datos.append(self.valores[str(data['motion'])])		
+		datos.append(self.valores[str(data['motion'])])
 		etiqueta = str(data['mote_id'].split('_')[0]).title() + ' ' + str(data['mote_id'].split('_')[1])
 		datos.append(etiqueta)
 		datos.append(str(data['temperature']))
-		datos.append(str(data['time'].split(':')[0][:10]))		
+		datos.append(str(data['time'].split(':')[0][:10]))
 		return datos
 
 
@@ -64,13 +66,13 @@ class Info(FloatLayout):
 				line.bind(minimum_height=line.setter('height'))
 				datosactuales_control = self.procesar_datos_cocina(re[-1])
 				datosactuales_coc = self.procesar_datos_cocina(re[-2])
-				
-				
+
+
 				for dato in range(len(self.etiquetas_coc)):
 					self.ids[self.etiquetas_coc[dato]].text = datosactuales_coc[dato]
 					self.ids[self.etiquetas_control[dato]].text = datosactuales_control[dato]
-					
-					
+
+
 				for r in re:
 					#~ print r
 					line.add_widget(Label(text=str(r["temperature"])))
@@ -78,7 +80,7 @@ class Info(FloatLayout):
 					line.add_widget(Label(text=str(r["time"])))
 					line.add_widget(Label(text=r["mote_id"]))
 					line.add_widget(Label(text=str(r["motion"])))
-				
+
 				self.ids["scroll_grid"].add_widget(line)
 
 	def iniciar(self, actual_screen, next_screen):

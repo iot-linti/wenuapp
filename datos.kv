@@ -63,11 +63,12 @@
 
             name: 'info'
             id: ventinfo
+
             GridLayout:
-                id: info_grid
-                cols: 1
-                rows: 3
-                GridLayout:
+				id: info_grid
+				cols: 1
+				rows: 3
+				GridLayout:
 					cols: 5
 					spacing: 10
 					size_hint_y: None
@@ -131,14 +132,16 @@
 						background_color: (0.5, 0.3, 0.3, 1.0)
 						size_hint: (0.4, .1)
 						valign: 'bottom'
-				ScrollView:
-					id: scroll_grid
-					#size_hint_y: None
-					#size: self.size
-					#size: self.parent.size[0],self.parent.size[1] -20
-					size_hint: 1, 1#None
-					#height: 400
+
+            ScrollView:
+				id: scroll_grid
+				#size_hint_y: None
+				#size: self.size
+				#size: self.parent.size[0],self.parent.size[1] -20
+				size_hint: 1, 1#None
+				#height: 400
 				GridLayout:
+					id: grid_filter
 					cols: 5
 					rows: 1
 					height: 30
@@ -171,6 +174,16 @@
 						height: 30
 						text: "20"
 						values: "20","40","60","80","100"
+            TabbedPanel:
+				do_default_tab: False
+				id: pannel_tab
+				TabbedPanelHeader:
+					text: "Mapa"
+					content: info_grid
+				TabbedPanelHeader:
+					text: "Historial"
+					content: scroll_grid
+
 
 
 
