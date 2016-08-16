@@ -15,6 +15,9 @@ from kivy.uix.label import Label
 from kivy.uix.spinner import Spinner
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.tabbedpanel import TabbedPanelHeader
+
+import requests
+import json
 import os
 #influx
 from influxdb import InfluxDBClient
@@ -37,6 +40,15 @@ class Info(FloatLayout):
 		self.etiquetas_coc = ['current_coc', 'motion_coc', 'mote_id_coc', 'temperature_coc', 'time_coc']
 		self.etiquetas_control = ['current', 'motion', 'mote_id', 'temperature', 'time']
 
+
+	def calcular_color(self, val):
+		temp_ambiental = requests.get('http://clima.info.unlp.edu.ar/last')
+		#~ print temp_ambiental.status_code
+		#~ print temp_ambiental.headers['content-type']
+		#~ print ".......----------...................."
+		dict_temp_amb = json.loads(temp_ambiental.text)
+		return "[color=f10000]"+str(val)+"[/color]" if val > dict_temp_amb["temperature"] + 5 else "[color=ffffff]"+str(val)+"[/color]"
+
 	def procesar_datos_cocina(self, data):
 		#datos sensor cocina
 		datos =[]
@@ -44,7 +56,8 @@ class Info(FloatLayout):
 		datos.append(self.valores[str(data['motion'])])
 		etiqueta = str(data['mote_id'].split('_')[0]).title() + ' ' + str(data['mote_id'].split('_')[1])
 		datos.append(etiqueta)
-		datos.append(str(data['temperature']))
+		temp = self.calcular_color(data["temperature"])
+		datos.append(str(temp))
 		datos.append(str(data['time'].split(':')[0][:10]))
 		return datos
 
@@ -75,7 +88,9 @@ class Info(FloatLayout):
 
 				for r in re:
 					#~ print r
-					line.add_widget(Label(text=str(r["temperature"])))
+					temp_color = self.calcular_color(r["temperature"]) #"[color=f10000]"+str(r["temperature"])+"[/color]" if r["temperature"] > dict_temp_amb["temperature"] + 5 else "[color=ffffff]"+str(r["temperature"])+"[/color]"
+					print temp_color
+					line.add_widget(Label(text=temp_color))
 					line.add_widget(Label(text=str(r["current"])))
 					line.add_widget(Label(text=str(r["time"])))
 					line.add_widget(Label(text=r["mote_id"]))
