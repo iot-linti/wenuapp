@@ -18,21 +18,35 @@ from influxdb import InfluxDBClient
 
 class Info(FloatLayout):
 
-    try:
-        screen_manager = ObjectProperty(None)
-    except Exception:
-        Logger.exception('Info: NO se pudo iniciar')
+	try:
+		screen_manager = ObjectProperty(None)
+	except Exception:
+		Logger.exception('Info: NO se pudo iniciar')
 
-    def __init__(self, *args, **kwargs):
-        super(Info, self).__init__(**kwargs)
-        self.icon = 'pin_1.png'
-        self.title = 'Datos Sensores'
+	def __init__(self, *args, **kwargs):
+		super(Info, self).__init__(**kwargs)
+		self.icon = 'pin_1.png'
+		self.title = 'Datos Sensores'
 
-        Logger.info('info: iniciando')
-        self.list_of_prev_screens = []
+		Logger.info('info: iniciando')
+		self.list_of_prev_screens = []
+		self.valores = {'False':'Falso', 'True':'Verdadero' }
+		self.etiquetas_coc = ['current_coc', 'motion_coc', 'mote_id_coc', 'temperature_coc', 'time_coc']
+		self.etiquetas_control = ['current', 'motion', 'mote_id', 'temperature', 'time']
+
+	def procesar_datos_cocina(self, data):
+		#datos sensor cocina
+		datos =[]
+		datos.append(str(data['current']))
+		datos.append(self.valores[str(data['motion'])])		
+		etiqueta = str(data['mote_id'].split('_')[0]).title() + ' ' + str(data['mote_id'].split('_')[1])
+		datos.append(etiqueta)
+		datos.append(str(data['temperature']))
+		datos.append(str(data['time'].split(':')[0][:10]))		
+		return datos
 
 
-    def actualizar(self):
+	def actualizar(self):
 		print self.ids
 		try:
 			res = self.client.query('SELECT * as temperatura FROM climatizacion LIMIT 50') #Consulta meramente de prueba
@@ -46,6 +60,15 @@ class Info(FloatLayout):
 				print "............."
 				line = GridLayout(cols=5, spacing=30)
 				line.bind(minimum_height=line.setter('height'))
+				datosactuales_control = self.procesar_datos_cocina(re[-1])
+				datosactuales_coc = self.procesar_datos_cocina(re[-2])
+				
+				
+				for dato in range(len(self.etiquetas_coc)):
+					self.ids[self.etiquetas_coc[dato]].text = datosactuales_coc[dato]
+					self.ids[self.etiquetas_control[dato]].text = datosactuales_control[dato]
+					
+					
 				for r in re:
 					print r
 					line.add_widget(Label(text=str(r["temperature"])))
@@ -53,36 +76,38 @@ class Info(FloatLayout):
 					line.add_widget(Label(text=str(r["time"])))
 					line.add_widget(Label(text=r["mote_id"]))
 					line.add_widget(Label(text=str(r["motion"])))
+				
 				self.ids["scroll_grid"].add_widget(line)
 
-    def iniciar(self, actual_screen, next_screen):
-        Logger.info('datos: cambio pantalla')
-        #if next_screen == "info":
-            #Clock.schedule_interval(self.update, 0.5)
-        try:
+	def iniciar(self, actual_screen, next_screen):
+		Logger.info('datos: cambio pantalla')
+		#if next_screen == "info":
+			#Clock.schedule_interval(self.update, 0.5)
+		try:
 			self.client = InfluxDBClient('influxdb.linti.unlp.edu.ar', 8086, self.ids["usuario"].text, self.ids['password'].text, 'uso_racional')
 			self.client.query('SELECT mote_id FROM climatizacion LIMIT 1') #por ahora la unica forma de testear la conexion.
-        except:
+		except:
 			print("Error al efectuar la conexion")
-        else:
+		else:
 			self.onNextScreen(actual_screen, next_screen)
+		self.actualizar()
 
-    def onBackBtn(self):
-        # Check if there are any screens to go back to
-        if self.list_of_prev_screens:
-            # If there are then just go back to it
-            self.screen_manager.current = self.list_of_prev_screens.pop()
-            print(self.screen_manager.current)
-            # We don't want to close app
-            return True
-        # No more screens so user must want to exit app
-        return False
+	def onBackBtn(self):
+		# Check if there are any screens to go back to
+		if self.list_of_prev_screens:
+			# If there are then just go back to it
+			self.screen_manager.current = self.list_of_prev_screens.pop()
+			print(self.screen_manager.current)
+			# We don't want to close app
+			return True
+		# No more screens so user must want to exit app
+		return False
 
-    def onNextScreen(self, actual_screen, next_screen):
-        # add screen we were just in
-        self.list_of_prev_screens.append(actual_screen.name)
-        # Go to next screen
-        self.screen_manager.current = next_screen
+	def onNextScreen(self, actual_screen, next_screen):
+		# add screen we were just in
+		self.list_of_prev_screens.append(actual_screen.name)
+		# Go to next screen
+		self.screen_manager.current = next_screen
 
 
 ################################################################################
