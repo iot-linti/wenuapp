@@ -8,11 +8,18 @@
             size: self.size
             pos: self.pos
     border: 27, 20, 12, 12
-
-
+<LabelColor@Label>
+	canvas.before:
+	    Color:
+	        rgba: 0.128, 0.128, 0.128, 1
+	    Rectangle:
+	        size: self.size
+	        pos: self.pos
 
 
 #:import win kivy.core.window
+#:import Corelabel kivy.core.text.Label
+
 <Info>:
     screen_manager: screen_manager
 
@@ -63,76 +70,84 @@
 
             name: 'info'
             id: ventinfo
-
-            GridLayout:
+			FloatLayout:
 				id: info_grid
-				cols: 1
-				rows: 3
-				GridLayout:
-					cols: 5
-					spacing: 10
-					size_hint_y: None
-					height: 20
-					Label:
-						id: time
-						text: 'Tiempo'
-						#background_color: (1.5, 1.0, 0.0, 1.0)
-						size_hint: (0.4, .1)
-						valign: 'bottom'
-					Label:
-						id: current
-						text: 'Actual'
-						#background_color: (1.5, 1.0, 0.0, 1.0)
-						size_hint: (0.4, .1)
-						valign: 'bottom'
-					Label:
-						id: mote_id
-						text: 'Mota id'
-						#background_color: (1.5, 1.0, 0.0, 1.0)
-						size_hint: (0.4, .1)
-						valign: 'bottom'
-					Label:
-						id: motion
-						text: 'Movimiento'
-						#background_color: (1.5, 1.0, 0.0, 1.0)
-						size_hint: (0.4, .1)
-						valign: 'bottom'
-					Label:
-						id: temperature
-						text: 'Temperatura'
-						size_hint: (0.4, .1)
-						valign: 'bottom'
-					Label:
-						id: time_coc
-						text: 'Tiempo'
-						background_color: (0.5, 0.3, 0.3, 1.0)
-						size_hint: (0.4, .1)
-						valign: 'bottom'
-					Label:
-						id: current_coc
-						text: 'Actual'
-						background_color: (0.5, 0.3, 0.3, 1.0)
-						size_hint: (0.4, .1)
-						valign: 'bottom'
-					Label:
-						id: mote_id_coc
-						text: 'Mota id'
-						background_color: (0.5, 0.3, 0.3, 1.0)
-						size_hint: (0.4, .1)
-						valign: 'bottom'
-					Label:
-						id: motion_coc
-						text: 'Movimiento'
-						background_color: (0.5, 0.3, 0.3, 1.0)
-						size_hint: (0.4, .1)
-						valign: 'bottom'
-					Label:
-						id: temperature_coc
-						text: 'Temperatura'
-						background_color: (0.5, 0.3, 0.3, 1.0)
-						size_hint: (0.4, .1)
-						valign: 'bottom'
-
+				canvas.before:
+					Color:
+						rgb: .6, .6, .6
+					Rectangle:
+						size: self.size
+						source: 'imagenes/oficinaLihuen.png'
+	            GridLayout:
+					id: info_grid_2
+					cols: 1
+					rows: 3
+					GridLayout:
+						cols: 5
+						spacing: 10
+						size_hint_y: None
+						height: 20
+						Label:
+							id: time
+							text: 'Tiempo'
+							#background_color: (1.5, 1.0, 0.0, 1.0)
+							size_hint: (0.4, .1)
+							valign: 'bottom'
+						Label:
+							id: current
+							text: 'Actual'
+							#background_color: (1.5, 1.0, 0.0, 1.0)
+							size_hint: (0.4, .1)
+							valign: 'bottom'
+						Label:
+							id: mote_id
+							text: 'Mota id'
+							#background_color: (1.5, 1.0, 0.0, 1.0)
+							size_hint: (0.4, .1)
+							valign: 'bottom'
+						Label:
+							id: motion
+							text: 'Movimiento'
+							#background_color: (1.5, 1.0, 0.0, 1.0)
+							size_hint: (0.4, .1)
+							valign: 'bottom'
+						Label:
+							id: temperature
+							text: 'Temperatura'
+							size_hint: (0.4, .1)
+							valign: 'bottom'
+						Label:
+							id: time_coc
+							text: 'Tiempo'
+							background_color: (0.5, 0.3, 0.3, 1.0)
+							size_hint: (0.4, .1)
+							valign: 'bottom'
+						Label:
+							id: current_coc
+							text: 'Actual'
+							background_color: (0.5, 0.3, 0.3, 1.0)
+							size_hint: (0.4, .1)
+							valign: 'bottom'
+						Label:
+							id: mote_id_coc
+							text: 'Mota id'
+							background_color: (0.5, 0.3, 0.3, 1.0)
+							size_hint: (0.4, .1)
+							valign: 'bottom'
+						Label:
+							id: motion_coc
+							text: 'Movimiento'
+							background_color: (0.5, 0.3, 0.3, 1.0)
+							size_hint: (0.4, .1)
+							valign: 'bottom'
+						
+						Label:
+							id: temperature_coc
+							text: 'Temperatura'
+							background_color: (0.5, 0.3, 0.3, 1.0)
+							size_hint: (0.4, .1)
+							valign: 'bottom'
+	
             ScrollView:
 				id: scroll_grid
 				#size_hint_y: None

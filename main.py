@@ -15,6 +15,7 @@ from kivy.uix.label import Label
 from kivy.uix.spinner import Spinner
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.tabbedpanel import TabbedPanelHeader
+from kivy.core.text import Label as CoreLabel
 
 import requests
 import json
@@ -47,6 +48,7 @@ class Info(FloatLayout):
 		#~ print temp_ambiental.headers['content-type']
 		#~ print ".......----------...................."
 		dict_temp_amb = json.loads(temp_ambiental.text)
+		print("tmep ambiente ---------", dict_temp_amb)
 		return "[color=f10000]"+str(val)+"[/color]" if val > dict_temp_amb["temperature"] + 5 else "[color=ffffff]"+str(val)+"[/color]"
 
 	def procesar_datos_cocina(self, data):
@@ -85,12 +87,17 @@ class Info(FloatLayout):
 					self.ids[self.etiquetas_coc[dato]].text = datosactuales_coc[dato]
 					self.ids[self.etiquetas_control[dato]].text = datosactuales_control[dato]
 
-
+				temp_color = self.calcular_color(re[-1]["temperature"])
+				self.ids["temperature"].text = temp_color
+				self.ids["temperature"].texture_update()
+				self.ids["info_grid"].add_widget(Label(text=temp_color, markup= True))
+				
+				
 				for r in re:
 					#~ print r
 					temp_color = self.calcular_color(r["temperature"]) #"[color=f10000]"+str(r["temperature"])+"[/color]" if r["temperature"] > dict_temp_amb["temperature"] + 5 else "[color=ffffff]"+str(r["temperature"])+"[/color]"
-					print temp_color
-					line.add_widget(Label(text=temp_color))
+					
+					line.add_widget(Label(text=temp_color, markup= True))
 					line.add_widget(Label(text=str(r["current"])))
 					line.add_widget(Label(text=str(r["time"])))
 					line.add_widget(Label(text=r["mote_id"]))
