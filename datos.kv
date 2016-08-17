@@ -8,17 +8,11 @@
             size: self.size
             pos: self.pos
     border: 27, 20, 12, 12
-<LabelColor@Label>
-	canvas.before:
-	    Color:
-	        rgba: 0.128, 0.128, 0.128, 1
-	    Rectangle:
-	        size: self.size
-	        pos: self.pos
+
 
 
 #:import win kivy.core.window
-#:import Corelabel kivy.core.text.Label
+
 
 <Info>:
     screen_manager: screen_manager
@@ -80,8 +74,7 @@
 						source: 'imagenes/oficinaLihuen.png'
 	            GridLayout:
 					id: info_grid_2
-					cols: 1
-					rows: 3
+					rows: 2
 					GridLayout:
 						cols: 5
 						spacing: 10
@@ -115,6 +108,7 @@
 							id: temperature
 							text: 'Temperatura'
 							size_hint: (0.4, .1)
+							markup: True
 							valign: 'bottom'
 						Label:
 							id: time_coc
@@ -146,6 +140,7 @@
 							text: 'Temperatura'
 							background_color: (0.5, 0.3, 0.3, 1.0)
 							size_hint: (0.4, .1)
+							markup: True
 							valign: 'bottom'
 	
             ScrollView:

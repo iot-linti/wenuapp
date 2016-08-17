@@ -90,7 +90,6 @@ class Info(FloatLayout):
 				temp_color = self.calcular_color(re[-1]["temperature"])
 				self.ids["temperature"].text = temp_color
 				self.ids["temperature"].texture_update()
-				self.ids["info_grid"].add_widget(Label(text=temp_color, markup= True))
 				
 				
 				for r in re:
