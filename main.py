@@ -17,7 +17,7 @@ from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.tabbedpanel import TabbedPanelHeader
 from kivy.core.text import Label as CoreLabel
 
-import requests
+#import requests
 import json
 import os
 #influx
@@ -43,13 +43,12 @@ class Info(FloatLayout):
 
 
 	def calcular_color(self, val):
-		temp_ambiental = requests.get('http://clima.info.unlp.edu.ar/last')
+		#temp_ambiental = requests.get('http://clima.info.unlp.edu.ar/last')
 		#~ print temp_ambiental.status_code
 		#~ print temp_ambiental.headers['content-type']
 		#~ print ".......----------...................."
-		dict_temp_amb = json.loads(temp_ambiental.text)
-		print("tmep ambiente ---------", dict_temp_amb)
-		return "[color=f10000]"+str(val)+"[/color]" if val > dict_temp_amb["temperature"] + 5 else "[color=13E400]"+str(val)+"[/color]"
+		#dict_temp_amb = json.loads(temp_ambiental.text)
+		return "[color=f10000]"+str(val)+"[/color]" if val > self.temp_amb + 5 else "[color=13E400]"+str(val)+"[/color]"
 
 	def procesar_datos_cocina(self, data):
 		#datos sensor cocina
@@ -62,7 +61,10 @@ class Info(FloatLayout):
 		datos.append(str(temp))
 		datos.append(str(data['time'].split(':')[0][:10]))
 		return datos
-
+	
+	def obtener_temp_ambiente(self, data):
+		pass
+		
 
 	def actualizar(self):
 		try:
@@ -109,6 +111,10 @@ class Info(FloatLayout):
 			res4 = self.client.query(query4) #Consulta meramente de prueba
 		except:
 			print("Error al efectuar la consulta")
+		try:
+			self.temp_amb =  res3[('climatizacion', None)].next()['temperature']
+		except:
+			pass
 		else:
 			print "sdfsdfdsfsfddsfsdfsdfdsfdsfdsfdsf"
 			print res
@@ -138,12 +144,13 @@ class Info(FloatLayout):
 				temp_color = self.calcular_color(re[-1]["temperature"])
 				self.ids["temperature"].text = temp_color
 				self.ids["temperature"].texture_update()
-
+			print "*************************control*********"
+			
 			#control
-			for re in res3:
-				temp_color = self.calcular_color(re[-1]["temperature"])
-				self.ids["temperature_cont"].text = temp_color
-				self.ids["temperature_cont"].texture_update()
+			#for re in res3:
+				#temp_color = self.calcular_color(re[-1]["temperature"])
+				#self.ids["temperature_cont"].text = temp_color
+				#self.ids["temperature_cont"].texture_update()
 
 			for re in res4:
 				temp_color = self.calcular_color(re[-1]["temperature"])
@@ -164,8 +171,8 @@ class Info(FloatLayout):
 			print("Error al efectuar la conexion")
 		else:
 			self.onNextScreen(actual_screen, next_screen)
-		self.actualizar()
 		self.actualizar_mapa()
+		self.actualizar()
 
 	def onBackBtn(self):
 		# Check if there are any screens to go back to
