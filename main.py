@@ -71,8 +71,8 @@ class Info(FloatLayout):
 			query = 'SELECT * as temperatura FROM climatizacion ORDER BY time desc LIMIT '+self.ids["cantidad_fin"].text+' OFFSET '+self.ids["cantidad_ini"].text
 			print query
 			res = self.client.query(query) #Consulta meramente de prueba
-		except Eception as e:
-			print("Error al efectuar la consulta actualziar " + e.message)
+		except Exception as e:
+			print("Error al efectuar la consulta actualziar " + str(e.message))
 		else:
 			print "--------------------------"
 			print res
