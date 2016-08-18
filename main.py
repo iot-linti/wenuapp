@@ -49,15 +49,15 @@ class Info(FloatLayout):
 		#~ print ".......----------...................."
 		dict_temp_amb = json.loads(temp_ambiental.text)
 		print("tmep ambiente ---------", dict_temp_amb)
-		return "[color=f10000]"+str(val)+"[/color]" if val > dict_temp_amb["temperature"] + 5 else "[color=ffffff]"+str(val)+"[/color]"
+		return "[color=f10000]"+str(val)+"[/color]" if val > dict_temp_amb["temperature"] + 5 else "[color=13E400]"+str(val)+"[/color]"
 
 	def procesar_datos_cocina(self, data):
 		#datos sensor cocina
 		datos =[]
-		datos.append(str(data['current']))
-		datos.append(self.valores[str(data['motion'])])
-		etiqueta = str(data['mote_id'].split('_')[0]).title() + ' ' + str(data['mote_id'].split('_')[1])
-		datos.append(etiqueta)
+		#~ datos.append(str(data['current']))
+		#~ datos.append(self.valores[str(data['motion'])])
+		#~ etiqueta = str(data['mote_id'].split('_')[0]).title() + ' ' + str(data['mote_id'].split('_')[1])
+		#~ datos.append(etiqueta)
 		temp = self.calcular_color(data["temperature"])
 		datos.append(str(temp))
 		datos.append(str(data['time'].split(':')[0][:10]))
@@ -83,19 +83,23 @@ class Info(FloatLayout):
 				datosactuales_coc = self.procesar_datos_cocina(re[-2])
 
 
-				for dato in range(len(self.etiquetas_coc)):
-					self.ids[self.etiquetas_coc[dato]].text = datosactuales_coc[dato]
-					self.ids[self.etiquetas_control[dato]].text = datosactuales_control[dato]
+				#~ for dato in range(len(self.etiquetas_coc)):
+					#~ self.ids[self.etiquetas_coc[dato]].text = datosactuales_coc[dato]
+					#~ self.ids[self.etiquetas_control[dato]].text = datosactuales_control[dato]
+
+				temp_color = self.calcular_color(re[-2]["temperature"])
+				self.ids["temperature_coc"].text = temp_color
+				self.ids["temperature_coc"].texture_update()
 
 				temp_color = self.calcular_color(re[-1]["temperature"])
 				self.ids["temperature"].text = temp_color
 				self.ids["temperature"].texture_update()
-				
-				
+
+
 				for r in re:
 					#~ print r
 					temp_color = self.calcular_color(r["temperature"]) #"[color=f10000]"+str(r["temperature"])+"[/color]" if r["temperature"] > dict_temp_amb["temperature"] + 5 else "[color=ffffff]"+str(r["temperature"])+"[/color]"
-					
+
 					line.add_widget(Label(text=temp_color, markup= True))
 					line.add_widget(Label(text=str(r["current"])))
 					line.add_widget(Label(text=str(r["time"])))
