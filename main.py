@@ -124,19 +124,11 @@ class Info(FloatLayout):
 		except Exception, e:
 			print("Error al efectuar la consulta 1 "+str(e))
 		else:
-			#cocina
-			self.temp_amb = res['linti_control']['temperature']#[('climatizacion', None)].next()['temperature']
-			temp_color = self.calcular_color(res['linti_cocina']['temperature'])#[('climatizacion', None)].next()["temperature"])
-			self.ids["temperature_coc"].text = temp_color
-			self.ids["temperature_coc"].texture_update()
-			#oficina
-			temp_color = self.calcular_color(res['linti_oficina_1']['temperature'])#[('climatizacion', None)].next()["temperature"])
-			self.ids["temperature"].text = temp_color
-			self.ids["temperature"].texture_update()
-			#servidor
-			temp_color = self.calcular_color(res['linti_servidores']["temperature"])
-			self.ids["temperature_serv"].text = temp_color
-			self.ids["temperature_serv"].texture_update()
+			#~ self.temp_amb = res['linti_control']['temperature']#[('climatizacion', None)].next()['temperature']
+			for s in self.sensores:
+				temp_color = self.calcular_color(res[s]['temperature'])
+				self.ids[s].text = temp_color
+				self.ids[s].texture_update()
 
 	#~ def update_content(self, *args):
 		#~ self.actualizar()
