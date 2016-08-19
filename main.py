@@ -40,6 +40,7 @@ class Info(FloatLayout):
 		self.valores = {'False':'Falso', 'True':'Verdadero' }
 		self.etiquetas_coc = ['current_coc', 'motion_coc', 'mote_id_coc', 'temperature_coc', 'time_coc']
 		self.etiquetas_control = ['current', 'motion', 'mote_id', 'temperature', 'time']
+		self.sensores = ['linti_cocina','linti_oficina_1','linti_control','linti_servidores']
 
 
 	def calcular_color(self, val):
@@ -61,10 +62,10 @@ class Info(FloatLayout):
 		datos.append(str(temp))
 		datos.append(str(data['time'].split(':')[0][:10]))
 		return datos
-	
+
 	def obtener_temp_ambiente(self, data):
 		pass
-		
+
 
 	def actualizar(self):
 		try:
@@ -94,71 +95,52 @@ class Info(FloatLayout):
 				self.ids["scroll_grid"].add_widget(line)
 
 	def actualizar_mapa(self):
-		print "aslllllllllllllllllllllllllllllllllllllllllllllllll"
 		try:
-			#~ query = 'SELECT * as temperatura FROM climatizacion GROUP BY mote_id ORDER BY time desc LIMIT 1'
-			query = "SELECT * as temperatura FROM climatizacion WHERE mote_id = 'linti_cocina' ORDER BY time desc LIMIT 1"
-			query2 = "SELECT * as temperatura FROM climatizacion WHERE mote_id = 'linti_oficina_1' ORDER BY time desc LIMIT 1"
-			query3 = "SELECT * as temperatura FROM climatizacion WHERE mote_id = 'linti_control' ORDER BY time desc LIMIT 1"
-			query4 = "SELECT * as temperatura FROM climatizacion WHERE mote_id = 'linti_servidores' ORDER BY time desc LIMIT 1"
-			print query
-			print query2
-			print query3
-			print query4
-			res = self.client.query(query) #Consulta meramente de prueba
-			res2 = self.client.query(query2) #Consulta meramente de prueba
-			res3 = self.client.query(query3) #Consulta meramente de prueba
-			res4 = self.client.query(query4) #Consulta meramente de prueba
-		except:
-			print("Error al efectuar la consulta")
-		try:
-			self.temp_amb =  res3[('climatizacion', None)].next()['temperature']
-		except:
-			pass
-		else:
-			print "sdfsdfdsfsfddsfsdfsdfdsfdsfdsfdsf"
+			#~ query = []
+			query = {}
+			for s in self.sensores:
+				#~ print s
+				#~ query.append("SELECT * as temperatura FROM climatizacion WHERE mote_id = '"+s+"' ORDER BY time desc LIMIT 1")
+				query[s] = "SELECT * as temperatura FROM climatizacion WHERE mote_id = '"+s+"' ORDER BY time desc LIMIT 1"
+			res = {}
+			for q in query.items():
+				print "---------------------------------------------------------------------------------------------------------"
+				print q[0]
+				print q[1]
+				#~ res.append(self.client.query(q)) #Consulta meramente de prueba
+				res[q[0]] = self.client.query(q[1]).items()[0][1].next() #Consulta meramente de prueba
+				print "}{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}"
+				print res[q[0]]
+			print "*********************************************************************"
 			print res
-			#~ self.ids["scroll_grid"].clear_widgets()
+			print "*********************************************************************"
+			print res['linti_cocina']
+			print "---------------------------------------------------------------------------------------------------------"
+			try:
+				self.temp_amb = res['linti_control']['temperature']#[0][('climatizacion', None)].next()['temperature']
+			except:
+				print "asdkmaskdnkasndasmd---------------------------------------------------------------"
+				#~ print res['linti_control'][0].next()
+		except Exception, e:
+			print("Error al efectuar la consulta 1 "+str(e))
+		else:
 			#cocina
-			for re in res:
-				#~ print "............."
-				#~ datosactuales_control = self.procesar_datos_cocina(re[-1])
-				#~ datosactuales_coc = self.procesar_datos_cocina(re[-2])
-
-
-				#~ for dato in range(len(self.etiquetas_coc)):
-					#~ self.ids[self.etiquetas_coc[dato]].text = datosactuales_coc[dato]
-					#~ self.ids[self.etiquetas_control[dato]].text = datosactuales_control[dato]
-
-				print "......--------------------------------"
-
-				print re
-				print "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-
-				temp_color = self.calcular_color(re[-1]["temperature"])
-				self.ids["temperature_coc"].text = temp_color
-				self.ids["temperature_coc"].texture_update()
-
+			self.temp_amb = res['linti_control']['temperature']#[('climatizacion', None)].next()['temperature']
+			temp_color = self.calcular_color(res['linti_cocina']['temperature'])#[('climatizacion', None)].next()["temperature"])
+			self.ids["temperature_coc"].text = temp_color
+			self.ids["temperature_coc"].texture_update()
 			#oficina
-			for re in res2:
-				temp_color = self.calcular_color(re[-1]["temperature"])
-				self.ids["temperature"].text = temp_color
-				self.ids["temperature"].texture_update()
-			print "*************************control*********"
-			
-			#control
-			#for re in res3:
-				#temp_color = self.calcular_color(re[-1]["temperature"])
-				#self.ids["temperature_cont"].text = temp_color
-				#self.ids["temperature_cont"].texture_update()
+			temp_color = self.calcular_color(res['linti_oficina_1']['temperature'])#[('climatizacion', None)].next()["temperature"])
+			self.ids["temperature"].text = temp_color
+			self.ids["temperature"].texture_update()
+			#servidor
+			temp_color = self.calcular_color(res['linti_servidores']["temperature"])
+			self.ids["temperature_serv"].text = temp_color
+			self.ids["temperature_serv"].texture_update()
 
-			for re in res4:
-				temp_color = self.calcular_color(re[-1]["temperature"])
-				self.ids["temperature_serv"].text = temp_color
-				self.ids["temperature_serv"].texture_update()
-
-
-				#~ self.ids["scroll_grid"].add_widget(line)
+	#~ def update_content(self, *args):
+		#~ self.actualizar()
+		#~ self.actualizar_mapa()
 
 	def iniciar(self, actual_screen, next_screen):
 		Logger.info('datos: cambio pantalla')
@@ -172,6 +154,7 @@ class Info(FloatLayout):
 		else:
 			self.onNextScreen(actual_screen, next_screen)
 		self.actualizar_mapa()
+		#~ self.ids["pannel_tab"].bind(current_tab=self.update_content)
 		self.actualizar()
 
 	def onBackBtn(self):
