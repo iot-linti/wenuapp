@@ -75,24 +75,22 @@ class Info(FloatLayout):
 		except Exception as e:
 			print("Error al efectuar la consulta actualziar " + str(e.message))
 		else:
-			print "--------------------------"
-			print res
-			self.ids["scroll_grid"].clear_widgets()
+			if len(self.ids["grid_filter"].children) > 5:
+				for w in range(len(self.ids["grid_filter"].children) - 5):
+					self.ids["grid_filter"].remove_widget(self.ids["grid_filter"].children[0])
 			for re in res:
-				print "............."
-				line = GridLayout(cols=5, spacing=30)
-				line.bind(minimum_height=line.setter('height'))
+				self.ids["grid_filter"].bind(minimum_height=self.ids["grid_filter"].setter('height'))
 				for r in re:
 					#~ print r
 					temp_color = self.calcular_color(r["temperature"]) #"[color=f10000]"+str(r["temperature"])+"[/color]" if r["temperature"] > dict_temp_amb["temperature"] + 5 else "[color=ffffff]"+str(r["temperature"])+"[/color]"
 
-					line.add_widget(Label(text=temp_color, markup= True))
-					line.add_widget(Label(text=str(r["current"])))
-					line.add_widget(Label(text=str(r["time"])))
-					line.add_widget(Label(text=r["mote_id"]))
-					line.add_widget(Label(text=str(r["motion"])))
+					self.ids["grid_filter"].add_widget(Label(text=temp_color, markup= True))
+					self.ids["grid_filter"].add_widget(Label(text=str(r["current"])))
+					self.ids["grid_filter"].add_widget(Label(text=str(r["time"])))
+					self.ids["grid_filter"].add_widget(Label(text=r["mote_id"]))
+					self.ids["grid_filter"].add_widget(Label(text=str(r["motion"])))
 
-				self.ids["scroll_grid"].add_widget(line)
+				#~ self.ids["grid_filter"].add_widget(self.line)
 
 	def actualizar_mapa(self):
 		try:
@@ -109,13 +107,6 @@ class Info(FloatLayout):
 				print q[1]
 				#~ res.append(self.client.query(q)) #Consulta meramente de prueba
 				res[q[0]] = self.client.query(q[1]).items()[0][1].next() #Consulta meramente de prueba
-				print "}{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}"
-				print res[q[0]]
-			print "*********************************************************************"
-			print res
-			print "*********************************************************************"
-			print res['linti_cocina']
-			print "---------------------------------------------------------------------------------------------------------"
 			try:
 				self.temp_amb = res['linti_control']['temperature']#[0][('climatizacion', None)].next()['temperature']
 			except:
@@ -129,10 +120,6 @@ class Info(FloatLayout):
 				temp_color = self.calcular_color(res[s]['temperature'])
 				self.ids[s].text = temp_color
 				self.ids[s].texture_update()
-
-	#~ def update_content(self, *args):
-		#~ self.actualizar()
-		#~ self.actualizar_mapa()
 
 	def iniciar(self, actual_screen, next_screen):
 		Logger.info('datos: cambio pantalla')
