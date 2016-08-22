@@ -16,6 +16,9 @@ from kivy.uix.spinner import Spinner
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.tabbedpanel import TabbedPanelHeader
 from kivy.core.text import Label as CoreLabel
+#gesture
+import gesture_box as gesture
+from kivy.uix.boxlayout import BoxLayout
 
 #import requests
 import json
@@ -23,7 +26,7 @@ import os
 #influx
 from influxdb import InfluxDBClient
 
-class Info(FloatLayout):
+class Info(gesture.GestureBox):
 
 	try:
 		screen_manager = ObjectProperty(None)
@@ -34,6 +37,8 @@ class Info(FloatLayout):
 		super(Info, self).__init__(**kwargs)
 		self.icon = 'pin_1.png'
 		self.title = 'Datos Sensores'
+
+		self.screens = ['info','historial']
 
 		Logger.info('info: iniciando')
 		self.list_of_prev_screens = []
