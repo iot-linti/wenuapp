@@ -23,8 +23,10 @@
         Screen:
             name: 'inicio'
             id: inicio
+            
             BoxLayout:
                 orientation: 'vertical'
+                
                 GridLayout:
                     Label:
                         text: 'Usuario:'
@@ -62,114 +64,119 @@
                         on_release: root.onBackBtn()
 
         Screen:
+			name: 'info'
+			id: ventinfo
+			padding: [20,0,0,0]
+			PageLayout:
+				border: 10
+				
+				BoxLayout:
+					id: info_grid
+					padding: [20,0,0,0]
+					canvas.before:
+						Color:
+							rgb: .6, .6, .6
+						Rectangle:
+							size: self.size
+							source: 'imagenes/plano-2piso.jpg'
+					GridLayout:
+						id: info_grid_2
+						rows: 2
+						FloatLayout:
+							size: self.parent.size
+							
+							Label:
+								id: linti_oficina_1
+								#text: 'Temperatura'
+								size_hint: (0.4, .1)
+								pos_hint: {'top': 0.65, 'right': 0.9}
+								markup: True
+								valign: 'bottom'
+							Label:
+								id: linti_cocina
+								#text: 'Temperatura'
+								background_color: (0.5, 0.3, 0.3, 1.0)
+								size_hint: (0.4, .1)
+								pos_hint: {'top': 0.72, 'right': .93}
+								markup: True
+								valign: 'bottom'
+							Label:
+								id: linti_control
+								#text: 'Temperatura'
+								background_color: (0.5, 0.3, 0.3, 1.0)
+								size_hint: (0.4, .1)
+								pos_hint: {'top': .4, 'right': .96}
+								markup: True
+							Label:
+								id: linti_servidores
+								#text: 'Temperatura'
+								background_color: (0.57, 0.3, 0.3, 1.0)
+								size_hint: (0.4, .1)
+								pos_hint: {'top': 0.6, 'right': .83}
 
-            name: 'info'
-            id: ventinfo
-			FloatLayout:
-				id: info_grid
-				canvas.before:
-					Color:
-						rgb: .6, .6, .6
-					Rectangle:
-						size: self.size
-						source: 'imagenes/plano-2piso.jpg'
-	            GridLayout:
-					id: info_grid_2
-					rows: 2
-					FloatLayout:
-						#height: root.size[1]
-						size: self.parent.size
-						#cols: 5
-						#spacing: 10
+								markup: True
+								valign: 'bottom'
+							Button:
+								id: actualizar
+								size_hint: .2,None
+								height: 30
+								pos_hint: {'bottom':1,'left':.1}
+								text: 'Actualizar'
+								on_press: root.actualizar_mapa()
+
+
+				BoxLayout:
+					name: 'historial'
+					id: historial
+					
+					ScrollView:
+						id: scroll_grid
+						canvas.before:
+							Color:
+								rgb: .6, .6, .6
+							Rectangle:
+								size: self.size
 						#size_hint_y: None
-						#height: 20
-
-						Label:
-							id: linti_oficina_1
-							#text: 'Temperatura'
-							size_hint: (0.4, .1)
-							pos_hint: {'top': 0.65, 'right': 0.9}
-							markup: True
-							valign: 'bottom'
-						Label:
-							id: linti_cocina
-							#text: 'Temperatura'
-							background_color: (0.5, 0.3, 0.3, 1.0)
-							size_hint: (0.4, .1)
-							pos_hint: {'top': 0.72, 'right': .93}
-							markup: True
-							valign: 'bottom'
-						Label:
-							id: linti_control
-							#text: 'Temperatura'
-							background_color: (0.5, 0.3, 0.3, 1.0)
-							size_hint: (0.4, .1)
-							pos_hint: {'top': .4, 'right': .96}
-							markup: True
-						Label:
-							id: linti_servidores
-							#text: 'Temperatura'
-							background_color: (0.57, 0.3, 0.3, 1.0)
-							size_hint: (0.4, .1)
-							pos_hint: {'top': 0.6, 'right': .83}
-
-							markup: True
-							valign: 'bottom'
-						Button:
-							id: actualizar
-							size_hint: .2,None
+						#size: self.size
+						#size: self.parent.size[0],self.parent.size[1] -20
+						size_hint: 1, 1#None
+						#height: 400
+						GridLayout:
+							id: grid_filter
+							cols: 5
+							#rows: 1
 							height: 30
-							pos_hint: {'bottom':1,'left':.1}
-							text: 'Actualizar'
-							on_press: root.actualizar_mapa()
-
-
-		Screen:
-			name: 'historial'
-			id: historial
-			ScrollView:
-				id: scroll_grid
-				#size_hint_y: None
-				#size: self.size
-				#size: self.parent.size[0],self.parent.size[1] -20
-				size_hint: 1, 1#None
-				#height: 400
-				GridLayout:
-					id: grid_filter
-					cols: 5
-					#rows: 1
-					height: 30
-					spacing: 30
-					size_hint_y: None
-					#size_hint: .02,None
-					Button:
-						id: actualizar
-						size_hint: .02,None
-						height: 30
-						text: 'Actualizar'
-						on_press: root.actualizar()
-					Label:
-						id: label_ini
-						text: 'Inicio:'
-						size_hint: .01,None
-						height: 30
-					Spinner:
-						id: cantidad_ini
-						size_hint: .01,None
-						height: 30
-						text: "1"
-						values: "1","21","61","81","101"
-					Label:
-						id: label_fin
-						text: 'Fin:'
-						size_hint: .01,None
-						height: 30
-					Spinner:
-						id: cantidad_fin
-						size_hint: .01,None
-						height: 30
-						text: "20"
-						values: "20","40","60","80","100"
+							spacing: 30
+							size_hint_y: None
+							#size_hint: .02,None
+							Button:
+								id: actualizar
+								size_hint: .02,None
+								height: 30
+								text: 'Actualizar'
+								on_press: root.actualizar()
+							Label:
+								id: label_ini
+								text: 'Inicio:'
+								size_hint: .01,None
+								height: 30
+							Spinner:
+								id: cantidad_ini
+								size_hint: .01,None
+								height: 30
+								text: "1"
+								values: "1","21","61","81","101"
+							Label:
+								id: label_fin
+								text: 'Fin:'
+								size_hint: .01,None
+								height: 30
+							Spinner:
+								id: cantidad_fin
+								size_hint: .01,None
+								height: 30
+								text: "20"
+								values: "20","40","60","80","100"
 
 
 

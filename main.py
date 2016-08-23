@@ -17,7 +17,7 @@ from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.tabbedpanel import TabbedPanelHeader
 from kivy.core.text import Label as CoreLabel
 #gesture
-import gesture_box as gesture
+#import gesture_box as gesture
 from kivy.uix.boxlayout import BoxLayout
 
 #import requests
@@ -26,7 +26,7 @@ import os
 #influx
 from influxdb import InfluxDBClient
 
-class Info(gesture.GestureBox):
+class Info(FloatLayout):
 
 	try:
 		screen_manager = ObjectProperty(None)
