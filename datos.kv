@@ -23,10 +23,10 @@
         Screen:
             name: 'inicio'
             id: inicio
-            
+
             BoxLayout:
                 orientation: 'vertical'
-                
+
                 GridLayout:
                     Label:
                         text: 'Usuario:'
@@ -69,7 +69,7 @@
 			padding: [20,0,0,0]
 			PageLayout:
 				border: 10
-				
+
 				BoxLayout:
 					id: info_grid
 					padding: [20,0,0,0]
@@ -84,7 +84,7 @@
 						rows: 2
 						FloatLayout:
 							size: self.parent.size
-							
+
 							Label:
 								id: linti_oficina_1
 								#text: 'Temperatura'
@@ -118,9 +118,9 @@
 								valign: 'bottom'
 							Button:
 								id: actualizar
-								size_hint: .2,None
-								height: 30
-								pos_hint: {'bottom':1,'left':.1}
+								size_hint: .09,.05
+								#height: 30
+								pos_hint: {'bottom':1,'right':.1}
 								text: 'Actualizar'
 								on_press: root.actualizar_mapa()
 
@@ -128,12 +128,12 @@
 				BoxLayout:
 					name: 'historial'
 					id: historial
-					
+
 					ScrollView:
 						id: scroll_grid
 						canvas.before:
 							Color:
-								rgb: .6, .6, .6
+								rgb: 0, 0, 0
 							Rectangle:
 								size: self.size
 						#size_hint_y: None
