@@ -68,8 +68,8 @@
 			id: ventinfo
 			padding: [20,0,0,0]
 			PageLayout:
-				border: 10
-
+				border: 30
+				swipe_threshold: .05
 				BoxLayout:
 					id: info_grid
 					padding: [20,0,0,0]
@@ -156,7 +156,7 @@
 							#size_hint: .02,None
 							Button:
 								id: actualizar
-								size_hint: .02,None
+								size_hint: .09,.05
 								height: 30
 								text: 'Actualizar'
 								on_press: root.actualizar()
@@ -167,7 +167,7 @@
 								height: 30
 							Spinner:
 								id: cantidad_ini
-								size_hint: .01,None
+								size_hint: .09,.05
 								height: 30
 								text: "1"
 								values: "1","21","61","81","101"
@@ -178,7 +178,7 @@
 								height: 30
 							Spinner:
 								id: cantidad_fin
-								size_hint: .01,None
+								size_hint: .09,.05
 								height: 30
 								text: "20"
 								values: "20","40","60","80","100"
