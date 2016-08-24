@@ -90,37 +90,41 @@
 								pos_hint: {'top': 1.01, 'right': .6}
 								text: 'Ultima actualización: '
 								markup: True
-							Label:
+							Button:
 								id: linti_oficina_1
 								#text: 'Temperatura'
-								size_hint: (0.4, .1)
+								size_hint: (0.1, .1)
 								pos_hint: {'top': 0.65, 'right': 0.9}
 								markup: True
 								valign: 'bottom'
-							Label:
+								background_color: (0.0, 0.0, 0.0, 0.0)
+								on_release: root.mostrar_historial()
+							Button:
 								id: linti_cocina
 								#text: 'Temperatura'
-								background_color: (0.5, 0.3, 0.3, 1.0)
-								size_hint: (0.4, .1)
+								background_color: (0.0, 0.0, 0.0, 0.0)
+								size_hint: (0.1, .1)
 								pos_hint: {'top': 0.72, 'right': .93}
 								markup: True
 								valign: 'bottom'
-							Label:
+								on_release: root.mostrar_historial()
+							Button:
 								id: linti_control
 								#text: 'Temperatura'
-								background_color: (0.5, 0.3, 0.3, 1.0)
-								size_hint: (0.4, .1)
+								size_hint: (0.1, .1)
 								pos_hint: {'top': .4, 'right': .96}
 								markup: True
-							Label:
+								background_color: (0.0, 0.0, 0.0, 0.0)
+								on_release: root.mostrar_historial()
+							Button:
 								id: linti_servidores
 								#text: 'Temperatura'
-								background_color: (0.57, 0.3, 0.3, 1.0)
-								size_hint: (0.4, .1)
+								size_hint: (0.1, .1)
 								pos_hint: {'top': 0.6, 'right': .83}
-
 								markup: True
 								valign: 'bottom'
+								background_color: (0.0, 0.0, 0.0, 0.0)
+								on_release: root.mostrar_historial()
 							Button:
 								id: actualizar
 								size_hint: .09,.05

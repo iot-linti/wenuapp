@@ -69,6 +69,9 @@ class Info(FloatLayout):
 	def obtener_temp_ambiente(self, data):
 		pass
 
+	def mostrar_historial(self):
+		print "historial mota mapa"
+
 
 	def actualizar(self):
 		try:
