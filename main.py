@@ -23,6 +23,7 @@ from kivy.uix.boxlayout import BoxLayout
 #import requests
 import json
 import os
+import datetime
 #influx
 from influxdb import InfluxDBClient
 
@@ -37,6 +38,7 @@ class Info(FloatLayout):
 		super(Info, self).__init__(**kwargs)
 		self.icon = 'pin_1.png'
 		self.title = 'Datos Sensores'
+		self.ids['fecha'].text += datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
 
 		self.screens = ['info','historial']
 
@@ -59,10 +61,6 @@ class Info(FloatLayout):
 	def procesar_datos_cocina(self, data):
 		#datos sensor cocina
 		datos =[]
-		#~ datos.append(str(data['current']))
-		#~ datos.append(self.valores[str(data['motion'])])
-		#~ etiqueta = str(data['mote_id'].split('_')[0]).title() + ' ' + str(data['mote_id'].split('_')[1])
-		#~ datos.append(etiqueta)
 		temp = self.calcular_color(data["temperature"])
 		datos.append(str(temp))
 		datos.append(str(data['time'].split(':')[0][:10]))
@@ -125,6 +123,7 @@ class Info(FloatLayout):
 				temp_color = self.calcular_color(res[s]['temperature'])
 				self.ids[s].text = temp_color
 				self.ids[s].texture_update()
+			self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
 
 	def iniciar(self, actual_screen, next_screen):
 		Logger.info('datos: cambio pantalla')
