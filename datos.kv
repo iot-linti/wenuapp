@@ -84,7 +84,12 @@
 						rows: 2
 						FloatLayout:
 							size: self.parent.size
-
+							Label:
+								id: fecha
+								size_hint: (0.8, .1)
+								pos_hint: {'top': 0.1, 'right': 1.0}
+								text: 'Fecha'
+								markup: True
 							Label:
 								id: linti_oficina_1
 								#text: 'Temperatura'
