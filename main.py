@@ -16,6 +16,7 @@ from kivy.uix.spinner import Spinner
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.tabbedpanel import TabbedPanelHeader
 from kivy.core.text import Label as CoreLabel
+from kivy.uix.popup import Popup
 #gesture
 #import gesture_box as gesture
 from kivy.uix.boxlayout import BoxLayout
@@ -24,6 +25,7 @@ from kivy.uix.boxlayout import BoxLayout
 import json
 import os
 import datetime
+from functools import partial
 #influx
 from influxdb import InfluxDBClient
 
@@ -77,7 +79,7 @@ class Info(FloatLayout):
 		try:
 			query = 'SELECT * as temperatura FROM climatizacion ORDER BY time desc LIMIT '+self.ids["cantidad_fin"].text+' OFFSET '+self.ids["cantidad_ini"].text
 			print query
-			res = self.client.query(query) #Consulta meramente de prueba
+			res = self.client.query(query)
 		except Exception as e:
 			print("Error al efectuar la consulta actualziar " + str(e.message))
 		else:
@@ -126,7 +128,33 @@ class Info(FloatLayout):
 				temp_color = self.calcular_color(res[s]['temperature'])
 				self.ids[s].text = temp_color
 				self.ids[s].texture_update()
+				self.ids[s].bind(on_release=partial(self.historial_mota,s))
 			self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
+
+	def historial_mota(self, mota_id,*args):
+		try:
+			res = self.client.query("SELECT temperature, motion, current, time FROM climatizacion WHERE mote_id = '"+mota_id+"' ORDER BY time desc LIMIT 50")
+		except Exception as e:
+			print("Error al efectuar la consulta actualziar " + str(e.message))
+		else:
+			layout = GridLayout(cols=4, spacing=30, size_hint_y=None)
+			layout.bind(minimum_height=layout.setter('height'))
+			for re in res:
+				for r in re:
+					temp_color = self.calcular_color(r['temperature'])
+					layout.add_widget(Label(text=temp_color, markup= True))
+					layout.add_widget(Label(text=str(r["current"])))
+					layout.add_widget(Label(text=str(r["time"])))
+					layout.add_widget(Label(text=str(r["motion"])))
+
+
+			#~ layout.add_widget(Button(text="Cerrar"))
+
+			contenido = ScrollView(size_hint=(1, 1), size=(400,400))
+			contenido.add_widget(layout)
+			popup = Popup(title='Historial '+mota_id, content=contenido, size_hint=(.8, .6))
+			popup.open()
+
 
 	def iniciar(self, actual_screen, next_screen):
 		Logger.info('datos: cambio pantalla')
@@ -137,6 +165,8 @@ class Info(FloatLayout):
 			self.client.query('SELECT mote_id FROM climatizacion LIMIT 1') #por ahora la unica forma de testear la conexion.
 		except:
 			print("Error al efectuar la conexion")
+			popup = Popup(title='Error al conectarse', content=Label(text="Error de conexión.\nVerifique su conexión a internet y sus credenciales de acceso.\n\n\nPara cerrar el cuadro de diálogo presione fuera de este."), size_hint=(.8, .6))
+			popup.open()
 		else:
 			self.screen_manager.switch_to(next_screen)
 		self.actualizar_mapa()
