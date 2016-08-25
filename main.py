@@ -138,7 +138,7 @@ class Info(FloatLayout):
 		except:
 			print("Error al efectuar la conexion")
 		else:
-			self.onNextScreen(actual_screen, next_screen)
+			self.screen_manager.switch_to(next_screen)
 		self.actualizar_mapa()
 		#~ self.ids["pannel_tab"].bind(current_tab=self.update_content)
 		self.actualizar()
