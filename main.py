@@ -165,6 +165,8 @@ class Info(FloatLayout):
 			self.client.query('SELECT mote_id FROM climatizacion LIMIT 1') #por ahora la unica forma de testear la conexion.
 		except:
 			print("Error al efectuar la conexion")
+			popup = Popup(title='Error al conectarse', content=Label(text="Error de conexión.\nVerifique su conexión a internet y sus credenciales de acceso.\n\n\nPara cerrar el cuadro de diálogo presione fuera de este."), size_hint=(.8, .6))
+			popup.open()
 		else:
 			self.onNextScreen(actual_screen, next_screen)
 		self.actualizar_mapa()
