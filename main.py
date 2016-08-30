@@ -17,6 +17,7 @@ from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.tabbedpanel import TabbedPanelHeader
 from kivy.core.text import Label as CoreLabel
 from kivy.uix.popup import Popup
+
 #gesture
 #import gesture_box as gesture
 from kivy.uix.boxlayout import BoxLayout
@@ -29,6 +30,9 @@ from functools import partial
 #influx
 from influxdb import InfluxDBClient
 
+
+#nuestros modulos
+from piso import Piso
 class Info(FloatLayout):
 
 	try:
@@ -40,7 +44,7 @@ class Info(FloatLayout):
 		super(Info, self).__init__(**kwargs)
 		self.icon = 'pin_1.png'
 		self.title = 'Datos Sensores'
-		self.ids['fecha'].text += datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
+		#self.ids['fecha'].text += datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
 
 		self.screens = ['info','historial']
 
@@ -49,7 +53,7 @@ class Info(FloatLayout):
 		self.valores = {'False':'Falso', 'True':'Verdadero' }
 		self.etiquetas_coc = ['current_coc', 'motion_coc', 'mote_id_coc', 'temperature_coc', 'time_coc']
 		self.etiquetas_control = ['current', 'motion', 'mote_id', 'temperature', 'time']
-		self.sensores = ['linti_cocina','linti_oficina_1','linti_control','linti_servidores']
+		self.sensores = ['linti_control','linti_cocina','linti_oficina_1','linti_servidores']
 
 
 	def calcular_color(self, val):
@@ -70,10 +74,6 @@ class Info(FloatLayout):
 
 	def obtener_temp_ambiente(self, data):
 		pass
-
-	def mostrar_historial(self):
-		print "historial mota mapa"
-
 
 	def actualizar(self):
 		try:
@@ -100,36 +100,7 @@ class Info(FloatLayout):
 
 				#~ self.ids["grid_filter"].add_widget(self.line)
 
-	def actualizar_mapa(self):
-		try:
-			#~ query = []
-			query = {}
-			for s in self.sensores:
-				#~ print s
-				#~ query.append("SELECT * as temperatura FROM climatizacion WHERE mote_id = '"+s+"' ORDER BY time desc LIMIT 1")
-				query[s] = "SELECT * as temperatura FROM climatizacion WHERE mote_id = '"+s+"' ORDER BY time desc LIMIT 1"
-			res = {}
-			for q in query.items():
-				print "---------------------------------------------------------------------------------------------------------"
-				print q[0]
-				print q[1]
-				#~ res.append(self.client.query(q)) #Consulta meramente de prueba
-				res[q[0]] = self.client.query(q[1]).items()[0][1].next() #Consulta meramente de prueba
-			try:
-				self.temp_amb = res['linti_control']['temperature']#[0][('climatizacion', None)].next()['temperature']
-			except:
-				print "asdkmaskdnkasndasmd---------------------------------------------------------------"
-				#~ print res['linti_control'][0].next()
-		except Exception, e:
-			print("Error al efectuar la consulta 1 "+str(e))
-		else:
-			#~ self.temp_amb = res['linti_control']['temperature']#[('climatizacion', None)].next()['temperature']
-			for s in self.sensores:
-				temp_color = self.calcular_color(res[s]['temperature'])
-				self.ids[s].text = temp_color
-				self.ids[s].texture_update()
-				self.ids[s].bind(on_release=partial(self.historial_mota,s))
-			self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
+	
 
 	def historial_mota(self, mota_id,*args):
 		try:
@@ -154,7 +125,7 @@ class Info(FloatLayout):
 			contenido.add_widget(layout)
 			popup = Popup(title='Historial '+mota_id, content=contenido, size_hint=(.8, .6))
 			popup.open()
-
+	
 
 	def iniciar(self, actual_screen, next_screen):
 		Logger.info('datos: cambio pantalla')
@@ -163,12 +134,15 @@ class Info(FloatLayout):
 		try:
 			self.client = InfluxDBClient('influxdb.linti.unlp.edu.ar', 8086, self.ids["usuario"].text, self.ids['password'].text, 'uso_racional')
 			self.client.query('SELECT mote_id FROM climatizacion LIMIT 1') #por ahora la unica forma de testear la conexion.
+			
 		except:
 			print("Error al efectuar la conexion")
 			popup = Popup(title='Error al conectarse', content=Label(text="Error de conexión.\nVerifique su conexión a internet y sus credenciales de acceso.\n\n\nPara cerrar el cuadro de diálogo presione fuera de este."), size_hint=(.8, .6))
 			popup.open()
 		else:
-			self.screen_manager.switch_to(next_screen)
+			#instancio piso y paso el client - falta ahcer una consulta para saber cuantos pisos hay
+			self.piso = Piso(1, self.sensores, 'imagenes/plano-2piso.jpg', self.client)
+			self.screen_manager.current = next_screen
 		self.actualizar_mapa()
 		#~ self.ids["pannel_tab"].bind(current_tab=self.update_content)
 		self.actualizar()

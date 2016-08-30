@@ -57,81 +57,13 @@
                         id: conectar
                         text: 'Conectar'
                         background_color: (1.5, 1.0, 0.0, 1.0)
-                        on_release: root.iniciar(inicio, "info")
+                        on_release: root.iniciar(inicio, 'info')
 
                     Button:
                         text: 'Quit'
                         on_release: root.onBackBtn()
 
-        Screen:
-			name: 'info'
-			id: ventinfo
-			padding: [20,0,0,0]
-			PageLayout:
-				border: 30
-				swipe_threshold: .05
-				BoxLayout:
-					id: info_grid
-					padding: [20,0,0,0]
-					canvas.before:
-						Color:
-							rgb: .6, .6, .6
-						Rectangle:
-							size: self.size
-							source: 'imagenes/plano-2piso.jpg'
-					GridLayout:
-						id: info_grid_2
-						rows: 2
-						FloatLayout:
-							size: self.parent.size
-							Label:
-								id: fecha
-								size_hint: (0.8, .1)
-								pos_hint: {'top': 1.01, 'right': .6}
-								text: 'Ultima actualización: '
-								markup: True
-							Button:
-								id: linti_oficina_1
-								#text: 'Temperatura'
-								size_hint: (0.1, .1)
-								pos_hint: {'top': 0.65, 'right': 0.9}
-								markup: True
-								valign: 'bottom'
-								background_color: (0.0, 0.0, 0.0, 0.0)
-								on_release: root.mostrar_historial()
-							Button:
-								id: linti_cocina
-								#text: 'Temperatura'
-								background_color: (0.0, 0.0, 0.0, 0.0)
-								size_hint: (0.1, .1)
-								pos_hint: {'top': 0.72, 'right': .93}
-								markup: True
-								valign: 'bottom'
-								on_release: root.mostrar_historial()
-							Button:
-								id: linti_control
-								#text: 'Temperatura'
-								size_hint: (0.1, .1)
-								pos_hint: {'top': .4, 'right': .96}
-								markup: True
-								background_color: (0.0, 0.0, 0.0, 0.0)
-								on_release: root.mostrar_historial()
-							Button:
-								id: linti_servidores
-								#text: 'Temperatura'
-								size_hint: (0.1, .1)
-								pos_hint: {'top': 0.6, 'right': .83}
-								markup: True
-								valign: 'bottom'
-								background_color: (0.0, 0.0, 0.0, 0.0)
-								on_release: root.mostrar_historial()
-							Button:
-								id: actualizar
-								size_hint: .09,.05
-								#height: 30
-								pos_hint: {'bottom':1,'right':.1}
-								text: 'Actualizar'
-								on_press: root.actualizar_mapa()
+       
 
 
 				BoxLayout:
@@ -188,4 +120,32 @@
 								values: "20","40","60","80","100"
 
 
-
+<Mota>:
+	background_color: (0.0, 0.0, 0.0, 0.0)
+	size_hint: (0.1, .1)
+	markup: True
+	valign: 'bottom'
+	
+<Piso>:
+	canvas.before:
+		Color:
+			rgb: .6, .6, .6
+		Rectangle:
+			size: self.size
+			#source: self.img
+	FloatLayout:
+		id: 'Piso_'+str(self.num)
+		size: self.parent.size
+		Label:
+			id: fecha
+			size_hint: (0.8, .1)
+			pos_hint: {'top': 1.01, 'right': .6}
+			text: 'Ultima actualización: '
+			markup: True
+		Button:
+			id: actualizar
+			size_hint: .09,.05
+			#height: 30
+			pos_hint: {'bottom':1,'right':.1}
+			text: 'Actualizar'
+			on_press: self.actualizar_mapa()
