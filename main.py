@@ -142,10 +142,12 @@ class Info(FloatLayout):
 		else:
 			#instancio piso y paso el client - falta ahcer una consulta para saber cuantos pisos hay
 			self.piso = Piso(1, self.sensores, 'imagenes/plano-2piso.jpg', self.client)
+			self.piso.agregar_motas()
+			self.screen_manager.add_widget(self.piso)
 			self.screen_manager.current = next_screen
-		self.actualizar_mapa()
+		#~ self.actualizar_mapa()
 		#~ self.ids["pannel_tab"].bind(current_tab=self.update_content)
-		self.actualizar()
+		#~ self.actualizar()
 
 	def onBackBtn(self):
 		# Check if there are any screens to go back to
