@@ -57,7 +57,7 @@
                         id: conectar
                         text: 'Conectar'
                         background_color: (1.5, 1.0, 0.0, 1.0)
-                        on_release: root.iniciar(inicio, 'info')
+                        on_release: root.iniciar(inicio, 'piso_1')
 
                     Button:
                         text: 'Quit'
@@ -127,14 +127,10 @@
 	valign: 'bottom'
 	
 <Piso>:
-	canvas.before:
-		Color:
-			rgb: .6, .6, .6
-		Rectangle:
-			size: self.size
-			#source: self.img
+	flayout: flayout_id
+	
 	FloatLayout:
-		id: 'Piso_'+str(self.num)
+		id: flayout_id
 		size: self.parent.size
 		Label:
 			id: fecha

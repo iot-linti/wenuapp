@@ -3,6 +3,9 @@
 #kivy
 from kivy.uix.button import Button
 from kivy.uix.screenmanager import Screen
+from kivy.properties import ObjectProperty
+from kivy.graphics import Rectangle
+from kivy.core.window import Window
 #python
 from functools import partial
 import datetime
@@ -13,6 +16,7 @@ class Mota(Button):
 		self.motion = data["motion"]
 		self.date = data["time"]
 		self.text = str(data["temperature"])
+		self.temperature = data["temperature"]
 		#~ self.setTemperature(data["temperature"], temp_amb)
 		self.actualizar(temp_amb, historial)
 		
@@ -20,11 +24,12 @@ class Mota(Button):
 		return self.name
 		
 	def setTemperature(self, temp, temp_amb):
+		self.temperature = temp
 		self.text = temp
 		self.calcular_color(temp_amb)
 		
 	def getTemperatura(self):
-		return self.text
+		return self.temperature
 		
 	def actualizar(self, temp, historial):
 		temp_color = self.calcular_color(temp)
@@ -60,20 +65,35 @@ class Mota(Button):
 		#~ f = "[color=13E400]"
 		#~ print f+b+c
 		#~ return '10'
-		return "[color=f10000]" + str(self.text)+"[/color]" if float(self.text) > float(temp_amb) + 5 else "[color=13E400]"+str(self.text)+"[/color]"
+		print ('´´´´´´´´´´´´´´´´´')
+		print (self.text, temp_amb)
+		if self.temperature > temp_amb + 5:
+			return "[color=f10000]" + self.text+"[/color]"
+		else: 
+			return "[color=13E400]"+self.text+"[/color]"
+		#return "[color=f10000]" + str(self.text)+"[/color]" if float(self.text) > float(temp_amb) + 5 else "[color=13E400]"+str(self.text)+"[/color]"
+		
 
 class Piso(Screen):
 	def __init__(self, num, motas_ids, img, client, *args):
 		super(Piso, self).__init__(*args)
+		self.name = "piso_"+str(num)
 		self.num = num
 		self.client = client
 		self.info_motas = {}
 		self.procesar_datos(motas_ids)
 		
-		self.source = img
-		for each in info_motas.items():
-
-			self.ids["Piso_"+str(self.num)].add_widget(each)
+		with self.canvas.before:
+			Rectangle(size=Window.size, pos=(0,0), source=img)
+			
+		self.flayout = self.ids["flayout_id"]
+		#~ self.flayout.texture_update()
+		
+	def agregar_motas(self):
+		for each in self.info_motas.items():
+			print each
+			#~ self.ids["Piso_"+str(self.num)].add_widget(each)
+			self.flayout.add_widget(each[1])
 			
 	def procesar_datos(self, motas_ids):
 		query = "SELECT * as temperatura FROM climatizacion WHERE mote_id = '"+motas_ids[0]+"' ORDER BY time desc LIMIT 1"
