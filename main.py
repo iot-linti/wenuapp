@@ -100,7 +100,7 @@ class Info(FloatLayout):
 
 				#~ self.ids["grid_filter"].add_widget(self.line)
 
-	
+
 
 	def historial_mota(self, mota_id,*args):
 		try:
@@ -125,7 +125,7 @@ class Info(FloatLayout):
 			contenido.add_widget(layout)
 			popup = Popup(title='Historial '+mota_id, content=contenido, size_hint=(.8, .6))
 			popup.open()
-	
+
 
 	def iniciar(self, actual_screen, next_screen):
 		Logger.info('datos: cambio pantalla')
@@ -134,16 +134,21 @@ class Info(FloatLayout):
 		try:
 			self.client = InfluxDBClient('influxdb.linti.unlp.edu.ar', 8086, self.ids["usuario"].text, self.ids['password'].text, 'uso_racional')
 			self.client.query('SELECT mote_id FROM climatizacion LIMIT 1') #por ahora la unica forma de testear la conexion.
-			
+
 		except:
 			print("Error al efectuar la conexion")
 			popup = Popup(title='Error al conectarse', content=Label(text="Error de conexión.\nVerifique su conexión a internet y sus credenciales de acceso.\n\n\nPara cerrar el cuadro de diálogo presione fuera de este."), size_hint=(.8, .6))
 			popup.open()
 		else:
 			#instancio piso y paso el client - falta ahcer una consulta para saber cuantos pisos hay
-			self.piso = Piso(1, self.sensores, 'imagenes/plano-2piso.jpg', self.client)
-			self.piso.agregar_motas()
-			self.screen_manager.add_widget(self.piso)
+			pisos = [1]
+			self.pisos = []
+			self.spinner = Spinner(text="1", size_hint= (.09,.05), pos_hint={'top':1,'left':.9})
+			for p in pisos:
+				self.spinner.values.append(str(p))
+				self.pisos.append(Piso(p, self.sensores, 'imagenes/plano-2piso.jpg', self.client, self.spinner))
+				self.pisos[-1].agregar_motas()
+			self.screen_manager.add_widget(self.pisos[0])
 			self.screen_manager.current = next_screen
 		#~ self.actualizar_mapa()
 		#~ self.ids["pannel_tab"].bind(current_tab=self.update_content)
