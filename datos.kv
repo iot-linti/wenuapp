@@ -63,7 +63,7 @@
                         text: 'Quit'
                         on_release: root.onBackBtn()
 
-       
+
 
 
 				BoxLayout:
@@ -125,10 +125,10 @@
 	size_hint: (0.1, .1)
 	markup: True
 	valign: 'bottom'
-	
+
 <Piso>:
 	flayout: flayout_id
-	
+
 	FloatLayout:
 		id: flayout_id
 		size: self.parent.size
@@ -144,4 +144,4 @@
 			#height: 30
 			pos_hint: {'bottom':1,'right':.1}
 			text: 'Actualizar'
-			on_press: self.actualizar_mapa()
+			on_press: root.actualizar_mapa()

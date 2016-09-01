@@ -101,32 +101,6 @@ class Info(FloatLayout):
 				#~ self.ids["grid_filter"].add_widget(self.line)
 
 
-
-	def historial_mota(self, mota_id,*args):
-		try:
-			res = self.client.query("SELECT temperature, motion, current, time FROM climatizacion WHERE mote_id = '"+mota_id+"' ORDER BY time desc LIMIT 50")
-		except Exception as e:
-			print("Error al efectuar la consulta actualziar " + str(e.message))
-		else:
-			layout = GridLayout(cols=4, spacing=30, size_hint_y=None)
-			layout.bind(minimum_height=layout.setter('height'))
-			for re in res:
-				for r in re:
-					temp_color = self.calcular_color(r['temperature'])
-					layout.add_widget(Label(text=temp_color, markup= True))
-					layout.add_widget(Label(text=str(r["current"])))
-					layout.add_widget(Label(text=str(r["time"])))
-					layout.add_widget(Label(text=str(r["motion"])))
-
-
-			#~ layout.add_widget(Button(text="Cerrar"))
-
-			contenido = ScrollView(size_hint=(1, 1), size=(400,400))
-			contenido.add_widget(layout)
-			popup = Popup(title='Historial '+mota_id, content=contenido, size_hint=(.8, .6))
-			popup.open()
-
-
 	def iniciar(self, actual_screen, next_screen):
 		Logger.info('datos: cambio pantalla')
 		#if next_screen == "info":

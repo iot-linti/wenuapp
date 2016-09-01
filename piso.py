@@ -6,6 +6,10 @@ from kivy.uix.screenmanager import Screen
 from kivy.properties import ObjectProperty
 from kivy.graphics import Rectangle
 from kivy.core.window import Window
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.label import Label
+from kivy.uix.scrollview import ScrollView
+from kivy.uix.popup import Popup
 #python
 from functools import partial
 import datetime
@@ -17,6 +21,7 @@ class Mota(Button):
 		self.date = data["time"]
 		self.text = str(data["temperature"])
 		self.temperature = data["temperature"]
+		self.pos = 400,400
 		#~ self.setTemperature(data["temperature"], temp_amb)
 		self.actualizar(temp_amb, historial)
 
@@ -37,11 +42,16 @@ class Mota(Button):
 		self.texture_update()
 		self.bind(on_release=partial(self.historial_mota,historial))
 
-	def historial_mota(self, historial):
+	def historial_mota(self, historial, *args):
+		print args
 		layout = GridLayout(cols=4, spacing=30, size_hint_y=None)
 		layout.bind(minimum_height=layout.setter('height'))
-		for re in res:
+		print "....................***************************................................"
+		print historial
+		for re in historial:
+			print re
 			for r in re:
+				print r
 				temp_color = self.calcular_color(r['temperature'])
 				layout.add_widget(Label(text=temp_color, markup= True))
 				layout.add_widget(Label(text=str(r["current"])))
@@ -57,14 +67,6 @@ class Mota(Button):
 			popup.open()
 
 	def calcular_color(self, temp_amb):
-		#~ a =  "[color=f10000]"
-		#~ b = str(self.text)
-		#~ c = "[/color]"
-		#~ print a+b+c
-		#~ d = float(temp_amb)
-		#~ f = "[color=13E400]"
-		#~ print f+b+c
-		#~ return '10'
 		print ('´´´´´´´´´´´´´´´´´')
 		print (self.text, temp_amb)
 		if self.temperature > temp_amb + 5:
@@ -126,15 +128,16 @@ class Piso(Screen):
 		try:
 			#~ query = []
 			query = {}
+
 			for s in self.info_motas.keys():
-				query[s] = "SELECT * as temperatura FROM climatizacion WHERE mote_id = '"+s+"' ORDER BY time desc LIMIT 1"
+				query[s] = "SELECT mote_id, temperature, motion, current, time FROM climatizacion WHERE mote_id = '"+s+"' ORDER BY time desc LIMIT 50"
 			res = {}
 			for q in query.items():
-				print "---------------------------------------------------------------------------------------------------------"
+				print "------------------------------------________________--------------------------------------------"
 				print q[0]
 				print q[1]
 				#~ res.append(self.client.query(q)) #Consulta meramente de prueba
-				res[q[0]] = self.client.query(q[1]).items()[0][1].next() #Consulta meramente de prueba
+				res[q[0]] = self.client.query(q[1]) #Consulta meramente de prueba
 			try:
 				self.temp_amb = res['linti_control']['temperature']#[0][('climatizacion', None)].next()['temperature']
 			except:
@@ -144,9 +147,12 @@ class Piso(Screen):
 			print("Error al efectuar la consulta 1 "+str(e))
 		else:
 			#~ self.temp_amb = res['linti_control']['temperature']#[('climatizacion', None)].next()['temperature']
-			for s in self.sensores:
-				temp_color = self.calcular_color(res[s]['temperature'])
-				self.ids[s].text = temp_color
-				self.ids[s].texture_update()
-				self.ids[s].bind(on_release=partial(self.historial_mota,s))
+			for s in self.info_motas.items():
+				print res[s[0]]
+				print res[s[0]]['temperature']
+				print "}{}{}{}{}{}{}}}}}}}}{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}"
+				temp_color = s[1].calcular_color(res[s[0]].items()[0][1].next()['temperature'])
+				s[1].text = temp_color
+				s[1].texture_update()
+				s[1].bind(on_release=partial(s[1].historial_mota,res[s[0]]))
 			self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
