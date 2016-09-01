@@ -10,6 +10,7 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.popup import Popup
+from kivy.uix.spinner import Spinner
 #python
 from functools import partial
 import datetime
@@ -77,27 +78,34 @@ class Mota(Button):
 
 
 class Piso(Screen):
-	def __init__(self, num, motas_ids, img, client, spinner, *args):
+	def __init__(self, num, motas_ids, img, client, pisos, *args):
 		super(Piso, self).__init__(*args)
 		self.name = "piso_"+str(num)
 		self.num = num
 		self.client = client
 		self.info_motas = {}
+		print "+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-++-+-+-++-++-++-+"
+		print motas_ids
 		self.procesar_datos(motas_ids)
 
 		with self.canvas.before:
 			Rectangle(size=Window.size, pos=(0,0), source=img)
 
 		self.flayout = self.ids["flayout_id"]
-		self.sp = spinner
+		#~ self.sp = spinner
+		sp_vals = []
+		for v in pisos:
+			sp_vals.append(str(v))
+		self.sp = Spinner(text=str(num), values=sp_vals, size_hint= (.09,.05), pos_hint={'top':1,'left':.9})
 		self.add_widget(self.sp)
 		self.sp.size_hint= (.09,.05)
-		spinner.bind(text=self.cambiar_piso)
+		self.sp.bind(text=self.cambiar_piso)
 		#~ self.flayout.texture_update()
 
 	def cambiar_piso(self, *args):
 		print "cambio de piso"
 		print args
+		self.parent.current = "piso_"+args[1]
 
 	def agregar_motas(self):
 		for each in self.info_motas.items():
@@ -113,7 +121,7 @@ class Piso(Screen):
 
 		self.info_motas[res["mote_id"]] = Mota(res, historial, res['temperature'])
 
-		motas_ids.pop(0)
+		ctrl = motas_ids.pop(0)
 		for s in motas_ids:
 			query = "SELECT * as temperatura FROM climatizacion WHERE mote_id = '"+s+"' ORDER BY time desc LIMIT 1"
 			res = self.client.query(query).items()[0][1].next()
@@ -123,6 +131,7 @@ class Piso(Screen):
 			self.info_motas[res["mote_id"]] = Mota(res, historial, self.info_motas["linti_control"].getTemperatura())
 
 		self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
+		motas_ids.insert(0, ctrl)
 
 	def actualizar_mapa(self):
 		try:

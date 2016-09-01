@@ -56,24 +56,24 @@ class Info(FloatLayout):
 		self.sensores = ['linti_control','linti_cocina','linti_oficina_1','linti_servidores']
 
 
-	def calcular_color(self, val):
+	#~ def calcular_color(self, val):
 		#temp_ambiental = requests.get('http://clima.info.unlp.edu.ar/last')
 		#~ print temp_ambiental.status_code
 		#~ print temp_ambiental.headers['content-type']
 		#~ print ".......----------...................."
 		#dict_temp_amb = json.loads(temp_ambiental.text)
-		return "[color=f10000]"+str(val)+"[/color]" if val > self.temp_amb + 5 else "[color=13E400]"+str(val)+"[/color]"
+		#~ return "[color=f10000]"+str(val)+"[/color]" if val > self.temp_amb + 5 else "[color=13E400]"+str(val)+"[/color]"
 
-	def procesar_datos_cocina(self, data):
-		#datos sensor cocina
-		datos =[]
-		temp = self.calcular_color(data["temperature"])
-		datos.append(str(temp))
-		datos.append(str(data['time'].split(':')[0][:10]))
-		return datos
+	#~ def procesar_datos_cocina(self, data):
+		#~ #datos sensor cocina
+		#~ datos =[]
+		#~ temp = self.calcular_color(data["temperature"])
+		#~ datos.append(str(temp))
+		#~ datos.append(str(data['time'].split(':')[0][:10]))
+		#~ return datos
 
-	def obtener_temp_ambiente(self, data):
-		pass
+	#~ def obtener_temp_ambiente(self, data):
+		#~ pass
 
 	def actualizar(self):
 		try:
@@ -115,14 +115,16 @@ class Info(FloatLayout):
 			popup.open()
 		else:
 			#instancio piso y paso el client - falta ahcer una consulta para saber cuantos pisos hay
-			pisos = [1]
+			#~ pisos = ["1","2"]
+			pisos = [1,2]
+			p_imgs = ["imagenes/plano-2piso.jpg","imagenes/primer_piso.jpg"]
 			self.pisos = []
-			self.spinner = Spinner(text="1", size_hint= (.09,.05), pos_hint={'top':1,'left':.9})
+			#~ self.spinner = Spinner(text="1", size_hint= (.09,.05), pos_hint={'top':1,'left':.9})
 			for p in pisos:
-				self.spinner.values.append(str(p))
-				self.pisos.append(Piso(p, self.sensores, 'imagenes/plano-2piso.jpg', self.client, self.spinner))
+				#~ self.spinner.values.append(str(p))
+				self.pisos.append(Piso(p, self.sensores, p_imgs[p-1], self.client, pisos))
 				self.pisos[-1].agregar_motas()
-			self.screen_manager.add_widget(self.pisos[0])
+				self.screen_manager.add_widget(self.pisos[-1])
 			self.screen_manager.current = next_screen
 		#~ self.actualizar_mapa()
 		#~ self.ids["pannel_tab"].bind(current_tab=self.update_content)
