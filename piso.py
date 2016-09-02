@@ -96,16 +96,37 @@ class Piso(Screen):
 		sp_vals = []
 		for v in pisos:
 			sp_vals.append(str(v))
-		self.sp = Spinner(text=str(num), values=sp_vals, size_hint= (.09,.05), pos_hint={'top':1,'left':.9})
-		self.add_widget(self.sp)
-		self.sp.size_hint= (.09,.05)
-		self.sp.bind(text=self.cambiar_piso)
+		#~ self.sp = Spinner(text=str(num), values=sp_vals, size_hint= (.09,.05), pos_hint={'top':1,'left':.9})
+		#~ self.add_widget(self.sp)
+		#~ self.sp.size_hint= (.09,.05)
+		#~ self.sp.bind(text=self.cambiar_piso)
 		#~ self.flayout.texture_update()
+
+		layout = GridLayout(cols=1, size_hint_y=None)
+		layout.bind(minimum_height=layout.setter('height'))
+		for r in sp_vals:
+			print r
+			btn = Button(text=r)
+			btn.bind(on_release=self.cambiar_piso)
+			layout.add_widget(btn)
+		contenido = ScrollView(size_hint=(1, 1))
+		contenido.add_widget(layout)
+		self.pisos = Popup(title='Pisos', content=contenido, pos_hint={'top':1,'left':.1},size_hint=(.4, .9))
+		#~ self.add_widget(self.pisos)
+		#~ self.pisos.open()
+		self.btn_popup_pisos = Button(text="Pisos", pos_hint={'top':1,'left':.1}, size_hint=(.1, .1))
+		self.btn_popup_pisos.bind(on_press=self.abrir_popup_pisos)
+		self.add_widget(self.btn_popup_pisos)
+
+	def abrir_popup_pisos(self, *args):
+		self.pisos.open()
 
 	def cambiar_piso(self, *args):
 		print "cambio de piso"
 		print args
-		self.parent.current = "piso_"+args[1]
+		self.parent.current = "piso_"+args[0].text
+		self.pisos.dismiss()
+		#~ self.sp.text = str(self.num)
 
 	def agregar_motas(self):
 		for each in self.info_motas.items():
