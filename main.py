@@ -56,25 +56,6 @@ class Info(FloatLayout):
 		self.sensores = ['linti_control','linti_cocina','linti_oficina_1','linti_servidores']
 
 
-	#~ def calcular_color(self, val):
-		#temp_ambiental = requests.get('http://clima.info.unlp.edu.ar/last')
-		#~ print temp_ambiental.status_code
-		#~ print temp_ambiental.headers['content-type']
-		#~ print ".......----------...................."
-		#dict_temp_amb = json.loads(temp_ambiental.text)
-		#~ return "[color=f10000]"+str(val)+"[/color]" if val > self.temp_amb + 5 else "[color=13E400]"+str(val)+"[/color]"
-
-	#~ def procesar_datos_cocina(self, data):
-		#~ #datos sensor cocina
-		#~ datos =[]
-		#~ temp = self.calcular_color(data["temperature"])
-		#~ datos.append(str(temp))
-		#~ datos.append(str(data['time'].split(':')[0][:10]))
-		#~ return datos
-
-	#~ def obtener_temp_ambiente(self, data):
-		#~ pass
-
 	def actualizar(self):
 		try:
 			query = 'SELECT * as temperatura FROM climatizacion ORDER BY time desc LIMIT '+self.ids["cantidad_fin"].text+' OFFSET '+self.ids["cantidad_ini"].text
