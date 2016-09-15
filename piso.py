@@ -15,7 +15,8 @@ from kivy.uix.spinner import Spinner
 #python
 from functools import partial
 import datetime
-import shelve
+#import shelve
+import json
 
 class Mota(Button):
 	def __init__(self, data, historial, temp_amb, posiciones):
@@ -28,7 +29,7 @@ class Mota(Button):
 		print "pooooooooooooooooooooooooooossssssssssssss"
 		print self.name
 		print posiciones
-		print posiciones[str(self.name)]
+		#print posiciones[str(self.name)]
 		print "pooooooooooooooooooooooooooossssssssssssss"
 		try:
 			self.pos = posiciones[str(self.name)]
@@ -151,7 +152,16 @@ class Piso(Screen):
 
 		historial = self.client.query("SELECT mote_id, temperature, motion, current, time FROM climatizacion WHERE mote_id = '"+motas_ids[0]+"' ORDER BY time desc LIMIT 50")
 
-		posiciones = shelve.open("motas.txt")
+		try:
+			posiciones_arch = open("motas.json")
+		except IOError:
+			posiciones_arch = open("motas.json","w")
+			d={}
+			json.dump(d,posiciones_arch)
+			posiciones_arch.close()
+			posiciones_arch = open("motas.json")
+		finally:
+			posiciones = json.load(posiciones_arch)
 
 		self.info_motas[res["mote_id"]] = Mota(res, historial, res['temperature'], posiciones)
 
@@ -224,7 +234,9 @@ class MakeFilePos(Widget):
 	def on_touch_down(self, touch):
 		print touch
 		print touch.spos
-		arch = shelve.open("motas.txt")
+		jarch = open("motas.json")
+		arch = json.load(jarch)
+		jarch = open("motas.json","w")
 		if len(self.motas2) > 0:
 			key = self.motas2.keys()[0]
 			l = Label(text="Ingrese posición de la mota: "+str(key), pos=(400,200), color=(0,1,1))
@@ -236,5 +248,6 @@ class MakeFilePos(Widget):
 				#~ m.pos_hint = {'top':arch[m.name][0], 'right':arch[m.name][1]}
 				self.motas[str(m)].pos = (arch[str(m)][0]-(self.motas[str(m)].size[0]/2),arch[str(m)][1]-(self.motas[str(m)].size[1]/2))
 			self.parent.remove_widget(self)
-		arch.close()
+		json.dump(arch,jarch)
+		jarch.close()
 		return True
