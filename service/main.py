@@ -13,7 +13,7 @@ import time
 
 def conexion():
 	try:
-		client = InfluxDBClient('influxdb.linti.unlp.edu.ar', 8086, self.ids["usuario"].text, self.ids['password'].text, 'uso_racional')
+		client = InfluxDBClient('influxdb.linti.unlp.edu.ar', 8086, "lihuen", "***REMOVED***", 'uso_racional')
 		return cliente
 	except:
 		notification.notify('InfluxDB', description + ' Error de conexión')
@@ -34,7 +34,10 @@ def leer_datos_motas(cli, ctrl):
 
 if __name__ == '__main__':
 	con = conexion()
+	print con
 	if con:
+		print "entro"
 		while True:
 			leer_datos_motas(con, 'linti_control')
 			time.sleep(1)
+			print "time"

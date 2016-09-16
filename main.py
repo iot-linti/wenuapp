@@ -17,6 +17,7 @@ from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.uix.tabbedpanel import TabbedPanelHeader
 from kivy.core.text import Label as CoreLabel
 from kivy.uix.popup import Popup
+from kivy.utils import platform
 
 #gesture
 #import gesture_box as gesture

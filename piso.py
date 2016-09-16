@@ -80,8 +80,6 @@ class Mota(Button):
 			popup.open()
 
 	def calcular_color(self, temp_amb):
-		print ('´´´´´´´´´´´´´´´´´')
-		print (self.text, temp_amb)
 		if self.temperature > temp_amb + 5:
 			return "[color=f10000]" + self.text+"[/color]"
 		else:
