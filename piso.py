@@ -190,7 +190,7 @@ class Piso(Screen):
 				print q[0]
 				print q[1]
 				#~ res.append(self.client.query(q)) #Consulta meramente de prueba
-				res[q[0]] = self.client.query(q[1]) #Consulta meramente de prueba
+				res[q[0]] = self.client.query(q[1])
 			try:
 				self.temp_amb = res['linti_control']['temperature']#[0][('climatizacion', None)].next()['temperature']
 			except:

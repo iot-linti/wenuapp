@@ -149,6 +149,18 @@ class DatosApp(App):
         j = Info()
         return j
 
+    def on_pause(self):
+        if platform == 'android':
+            from android import AndroidService
+            service = AndroidService('Datos Sensores', 'running')
+            service.start('service started')
+            self.service = service
+        return True
+            #~ #~
+    def on_resume(self):
+		self.service.stop()
+		self.service = None
+
 
 if __name__ == "__main__":
     DatosApp().run()
