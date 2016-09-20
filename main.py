@@ -101,9 +101,9 @@ class Info(FloatLayout):
 			#~ pisos = ["1","2"]
 			#~ pisos = [1,2]
 			pisos = self.client.query('SELECT * FROM piso')
-			print pisos
-			print "-----------------------------------------------------------"
-			p_imgs = ["imagenes/plano-2piso.jpg","imagenes/primer_piso.jpg"]
+			print pisos.get_points().next()
+			print "----------------------aaaaaaaaaaaaaaaaaaaa-------------------------------------"
+			#p_imgs = ["imagenes/plano-2piso.jpg","imagenes/primer_piso.jpg"]
 			self.pisos = []
 			#~ self.spinner = Spinner(text="1", size_hint= (.09,.05), pos_hint={'top':1,'left':.9})
 			for p in pisos:
@@ -111,13 +111,21 @@ class Info(FloatLayout):
 				print p
 				print "**********************pppppp*********"
 				#~ self.spinner.values.append(str(p))
+				sensores = self.client.query("SELECT * FROM mota WHERE piso_id ='"+str(p[0]["piso_id"])+"'")
+				print sensores
+				print "+++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 				img = 'piso_'+str(p[0]["piso_id"])+'.png'
-				try:
-					urllib.urlretrieve(p[0]['mapa'],img)
-				except:
-					print "Error al descargar la imagen del piso"+img
+				if (not os.path.exists(img)):
+					try:
+						urllib.urlretrieve(p[0]['mapa'],img)
+					except:
+						print "Error al descargar la imagen del piso"+img
+					else:
+						self.pisos.append(Piso(p[0]['piso_id'], sensores, img, self.client, pisos))
+						self.pisos[-1].agregar_motas()
+						self.screen_manager.add_widget(self.pisos[-1])
 				else:
-					self.pisos.append(Piso(p[0]['piso_id'], self.sensores, img, self.client, pisos))
+					self.pisos.append(Piso(p[0]['piso_id'], sensores, img, self.client, pisos))
 					self.pisos[-1].agregar_motas()
 					self.screen_manager.add_widget(self.pisos[-1])
 			else:

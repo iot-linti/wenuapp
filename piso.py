@@ -21,11 +21,26 @@ import json
 class Mota(Button):
 	def __init__(self, data, historial, temp_amb, posiciones):
 		super(Mota, self).__init__()
-		self.name = data["mote_id"]
-		self.motion = data["motion"]
+		#try temporal hasta que esten terminados de cargar los datos en las tablas nuevas
+		print data
+		print "daaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+		try:
+			self.name = data["mota_id"]
+		except:
+			self.name = data["mote_id"]
+		try:
+			self.motion = data["movimiento"] #antiguamente llamado motion
+		except:
+			self.motion = data["motion"]
 		self.date = data["time"]
-		self.text = str(data["temperature"])
-		self.temperature = data["temperature"]
+		try:
+			self.text = str(data["temperature"])
+		except:
+			self.text = str(data["temperatura"])
+		try:
+			self.temperature = data["temperature"]
+		except:
+			self.temperature = data["temperatura"]
 		print "pooooooooooooooooooooooooooossssssssssssss"
 		print self.name
 		print posiciones
@@ -65,11 +80,19 @@ class Mota(Button):
 			print re
 			for r in re:
 				print r
-				temp_color = self.calcular_color(r['temperature'])
-				layout.add_widget(Label(text=temp_color, markup= True))
-				layout.add_widget(Label(text=str(r["current"])))
-				layout.add_widget(Label(text=str(r["time"])))
-				layout.add_widget(Label(text=str(r["motion"])))
+				#hasta que se solucione lo de las tablas
+				try:
+					temp_color = self.calcular_color(r['temperature'])
+					layout.add_widget(Label(text=temp_color, markup= True))
+					layout.add_widget(Label(text=str(r["current"])))
+					layout.add_widget(Label(text=str(r["time"])))
+					layout.add_widget(Label(text=str(r["motion"])))
+				except:
+					temp_color = self.calcular_color(r['temperatura'])
+					layout.add_widget(Label(text=temp_color, markup= True))
+					layout.add_widget(Label(text=str(r["corriente"])))
+					layout.add_widget(Label(text=str(r["time"])))
+					layout.add_widget(Label(text=str(r["movimiento"])))
 
 
 			#~ layout.add_widget(Button(text="Cerrar"))
@@ -88,15 +111,15 @@ class Mota(Button):
 
 
 class Piso(Screen):
-	def __init__(self, num, motas_ids, img, client, pisos, *args):
+	def __init__(self, num, sensores, img, client, pisos, *args):
 		super(Piso, self).__init__(*args)
 		self.name = "piso_"+str(num)
 		self.num = num
 		self.client = client
 		self.info_motas = {}
 		print "+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-++-+-+-++-++-++-+"
-		print motas_ids
-		self.procesar_datos(motas_ids)
+		print sensores
+		self.procesar_datos(sensores)
 
 		with self.canvas.before:
 			Rectangle(size=Window.size, pos=(0,0), source=img)
@@ -105,7 +128,7 @@ class Piso(Screen):
 		#~ self.sp = spinner
 		sp_vals = []
 		for v in pisos:
-			sp_vals.append(str(v))
+			sp_vals.append(str(v[0]["piso_id"]))
 		#~ self.sp = Spinner(text=str(num), values=sp_vals, size_hint= (.09,.05), pos_hint={'top':1,'left':.9})
 		#~ self.add_widget(self.sp)
 		#~ self.sp.size_hint= (.09,.05)
@@ -144,11 +167,13 @@ class Piso(Screen):
 			#~ self.ids["Piso_"+str(self.num)].add_widget(each)
 			self.flayout.add_widget(each[1])
 
-	def procesar_datos(self, motas_ids):
-		query = "SELECT * as temperatura FROM climatizacion WHERE mote_id = '"+motas_ids[0]+"' ORDER BY time desc LIMIT 1"
+	def procesar_datos(self, sensores):
+		query = "SELECT * as temperatura FROM climatizacion WHERE mote_id = 'linti_control' ORDER BY time desc LIMIT 1"
 		res = self.client.query(query).items()[0][1].next()
+		print res
+		print "reeeeeeeeeeeeeeeeeeessssssssssssss"
 
-		historial = self.client.query("SELECT mote_id, temperature, motion, current, time FROM climatizacion WHERE mote_id = '"+motas_ids[0]+"' ORDER BY time desc LIMIT 50")
+		historial = self.client.query("SELECT mote_id, temperature, motion, current, time FROM climatizacion WHERE mote_id = 'linti_control' ORDER BY time desc LIMIT 50")
 
 		try:
 			posiciones_arch = open("motas.json")
@@ -163,17 +188,21 @@ class Piso(Screen):
 
 		self.info_motas[res["mote_id"]] = Mota(res, historial, res['temperature'], posiciones)
 
-		ctrl = motas_ids.pop(0)
-		for s in motas_ids:
-			query = "SELECT * as temperatura FROM climatizacion WHERE mote_id = '"+s+"' ORDER BY time desc LIMIT 1"
+		#ctrl = motas_ids.pop(0)
+		print "????????????????????????????????????"
+		print sensores
+		for s in sensores:
+			print s[0]
+			query = "SELECT * as temperatura FROM medicion WHERE mota_id = '"+s[0]["mota_id"]+"' ORDER BY time desc LIMIT 1"
+			print query
 			res = self.client.query(query).items()[0][1].next()
 
-			historial = self.client.query("SELECT mote_id, temperature, motion, current, time FROM climatizacion WHERE mote_id = '"+s+"' ORDER BY time desc LIMIT 50")
+			historial = self.client.query("SELECT mota_id, temperatura, movimiento, corriente, time FROM medicion WHERE mota_id = '"+s[0]["mota_id"]+"' ORDER BY time desc LIMIT 50")
 
-			self.info_motas[res["mote_id"]] = Mota(res, historial, self.info_motas["linti_control"].getTemperatura(), posiciones)
+			self.info_motas[res["mota_id"]] = Mota(res, historial, self.info_motas["linti_control"].getTemperatura(), posiciones)
 
 		self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
-		motas_ids.insert(0, ctrl)
+		#motas_ids.insert(0, ctrl)
 
 	def actualizar_mapa(self):
 		try:
@@ -181,7 +210,7 @@ class Piso(Screen):
 			query = {}
 
 			for s in self.info_motas.keys():
-				query[s] = "SELECT mote_id, temperature, motion, current, time FROM climatizacion WHERE mote_id = '"+s+"' ORDER BY time desc LIMIT 50"
+				query[s] = "SELECT mota_id, temperatura, movimiento, corriente, time FROM medicion WHERE mote_id = '"+s+"' ORDER BY time desc LIMIT 50"
 			res = {}
 			for q in query.items():
 				print "------------------------------------________________--------------------------------------------"
