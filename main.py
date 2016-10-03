@@ -118,8 +118,9 @@ class Info(FloatLayout):
 				if (not os.path.exists(img)):
 					try:
 						urllib.urlretrieve(p[0]['mapa'],img)
-					except:
-						print "Error al descargar la imagen del piso"+img
+					except Exception as e:
+						print "Error al descargar la imagen del piso"+img+"\n"
+						print e
 					else:
 						self.pisos.append(Piso(p[0]['piso_id'], sensores, img, self.client, pisos))
 						self.pisos[-1].agregar_motas()
