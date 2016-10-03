@@ -115,20 +115,20 @@ class Info(FloatLayout):
 				print sensores
 				print "+++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 				img = 'piso_'+str(p[0]["piso_id"])+'.png'
-				if (not os.path.exists(img)):
-					try:
-						urllib.urlretrieve(p[0]['mapa'],img)
-					except Exception as e:
-						print "Error al descargar la imagen del piso"+img+"\n"
-						print e
-					else:
-						self.pisos.append(Piso(p[0]['piso_id'], sensores, img, self.client, pisos))
-						self.pisos[-1].agregar_motas()
-						self.screen_manager.add_widget(self.pisos[-1])
-				else:
-					self.pisos.append(Piso(p[0]['piso_id'], sensores, img, self.client, pisos))
-					self.pisos[-1].agregar_motas()
-					self.screen_manager.add_widget(self.pisos[-1])
+				#~ if ((not os.path.exists(img)) and (not os.path.exists("imagenes/"+img))):
+					#~ try:
+						#~ urllib.urlretrieve(str(p[0]['mapa']),img)
+					#~ except Exception as e:
+						#~ print "Error al descargar la imagen del piso"+img+"\n"
+						#~ print e
+					#~ else:
+						#~ self.pisos.append(Piso(p[0]['piso_id'], sensores, img, self.client, pisos))
+						#~ self.pisos[-1].agregar_motas()
+						#~ self.screen_manager.add_widget(self.pisos[-1])
+				#~ else:
+				self.pisos.append(Piso(p[0]['piso_id'], sensores, img, self.client, pisos))
+				self.pisos[-1].agregar_motas()
+				self.screen_manager.add_widget(self.pisos[-1])
 			else:
 				self.screen_manager.current = next_screen
 		#~ self.actualizar_mapa()
