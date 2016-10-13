@@ -53,14 +53,14 @@ class Info(FloatLayout):
 		Logger.info('info: iniciando')
 		self.list_of_prev_screens = []
 		self.valores = {'False':'Falso', 'True':'Verdadero' }
-		self.etiquetas_coc = ['current_coc', 'motion_coc', 'mote_id_coc', 'temperature_coc', 'time_coc']
-		self.etiquetas_control = ['current', 'motion', 'mote_id', 'temperature', 'time']
+		self.etiquetas_coc = ['current_coc', 'motion_coc', 'mota_id_coc', 'temperatura_coc', 'time_coc']
+		self.etiquetas_control = ['current', 'motion', 'mota_id', 'temperatura', 'time']
 		self.sensores = ['linti_control','linti_cocina','linti_oficina_1','linti_servidores']
 
 
 	def actualizar(self):
 		try:
-			query = 'SELECT * as temperatura FROM climatizacion ORDER BY time desc LIMIT '+self.ids["cantidad_fin"].text+' OFFSET '+self.ids["cantidad_ini"].text
+			query = 'SELECT * as temperatura FROM medicion ORDER BY time desc LIMIT '+self.ids["cantidad_fin"].text+' OFFSET '+self.ids["cantidad_ini"].text
 			print query
 			res = self.client.query(query)
 		except Exception as e:
@@ -73,12 +73,12 @@ class Info(FloatLayout):
 				self.ids["grid_filter"].bind(minimum_height=self.ids["grid_filter"].setter('height'))
 				for r in re:
 					#~ print r
-					temp_color = self.calcular_color(r["temperature"]) #"[color=f10000]"+str(r["temperature"])+"[/color]" if r["temperature"] > dict_temp_amb["temperature"] + 5 else "[color=ffffff]"+str(r["temperature"])+"[/color]"
+					temp_color = self.calcular_color(r["temperatura"]) #"[color=f10000]"+str(r["temperature"])+"[/color]" if r["temperature"] > dict_temp_amb["temperature"] + 5 else "[color=ffffff]"+str(r["temperature"])+"[/color]"
 
 					self.ids["grid_filter"].add_widget(Label(text=temp_color, markup= True))
 					self.ids["grid_filter"].add_widget(Label(text=str(r["current"])))
 					self.ids["grid_filter"].add_widget(Label(text=str(r["time"])))
-					self.ids["grid_filter"].add_widget(Label(text=r["mote_id"]))
+					self.ids["grid_filter"].add_widget(Label(text=r["mota_id"]))
 					self.ids["grid_filter"].add_widget(Label(text=str(r["motion"])))
 
 				#~ self.ids["grid_filter"].add_widget(self.line)
@@ -90,7 +90,7 @@ class Info(FloatLayout):
 			#Clock.schedule_interval(self.update, 0.5)
 		try:
 			self.client = InfluxDBClient('influxdb.linti.unlp.edu.ar', 8086, self.ids["usuario"].text, self.ids['password'].text, 'uso_racional')
-			self.client.query('SELECT mote_id FROM climatizacion LIMIT 1') #por ahora la unica forma de testear la conexion.
+			self.client.query('SELECT mota_id FROM medicion LIMIT 1') #por ahora la unica forma de testear la conexion.
 
 		except:
 			print("Error al efectuar la conexion")
@@ -115,12 +115,12 @@ class Info(FloatLayout):
 				print sensores
 				print "+++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 				img = 'piso_'+str(p[0]["piso_id"])+'.png'
-				#~ if ((not os.path.exists(img)) and (not os.path.exists("imagenes/"+img))):
-					#~ try:
-						#~ urllib.urlretrieve(str(p[0]['mapa']),img)
-					#~ except Exception as e:
-						#~ print "Error al descargar la imagen del piso"+img+"\n"
-						#~ print e
+				if ((not os.path.exists(img)) and (not os.path.exists("imagenes/"+img))):
+					try:
+						urllib.urlretrieve(str(p[0]['mapa']),img)
+					except Exception as e:
+						print "Error al descargar la imagen del piso"+img+"\n"
+						print e
 					#~ else:
 						#~ self.pisos.append(Piso(p[0]['piso_id'], sensores, img, self.client, pisos))
 						#~ self.pisos[-1].agregar_motas()

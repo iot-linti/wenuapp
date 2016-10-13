@@ -27,18 +27,18 @@ class Mota(Button):
 		try:
 			self.name = data["mota_id"]
 		except:
-			self.name = data["mote_id"]
+			self.name = data["mota_id"]
 		try:
 			self.motion = data["movimiento"] #antiguamente llamado motion
 		except:
 			self.motion = data["motion"]
 		self.date = data["time"]
 		try:
-			self.text = str(data["temperature"])
+			self.text = str(data["temperatura"])
 		except:
 			self.text = str(data["temperatura"])
 		try:
-			self.temperature = data["temperature"]
+			self.temperature = data["temperatura"]
 		except:
 			self.temperature = data["temperatura"]
 		print "pooooooooooooooooooooooooooossssssssssssss"
@@ -82,7 +82,7 @@ class Mota(Button):
 				print r
 				#hasta que se solucione lo de las tablas
 				try:
-					temp_color = self.calcular_color(r['temperature'])
+					temp_color = self.calcular_color(r['temperatura'])
 					layout.add_widget(Label(text=temp_color, markup= True))
 					layout.add_widget(Label(text=str(r["current"])))
 					layout.add_widget(Label(text=str(r["time"])))
@@ -168,12 +168,14 @@ class Piso(Screen):
 			self.flayout.add_widget(each[1])
 
 	def procesar_datos(self, sensores):
-		query = "SELECT * as temperatura FROM climatizacion WHERE mote_id = 'linti_control' ORDER BY time desc LIMIT 1"
+		query = "SELECT * as temperatura FROM medicion WHERE mota_id = 'linti_control' ORDER BY time desc LIMIT 1"
+		print query
+		print sensores
 		res = self.client.query(query).items()[0][1].next()
 		print res
 		print "reeeeeeeeeeeeeeeeeeessssssssssssss"
 
-		historial = self.client.query("SELECT mote_id, temperature, motion, current, time FROM climatizacion WHERE mote_id = 'linti_control' ORDER BY time desc LIMIT 50")
+		historial = self.client.query("SELECT mota_id, temperatura, motion, current, time FROM medicion WHERE mota_id = 'linti_control' ORDER BY time desc LIMIT 50")
 
 		try:
 			posiciones_arch = open("motas.json")
@@ -186,7 +188,7 @@ class Piso(Screen):
 		finally:
 			posiciones = json.load(posiciones_arch)
 
-		self.info_motas[res["mote_id"]] = Mota(res, historial, res['temperature'], posiciones)
+		self.info_motas[res["mota_id"]] = Mota(res, historial, res['temperatura'], posiciones)
 
 		#ctrl = motas_ids.pop(0)
 		print "????????????????????????????????????"
@@ -210,7 +212,7 @@ class Piso(Screen):
 			query = {}
 
 			for s in self.info_motas.keys():
-				query[s] = "SELECT mota_id, temperatura, movimiento, corriente, time FROM medicion WHERE mote_id = '"+s+"' ORDER BY time desc LIMIT 50"
+				query[s] = "SELECT mota_id, temperatura, movimiento, corriente, time FROM medicion WHERE mota_id = '"+s+"' ORDER BY time desc LIMIT 50"
 			res = {}
 			for q in query.items():
 				print "------------------------------------________________--------------------------------------------"
@@ -219,7 +221,7 @@ class Piso(Screen):
 				#~ res.append(self.client.query(q)) #Consulta meramente de prueba
 				res[q[0]] = self.client.query(q[1])
 			try:
-				self.temp_amb = res['linti_control']['temperature']#[0][('climatizacion', None)].next()['temperature']
+				self.temp_amb = res['linti_control']['temperatura']#[0][('climatizacion', None)].next()['temperature']
 			except:
 				print "asdkmaskdnkasndasmd---------------------------------------------------------------"
 				#~ print res['linti_control'][0].next()
@@ -229,9 +231,9 @@ class Piso(Screen):
 			#~ self.temp_amb = res['linti_control']['temperature']#[('climatizacion', None)].next()['temperature']
 			for s in self.info_motas.items():
 				print res[s[0]]
-				print res[s[0]]['temperature']
+				print res[s[0]]['temperatura']
 				print "}{}{}{}{}{}{}}}}}}}}{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}"
-				temp_color = s[1].calcular_color(res[s[0]].items()[0][1].next()['temperature'])
+				temp_color = s[1].calcular_color(res[s[0]].items()[0][1].next()['temperatura'])
 				s[1].text = temp_color
 				s[1].texture_update()
 				s[1].bind(on_release=partial(s[1].historial_mota,res[s[0]]))
