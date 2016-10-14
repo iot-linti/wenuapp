@@ -191,17 +191,25 @@ class Piso(Screen):
 		self.info_motas[res["mota_id"]] = Mota(res, historial, res['temperatura'], posiciones)
 
 		#ctrl = motas_ids.pop(0)
-		print "????????????????????????????????????"
+		print "???????????????SENSORES?????????????????????"
 		print sensores
-		for s in sensores:
-			print s[0]
-			query = "SELECT * as temperatura FROM medicion WHERE mota_id = '"+s[0]["mota_id"]+"' ORDER BY time desc LIMIT 1"
-			print query
-			res = self.client.query(query).items()[0][1].next()
+		i = 0
+		for sen in sensores:
+			print sen
+			for s in sen:
+				print i
+				i += 1
+				#~ print s[0]
+				print "eeeeeeeeeeeeessnnnnnnnn"
+				print s
+				print "seeeeeeeeeennn"
+				query = "SELECT * as temperatura FROM medicion WHERE mota_id = '"+s["mota_id"]+"' ORDER BY time desc LIMIT 1"
+				print query
+				res = self.client.query(query).items()[0][1].next()
 
-			historial = self.client.query("SELECT mota_id, temperatura, movimiento, corriente, time FROM medicion WHERE mota_id = '"+s[0]["mota_id"]+"' ORDER BY time desc LIMIT 50")
+				historial = self.client.query("SELECT mota_id, temperatura, movimiento, corriente, time FROM medicion WHERE mota_id = '"+s["mota_id"]+"' ORDER BY time desc LIMIT 50")
 
-			self.info_motas[res["mota_id"]] = Mota(res, historial, self.info_motas["linti_control"].getTemperatura(), posiciones)
+				self.info_motas[res["mota_id"]] = Mota(res, historial, self.info_motas["linti_control"].getTemperatura(), posiciones)
 
 		self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
 		#motas_ids.insert(0, ctrl)
