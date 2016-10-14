@@ -247,36 +247,38 @@ class Piso(Screen):
 			#~ print mota
 			#~ l = Label(text="Ingrese posición de la mota: "+str(mota), pos=(400,200))
 			#~ self.add_widget(l)
-		mfp = MakeFilePos(self.info_motas)
+		mfp = MakeFilePos(self.info_motas, self.ids["config_mota_pos"])
 		self.add_widget(mfp)
 		mfp.size = self.parent.size
 
 
 class MakeFilePos(Widget):
 
-	def __init__(self, motas, *args):
+	def __init__(self, motas, btn_pos, *args):
 		super(MakeFilePos, self).__init__()
 		self.motas = motas
 		self.motas2 = motas.copy()
+		self.btn_pos = btn_pos
 		#~ self.size = self.parent.size
 
 	def on_touch_down(self, touch):
 		print touch
 		print touch.spos
-		jarch = open("motas.json")
-		arch = json.load(jarch)
-		jarch = open("motas.json","w")
-		if len(self.motas2) > 0:
-			key = self.motas2.keys()[0]
-			l = Label(text="Ingrese posición de la mota: "+str(key), pos=(400,200), color=(0,1,1))
-			self.add_widget(l)
-			arch[str(key)] = touch.pos#.spos
-			del self.motas2[key]
-		else:
-			for m in self.motas.keys():
-				#~ m.pos_hint = {'top':arch[m.name][0], 'right':arch[m.name][1]}
-				self.motas[str(m)].pos = (arch[str(m)][0]-(self.motas[str(m)].size[0]/2),arch[str(m)][1]-(self.motas[str(m)].size[1]/2))
-			self.parent.remove_widget(self)
-		json.dump(arch,jarch)
-		jarch.close()
+		if (not self.btn_pos.collide_point(touch.x,touch.y)):
+			jarch = open("motas.json")
+			arch = json.load(jarch)
+			jarch = open("motas.json","w")
+			if len(self.motas2) > 0:
+				key = self.motas2.keys()[0]
+				l = Label(text="Ingrese posición de la mota: "+str(key), pos=(400,200), color=(0,1,1))
+				self.add_widget(l)
+				arch[str(key)] = touch.pos#.spos
+				del self.motas2[key]
+			else:
+				for m in self.motas.keys():
+					#~ m.pos_hint = {'top':arch[m.name][0], 'right':arch[m.name][1]}
+					self.motas[str(m)].pos = (arch[str(m)][0]-(self.motas[str(m)].size[0]/2),arch[str(m)][1]-(self.motas[str(m)].size[1]/2))
+				self.parent.remove_widget(self)
+			json.dump(arch,jarch)
+			jarch.close()
 		return True
