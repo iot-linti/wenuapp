@@ -28,26 +28,31 @@ class Mota(Button):
 			self.name = data["mota_id"]
 		except:
 			self.name = data["mota_id"]
-		try:
-			self.motion = data["movimiento"] #antiguamente llamado motion
-		except:
-			self.motion = data["motion"]
+		#~ try:
+			#~ self.motion = data["movimiento"] #antiguamente llamado motion
+		#~ except:
+			#~ self.motion = data["motion"]
 		self.date = data["time"]
-		try:
-			self.text = str(data["temperatura"])
-		except:
-			self.text = str(data["temperatura"])
-		try:
-			self.temperature = data["temperatura"]
-		except:
-			self.temperature = data["temperatura"]
-		print "pooooooooooooooooooooooooooossssssssssssss"
-		print self.name
-		print posiciones
+		#~ print "+++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+		#~ print historial.items()[0][1].next()
+		#~ print "-------------------------------------------------------"
+		hist = historial.items()[0][1].next()["temperatura"]
+		self.text = str(hist)
+		self.temperature = hist
+		#~ print "pooooooooooooooooooooooooooossssssssssssss"
+		#~ print self.name
+		#~ print posiciones
 		#print posiciones[str(self.name)]
-		print "pooooooooooooooooooooooooooossssssssssssss"
+		#~ print "pooooooooooooooooooooooooooossssssssssssss"
+		#~ try:
+			#~ self.pos = posiciones[str(self.name)]
+		#~ except:
+			#~ self.pos = (400,400)
 		try:
-			self.pos = posiciones[str(self.name)]
+			#~ print data["x"],data["y"]
+			#~ print data
+			#~ print "pooooooooooo----------------------------oooooooooooooooossssssssssssss"
+			self.pos = data["x"],data["y"]
 		except:
 			self.pos = (400,400)
 		#~ self.setTemperature(data["temperature"], temp_amb)
@@ -80,19 +85,11 @@ class Mota(Button):
 			print re
 			for r in re:
 				print r
-				#hasta que se solucione lo de las tablas
-				try:
-					temp_color = self.calcular_color(r['temperatura'])
-					layout.add_widget(Label(text=temp_color, markup= True))
-					layout.add_widget(Label(text=str(r["current"])))
-					layout.add_widget(Label(text=str(r["time"])))
-					layout.add_widget(Label(text=str(r["motion"])))
-				except:
-					temp_color = self.calcular_color(r['temperatura'])
-					layout.add_widget(Label(text=temp_color, markup= True))
-					layout.add_widget(Label(text=str(r["corriente"])))
-					layout.add_widget(Label(text=str(r["time"])))
-					layout.add_widget(Label(text=str(r["movimiento"])))
+				temp_color = self.calcular_color(r['temperatura'])
+				layout.add_widget(Label(text=temp_color, markup= True))
+				layout.add_widget(Label(text=str(r["corriente"])))
+				layout.add_widget(Label(text=str(r["time"])))
+				layout.add_widget(Label(text=str(r["movimiento"])))
 
 
 			#~ layout.add_widget(Button(text="Cerrar"))
@@ -175,7 +172,8 @@ class Piso(Screen):
 		print res
 		print "reeeeeeeeeeeeeeeeeeessssssssssssss"
 
-		historial = self.client.query("SELECT mota_id, temperatura, motion, current, time FROM medicion WHERE mota_id = 'linti_control' ORDER BY time desc LIMIT 50")
+		#~ historial = self.client.query("SELECT mota_id, temperatura, motion, current, time FROM medicion WHERE mota_id = 'linti_control' ORDER BY time desc LIMIT 50")
+		historial = self.client.query("SELECT mota_id, temperatura, movimiento, corriente, time FROM medicion WHERE mota_id = 'linti_control' ORDER BY time desc LIMIT 50")
 
 		try:
 			posiciones_arch = open("motas.json")
@@ -191,20 +189,17 @@ class Piso(Screen):
 		self.info_motas[res["mota_id"]] = Mota(res, historial, res['temperatura'], posiciones)
 
 		#ctrl = motas_ids.pop(0)
-		print "???????????????SENSORES?????????????????????"
-		print sensores
-		i = 0
+		#~ print "???????????????SENSORES?????????????????????"
+		#~ print sensores
 		for sen in sensores:
 			print sen
 			for s in sen:
-				print i
-				i += 1
 				#~ print s[0]
-				print "eeeeeeeeeeeeessnnnnnnnn"
-				print s
-				print "seeeeeeeeeennn"
-				query = "SELECT * as temperatura FROM medicion WHERE mota_id = '"+s["mota_id"]+"' ORDER BY time desc LIMIT 1"
-				print query
+				#~ print "eeeeeeeeeeeeessnnnnnnnn"
+				#~ print s
+				#~ print "seeeeeeeeeennn"
+				query = "SELECT * as temperatura FROM mota WHERE mota_id = '"+s["mota_id"]+"' ORDER BY time desc LIMIT 1"
+				#~ print query
 				res = self.client.query(query).items()[0][1].next()
 
 				historial = self.client.query("SELECT mota_id, temperatura, movimiento, corriente, time FROM medicion WHERE mota_id = '"+s["mota_id"]+"' ORDER BY time desc LIMIT 50")
