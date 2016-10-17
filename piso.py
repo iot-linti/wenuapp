@@ -39,11 +39,11 @@ class Mota(Button):
 		#~ try:
 		orig_size = (1280, 960)
 		#~ img.size = translate(orig_size, Window.size, *img.size)
-		self.pos = self.translate(orig_size, Window.size, data["x"], orig_size[1] - data["y"])
+		#~ self.pos = self.translate(orig_size, Window.size, data["x"], orig_size[1] - data["y"])
 		print data["x"],data["y"]
 		#~ print data
 		print "pooooooooooo----------------------------oooooooooooooooossssssssssssss"
-		#~ self.pos = data["x"],data["y"]
+		self.pos = data["x"],data["y"]
 		#~ except:
 			#~ self.pos = (400,400)
 		#~ self.setTemperature(data["temperature"], temp_amb)
@@ -116,18 +116,13 @@ class Piso(Screen):
 		self.procesar_datos(sensores)
 
 		with self.canvas.before:
-			Rectangle(size=Window.size, pos=(0,0), source=img)
+			Rectangle(size=Window.size, pos=(0,0), source=img, allow_stretch=False)
 
 		self.flayout = self.ids["flayout_id"]
 		#~ self.sp = spinner
 		sp_vals = []
 		for v in pisos:
 			sp_vals.append(str(v[0]["piso_id"]))
-		#~ self.sp = Spinner(text=str(num), values=sp_vals, size_hint= (.09,.05), pos_hint={'top':1,'left':.9})
-		#~ self.add_widget(self.sp)
-		#~ self.sp.size_hint= (.09,.05)
-		#~ self.sp.bind(text=self.cambiar_piso)
-		#~ self.flayout.texture_update()
 
 		layout = GridLayout(cols=1, size_hint_y=None)
 		layout.bind(minimum_height=layout.setter('height'))
@@ -236,38 +231,56 @@ class Piso(Screen):
 			#~ print mota
 			#~ l = Label(text="Ingrese posición de la mota: "+str(mota), pos=(400,200))
 			#~ self.add_widget(l)
-		mfp = MakeFilePos(self.info_motas, self.ids["config_mota_pos"])
+		mfp = MakeFilePos(self.info_motas, self.ids["config_mota_pos"], self.client)
 		self.add_widget(mfp)
 		mfp.size = self.parent.size
+		self.actualizar_mapa
 
 
 class MakeFilePos(Widget):
 
-	def __init__(self, motas, btn_pos, *args):
+	def __init__(self, motas, btn_pos, cli, *args):
 		super(MakeFilePos, self).__init__()
 		self.motas = motas
 		self.motas2 = motas.copy()
 		self.btn_pos = btn_pos
+		self.client = cli
+		self.m_pos = {}
 		#~ self.size = self.parent.size
 
 	def on_touch_down(self, touch):
 		print touch
 		print touch.spos
 		if (not self.btn_pos.collide_point(touch.x,touch.y)):
-			jarch = open("motas.json")
-			arch = json.load(jarch)
-			jarch = open("motas.json","w")
+
 			if len(self.motas2) > 0:
 				key = self.motas2.keys()[0]
 				l = Label(text="Ingrese posición de la mota: "+str(key), pos=(400,200), color=(0,1,1))
 				self.add_widget(l)
-				arch[str(key)] = touch.pos#.spos
+				self.m_pos[str(key)] = touch.pos[0]-(self.motas[str(key)].size[0]/2),touch.pos[1]-(self.motas[str(key)].size[1]/2)
 				del self.motas2[key]
 			else:
 				for m in self.motas.keys():
+
+					json_body = [
+							{
+								"measurement": "mota",
+								"tags": {
+									"mota_id": m,
+									"piso_id": 1
+								},
+								"time": 0,
+								"fields": {
+									"x": self.m_pos[m][0],
+									"y": self.m_pos[m][1]
+								}
+							}
+						]
+
+					print json_body
+					self.client.write_points(json_body)
 					#~ m.pos_hint = {'top':arch[m.name][0], 'right':arch[m.name][1]}
-					self.motas[str(m)].pos = (arch[str(m)][0]-(self.motas[str(m)].size[0]/2),arch[str(m)][1]-(self.motas[str(m)].size[1]/2))
+					self.motas[str(m)].pos = (self.m_pos[m][0]-(self.motas[str(m)].size[0]/2),self.m_pos[m][1]-(self.motas[str(m)].size[1]/2))
+				#~ self.parent.actualizar_mapa()
 				self.parent.remove_widget(self)
-			json.dump(arch,jarch)
-			jarch.close()
 		return True
