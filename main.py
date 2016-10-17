@@ -55,7 +55,7 @@ class Info(FloatLayout):
 		self.valores = {'False':'Falso', 'True':'Verdadero' }
 		self.etiquetas_coc = ['current_coc', 'motion_coc', 'mota_id_coc', 'temperatura_coc', 'time_coc']
 		self.etiquetas_control = ['current', 'motion', 'mota_id', 'temperatura', 'time']
-		self.sensores = ['linti_control','linti_cocina','linti_oficina_1','linti_servidores']
+		#~ self.sensores = ['linti_control','linti_cocina','linti_oficina_1','linti_servidores']
 
 
 	def actualizar(self):

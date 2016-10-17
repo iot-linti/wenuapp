@@ -19,7 +19,7 @@ import datetime
 import json
 
 class Mota(Button):
-	def __init__(self, data, historial, temp_amb, posiciones):
+	def __init__(self, data, historial, temp_amb):
 		super(Mota, self).__init__()
 		#try temporal hasta que esten terminados de cargar los datos en las tablas nuevas
 		print data
@@ -33,30 +33,27 @@ class Mota(Button):
 		#~ except:
 			#~ self.motion = data["motion"]
 		self.date = data["time"]
-		#~ print "+++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-		#~ print historial.items()[0][1].next()
-		#~ print "-------------------------------------------------------"
 		hist = historial.items()[0][1].next()["temperatura"]
 		self.text = str(hist)
 		self.temperature = hist
-		#~ print "pooooooooooooooooooooooooooossssssssssssss"
-		#~ print self.name
-		#~ print posiciones
-		#print posiciones[str(self.name)]
-		#~ print "pooooooooooooooooooooooooooossssssssssssss"
 		#~ try:
-			#~ self.pos = posiciones[str(self.name)]
+		orig_size = (1280, 960)
+		#~ img.size = translate(orig_size, Window.size, *img.size)
+		self.pos = self.translate(orig_size, Window.size, data["x"], orig_size[1] - data["y"])
+		print data["x"],data["y"]
+		#~ print data
+		print "pooooooooooo----------------------------oooooooooooooooossssssssssssss"
+		#~ self.pos = data["x"],data["y"]
 		#~ except:
 			#~ self.pos = (400,400)
-		try:
-			#~ print data["x"],data["y"]
-			#~ print data
-			#~ print "pooooooooooo----------------------------oooooooooooooooossssssssssssss"
-			self.pos = data["x"],data["y"]
-		except:
-			self.pos = (400,400)
 		#~ self.setTemperature(data["temperature"], temp_amb)
 		self.actualizar(temp_amb, historial)
+
+
+	def translate(self, orig_size, new_size, x, y):
+		ow, oh = orig_size
+		nw, nh = new_size
+		return (x * nw / ow, y * nh / oh)
 
 	def getName(self):
 		return self.name
@@ -165,7 +162,7 @@ class Piso(Screen):
 			self.flayout.add_widget(each[1])
 
 	def procesar_datos(self, sensores):
-		query = "SELECT * as temperatura FROM medicion WHERE mota_id = 'linti_control' ORDER BY time desc LIMIT 1"
+		query = "SELECT * as temperatura FROM mota WHERE mota_id = 'linti_control' ORDER BY time desc LIMIT 1"
 		print query
 		print sensores
 		res = self.client.query(query).items()[0][1].next()
@@ -175,18 +172,7 @@ class Piso(Screen):
 		#~ historial = self.client.query("SELECT mota_id, temperatura, motion, current, time FROM medicion WHERE mota_id = 'linti_control' ORDER BY time desc LIMIT 50")
 		historial = self.client.query("SELECT mota_id, temperatura, movimiento, corriente, time FROM medicion WHERE mota_id = 'linti_control' ORDER BY time desc LIMIT 50")
 
-		try:
-			posiciones_arch = open("motas.json")
-		except IOError:
-			posiciones_arch = open("motas.json","w")
-			d={}
-			json.dump(d,posiciones_arch)
-			posiciones_arch.close()
-			posiciones_arch = open("motas.json")
-		finally:
-			posiciones = json.load(posiciones_arch)
-
-		self.info_motas[res["mota_id"]] = Mota(res, historial, res['temperatura'], posiciones)
+		self.info_motas[res["mota_id"]] = Mota(res, historial, historial.items()[0][1].next()['temperatura'])
 
 		#ctrl = motas_ids.pop(0)
 		#~ print "???????????????SENSORES?????????????????????"
@@ -204,7 +190,7 @@ class Piso(Screen):
 
 				historial = self.client.query("SELECT mota_id, temperatura, movimiento, corriente, time FROM medicion WHERE mota_id = '"+s["mota_id"]+"' ORDER BY time desc LIMIT 50")
 
-				self.info_motas[res["mota_id"]] = Mota(res, historial, self.info_motas["linti_control"].getTemperatura(), posiciones)
+				self.info_motas[res["mota_id"]] = Mota(res, historial, self.info_motas["linti_control"].getTemperatura())
 
 		self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
 		#motas_ids.insert(0, ctrl)
