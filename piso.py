@@ -37,13 +37,13 @@ class Mota(Button):
 		self.text = str(hist)
 		self.temperature = hist
 		#~ try:
-		orig_size = (1280, 960)
+		orig_size = Window.size#(1280, 960)
 		#~ img.size = translate(orig_size, Window.size, *img.size)
-		#~ self.pos = self.translate(orig_size, Window.size, data["x"], orig_size[1] - data["y"])
+		self.pos = self.translate(orig_size, Window.size, data["x"], data["y"])
 		print data["x"],data["y"]
 		#~ print data
 		print "pooooooooooo----------------------------oooooooooooooooossssssssssssss"
-		self.pos = data["x"],data["y"]
+		#~ self.pos = data["x"],data["y"]
 		#~ except:
 			#~ self.pos = (400,400)
 		#~ self.setTemperature(data["temperature"], temp_amb)
@@ -248,6 +248,9 @@ class MakeFilePos(Widget):
 		self.m_pos = {}
 		#~ self.size = self.parent.size
 
+	def calc_pos(self, tx, ty, key):
+		return tx-(self.motas[str(key)].size[0]/2),ty-(self.motas[str(key)].size[1]/2)
+
 	def on_touch_down(self, touch):
 		print touch
 		print touch.spos
@@ -257,7 +260,8 @@ class MakeFilePos(Widget):
 				key = self.motas2.keys()[0]
 				l = Label(text="Ingrese posición de la mota: "+str(key), pos=(400,200), color=(0,1,1))
 				self.add_widget(l)
-				self.m_pos[str(key)] = touch.pos[0]-(self.motas[str(key)].size[0]/2),touch.pos[1]-(self.motas[str(key)].size[1]/2)
+				self.m_pos[str(key)] = self.calc_pos(touch.pos[0], touch.pos[1], key)
+				#touch.pos[0]-(self.motas[str(key)].size[0]/2),touch.pos[1]-(self.motas[str(key)].size[1]/2)
 				del self.motas2[key]
 			else:
 				for m in self.motas.keys():
@@ -277,10 +281,11 @@ class MakeFilePos(Widget):
 							}
 						]
 
-					print json_body
+					#~ print json_body
 					self.client.write_points(json_body)
 					#~ m.pos_hint = {'top':arch[m.name][0], 'right':arch[m.name][1]}
-					self.motas[str(m)].pos = (self.m_pos[m][0]-(self.motas[str(m)].size[0]/2),self.m_pos[m][1]-(self.motas[str(m)].size[1]/2))
+					self.motas[str(m)].pos = self.calc_pos(self.m_pos[m][0],self.m_pos[m][1], m)
+					#(self.m_pos[m][0]-(self.motas[str(m)].size[0]/2),self.m_pos[m][1]-(self.motas[str(m)].size[1]/2))
 				#~ self.parent.actualizar_mapa()
 				self.parent.remove_widget(self)
 		return True
