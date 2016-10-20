@@ -55,32 +55,6 @@ class Info(FloatLayout):
 		self.valores = {'False':'Falso', 'True':'Verdadero' }
 
 
-	def actualizar(self):
-		try:
-			query = 'SELECT * as temperatura FROM medicion ORDER BY time desc LIMIT '+self.ids["cantidad_fin"].text+' OFFSET '+self.ids["cantidad_ini"].text
-			print query
-			res = self.client.query(query)
-		except Exception as e:
-			print("Error al efectuar la consulta actualziar " + str(e.message))
-		else:
-			if len(self.ids["grid_filter"].children) > 5:
-				for w in range(len(self.ids["grid_filter"].children) - 5):
-					self.ids["grid_filter"].remove_widget(self.ids["grid_filter"].children[0])
-			for re in res:
-				self.ids["grid_filter"].bind(minimum_height=self.ids["grid_filter"].setter('height'))
-				for r in re:
-					#~ print r
-					temp_color = self.calcular_color(r["temperatura"]) #"[color=f10000]"+str(r["temperature"])+"[/color]" if r["temperature"] > dict_temp_amb["temperature"] + 5 else "[color=ffffff]"+str(r["temperature"])+"[/color]"
-
-					self.ids["grid_filter"].add_widget(Label(text=temp_color, markup= True))
-					self.ids["grid_filter"].add_widget(Label(text=str(r["current"])))
-					self.ids["grid_filter"].add_widget(Label(text=str(r["time"])))
-					self.ids["grid_filter"].add_widget(Label(text=r["mota_id"]))
-					self.ids["grid_filter"].add_widget(Label(text=str(r["motion"])))
-
-				#~ self.ids["grid_filter"].add_widget(self.line)
-
-
 	def iniciar(self, actual_screen, next_screen):
 		Logger.info('datos: cambio pantalla')
 		#if next_screen == "info":
