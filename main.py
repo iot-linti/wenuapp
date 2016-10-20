@@ -53,9 +53,6 @@ class Info(FloatLayout):
 		Logger.info('info: iniciando')
 		self.list_of_prev_screens = []
 		self.valores = {'False':'Falso', 'True':'Verdadero' }
-		self.etiquetas_coc = ['current_coc', 'motion_coc', 'mota_id_coc', 'temperatura_coc', 'time_coc']
-		self.etiquetas_control = ['current', 'motion', 'mota_id', 'temperatura', 'time']
-		#~ self.sensores = ['linti_control','linti_cocina','linti_oficina_1','linti_servidores']
 
 
 	def actualizar(self):
@@ -106,29 +103,27 @@ class Info(FloatLayout):
 			#p_imgs = ["imagenes/plano-2piso.jpg","imagenes/primer_piso.jpg"]
 			self.pisos = []
 			#~ self.spinner = Spinner(text="1", size_hint= (.09,.05), pos_hint={'top':1,'left':.9})
-			for p in pisos:
-				print "*************************************"
-				print p
-				print "**********************pppppp*********"
-				#~ self.spinner.values.append(str(p))
-				sensores = self.client.query("SELECT * FROM mota WHERE piso_id ='"+str(p[0]["piso_id"])+"'")
-				print sensores
-				print "+++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-				img = 'piso_'+str(p[0]["piso_id"])+'.png'
-				if ((not os.path.exists(img)) and (not os.path.exists("imagenes/"+img))):
-					try:
-						urllib.urlretrieve(str(p[0]['mapa']),img)
-					except Exception as e:
-						print "Error al descargar la imagen del piso"+img+"\n"
-						print e
+			for pp in pisos:
+				for p in pp:
+					print "*************************************"
+					print p
+					print "**********************pppppp*********"
+					#~ self.spinner.values.append(str(p))
+					sensores = self.client.query("SELECT * FROM mota WHERE piso_id ='"+str(p["piso_id"])+"'")
+					print sensores
+					print "+++++++++++++++++++++++++****++++++++++++++++++++++++++++++"
+					img = 'piso_'+str(p["piso_id"])+'.png'
+					print img
+					if ((not os.path.exists(img)) and (not os.path.exists("imagenes/"+img))):
+						try:
+							urllib.urlretrieve(str(p['mapa']),img)
+						except Exception as e:
+							print "Error al descargar la imagen del piso"+img+"\n"
+							print e
 					#~ else:
-						#~ self.pisos.append(Piso(p[0]['piso_id'], sensores, img, self.client, pisos))
-						#~ self.pisos[-1].agregar_motas()
-						#~ self.screen_manager.add_widget(self.pisos[-1])
-				#~ else:
-				self.pisos.append(Piso(p[0]['piso_id'], sensores, img, self.client, pisos))
-				self.pisos[-1].agregar_motas()
-				self.screen_manager.add_widget(self.pisos[-1])
+					self.pisos.append(Piso(p['piso_id'], sensores, img, self.client, pisos))
+					self.pisos[-1].agregar_motas()
+					self.screen_manager.add_widget(self.pisos[-1])
 			else:
 				self.screen_manager.current = next_screen
 		#~ self.actualizar_mapa()

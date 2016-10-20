@@ -24,14 +24,7 @@ class Mota(Button):
 		#try temporal hasta que esten terminados de cargar los datos en las tablas nuevas
 		print data
 		print "daaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-		try:
-			self.name = data["mota_id"]
-		except:
-			self.name = data["mota_id"]
-		#~ try:
-			#~ self.motion = data["movimiento"] #antiguamente llamado motion
-		#~ except:
-			#~ self.motion = data["motion"]
+		self.name = data["mota_id"]
 		self.date = data["time"]
 		hist = historial.items()[0][1].next()["temperatura"]
 		self.text = str(hist)
@@ -40,13 +33,6 @@ class Mota(Button):
 		orig_size = Window.size#(1280, 960)
 		#~ img.size = translate(orig_size, Window.size, *img.size)
 		self.pos = self.translate(orig_size, Window.size, data["x"], data["y"])
-		print data["x"],data["y"]
-		#~ print data
-		print "pooooooooooo----------------------------oooooooooooooooossssssssssssss"
-		#~ self.pos = data["x"],data["y"]
-		#~ except:
-			#~ self.pos = (400,400)
-		#~ self.setTemperature(data["temperature"], temp_amb)
 		self.actualizar(temp_amb, historial)
 
 
@@ -175,10 +161,6 @@ class Piso(Screen):
 		for sen in sensores:
 			print sen
 			for s in sen:
-				#~ print s[0]
-				#~ print "eeeeeeeeeeeeessnnnnnnnn"
-				#~ print s
-				#~ print "seeeeeeeeeennn"
 				query = "SELECT * as temperatura FROM mota WHERE mota_id = '"+s["mota_id"]+"' ORDER BY time desc LIMIT 1"
 				#~ print query
 				res = self.client.query(query).items()[0][1].next()
@@ -226,11 +208,6 @@ class Piso(Screen):
 
 
 	def config_mota_pos(self):
-		#~ arch = shelve.open("motas.txt")
-		#~ for mota in self.info_motas:
-			#~ print mota
-			#~ l = Label(text="Ingrese posición de la mota: "+str(mota), pos=(400,200))
-			#~ self.add_widget(l)
 		mfp = MakeFilePos(self.info_motas, self.ids["config_mota_pos"], self.client)
 		self.add_widget(mfp)
 		mfp.size = self.parent.size
