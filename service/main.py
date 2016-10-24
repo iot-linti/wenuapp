@@ -30,8 +30,8 @@ def leer_datos_motas(cli, ctrl):
 				mota = cli.query("SELECT * FROM medicion WHERE mota_id = '"+m_id["mota_id"]+"' ORDER BY time desc LIMIT 1")
 				m = mota.items()[0][1].next()
 				if (m['temperatura'] > (control['temperatura'] + 5)):
-					notification.notify(appname='Datos sensores', title=m['mota_id'],message=' esta overheating - '+str(m['temperatura'])+'C')
-					#~ time.sleep(1)
+					notification.notify(app_name='Datos sensores - medición', title=m['mota_id'],message=' esta overheating - '+str(m['temperatura'])+'C')
+					time.sleep(1)
 				#~ else:
 					#~ notification.notify('InfluxDB', mota.items()[0][1].next()['mota_id']+' todo OK - '+str(mota.items()[0][1].next()['temperatura'])+'C')
 		#~ notification.notify('influxdb', 'anda semi-bien')
