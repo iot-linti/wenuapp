@@ -22,21 +22,23 @@ def leer_datos_motas(cli, ctrl):
 	query = "SELECT temperatura FROM medicion WHERE mota_id = '"+ctrl+"' ORDER BY time desc LIMIT 1"
 	control = cli.query(query).items()[0][1].next()
 
-	motas_ids = cli.query("SELECT DISTINCT(mota_id) FROM mota")
+	motas_ids = cli.query("SELECT X, mota_id FROM mota")
 
 	try:
 		for mid in motas_ids:
 			for m_id in mid:
 				print m_id
-				mota = cli.query("SELECT * FROM medicion WHERE mota_id = '"+m_id+"' ORDER BY time desc LIMIT 1")
+				print m_id[1]
+				mota = cli.query("SELECT * FROM medicion WHERE mota_id = '"+m_id[1]+"' ORDER BY time desc LIMIT 1")
 				if (mota.items()[0][1].next()['temeratura'] > (control['temperatura'] + 5)):
-					notification.notify('InfluxDB', m_id['mote_id']+' esta overheating -'+m_id['temperatura']+'C')
-				#~ else:
-					#~ notification.notify('InfluxDB', m_id['mote_id']+' todo OK -'+m_id['temperature']+'C')
+					notification.notify('InfluxDB', mota['mota_id']+' esta overheating -'+mota['temperatura']+'C')
+				else:
+					notification.notify('InfluxDB', m_id['mota_id']+' todo OK -'+mota['temperature']+'C')
 		#~ notification.notify('influxdb', 'anda semi-bien')
 	except Exception as e:
 		print e
 		notification.notify('influxError','aksdjlkasjdaskdjksd'+str(e))
+	notification.notify('llama','leer')
 
 
 if __name__ == '__main__':
