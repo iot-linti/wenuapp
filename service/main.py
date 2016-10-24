@@ -22,7 +22,7 @@ def leer_datos_motas(cli, ctrl):
 	query = "SELECT temperatura FROM medicion WHERE mota_id = '"+ctrl+"' ORDER BY time desc LIMIT 1"
 	control = cli.query(query).items()[0][1].next()
 
-	motas_ids = cli.query("SELECT X, mota_id FROM mota")
+	motas_ids = cli.query("SELECT x, mota_id FROM mota")
 
 	try:
 		for mid in motas_ids:
