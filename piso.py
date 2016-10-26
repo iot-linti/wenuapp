@@ -30,7 +30,8 @@ class Mota(Button):
 		self.text = str(hist)
 		self.temperature = hist
 		#~ try:
-		orig_size = Window.size#(1280, 960)
+		orig_size = eval(data["resolucion"])#Window.size#(1280, 960)
+		#~ orig_size = Window.size#(1280, 960)
 		#~ img.size = translate(orig_size, Window.size, *img.size)
 		self.pos = self.translate(orig_size, Window.size, data["x"], data["y"])
 		self.actualizar(temp_amb, historial)
@@ -253,7 +254,8 @@ class MakeFilePos(Widget):
 								"time": 0,
 								"fields": {
 									"x": self.m_pos[m][0],
-									"y": self.m_pos[m][1]
+									"y": self.m_pos[m][1],
+									"resolucion": str(Window.size)
 								}
 							}
 						]
