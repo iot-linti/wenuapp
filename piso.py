@@ -30,7 +30,9 @@ class Mota(Button):
 		self.text = str(hist)
 		self.temperature = hist
 		#~ try:
-		orig_size = eval(data["resolucion"])#Window.size#(1280, 960)
+		res = data["resolucion"].split(",")
+		res = int(res[0][1:]),int(res[1][:-1])
+		orig_size = res#eval(data["resolucion"])#Window.size#(1280, 960)
 		#~ orig_size = Window.size#(1280, 960)
 		#~ img.size = translate(orig_size, Window.size, *img.size)
 		self.pos = self.translate(orig_size, Window.size, data["x"], data["y"])
