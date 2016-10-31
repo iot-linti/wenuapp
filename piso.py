@@ -25,6 +25,7 @@ class Mota(Button):
 		print data
 		print "daaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 		self.name = data["mota_id"]
+		self.piso = data["piso_id"]
 		self.date = data["time"]
 		hist = historial.items()[0][1].next()["temperatura"]
 		self.text = str(hist)
@@ -37,6 +38,9 @@ class Mota(Button):
 		#~ img.size = translate(orig_size, Window.size, *img.size)
 		self.pos = self.translate(orig_size, Window.size, data["x"], data["y"])
 		self.actualizar(temp_amb, historial)
+
+	def get_piso(self):
+		return self.piso
 
 
 	def translate(self, orig_size, new_size, x, y):
@@ -110,8 +114,11 @@ class Piso(Screen):
 		self.flayout = self.ids["flayout_id"]
 		#~ self.sp = spinner
 		sp_vals = []
-		for v in pisos:
-			sp_vals.append(str(v[0]["piso_id"]))
+		for pp in pisos:
+			for p in pp:
+				sp_vals.append(str(p["piso_id"]))
+				print "pisoooooooooooooo"
+		print sp_vals
 
 		layout = GridLayout(cols=1, size_hint_y=None)
 		layout.bind(minimum_height=layout.setter('height'))
@@ -245,13 +252,13 @@ class MakeFilePos(Widget):
 				del self.motas2[key]
 			else:
 				for m in self.motas.keys():
-
+					print self.motas[m].piso
 					json_body = [
 							{
 								"measurement": "mota",
 								"tags": {
 									"mota_id": m,
-									"piso_id": 1
+									"piso_id": self.motas[m].get_piso()
 								},
 								"time": 0,
 								"fields": {

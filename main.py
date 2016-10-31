@@ -95,6 +95,8 @@ class Info(FloatLayout):
 							print "Error al descargar la imagen del piso"+img+"\n"
 							print e
 					#~ else:
+					print "||||||||||||||||||||||||||||||||||||||||||"
+					print pisos
 					self.pisos.append(Piso(p['piso_id'], sensores, img, self.client, pisos))
 					self.pisos[-1].agregar_motas()
 					self.screen_manager.add_widget(self.pisos[-1])
