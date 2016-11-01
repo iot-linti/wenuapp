@@ -90,7 +90,9 @@ class Mota(Button):
 			popup.open()
 
 	def calcular_color(self, temp_amb):
-		if self.temperature > temp_amb + 5:
+		if self.temperature > 1000:
+			return "[color=FFD800]Low battery[/color]"
+		elif self.temperature > temp_amb + 5:
 			return "[color=f10000]" + self.text+"[/color]"
 		else:
 			return "[color=13E400]"+self.text+"[/color]"
@@ -252,7 +254,7 @@ class MakeFilePos(Widget):
 				del self.motas2[key]
 			else:
 				for m in self.motas.keys():
-					print self.motas[m].piso
+					print self.motas[m].get_piso()
 					json_body = [
 							{
 								"measurement": "mota",
