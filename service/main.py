@@ -29,7 +29,10 @@ def leer_datos_motas(cli, ctrl):
 			for m_id in mid:
 				mota = cli.query("SELECT * FROM medicion WHERE mota_id = '"+m_id["mota_id"]+"' ORDER BY time desc LIMIT 1")
 				m = mota.items()[0][1].next()
-				if (m['temperatura'] > (control['temperatura'] + 5)):
+				if (m['temperatura'] > 1000):
+					notification.notify(app_name='Datos sensores - medición', title=m['mota_id'],message='[color=FFD800]Low battery[/color]')
+					time.sleep(1)
+				elif (m['temperatura'] > (control['temperatura'] + 5)):
 					notification.notify(app_name='Datos sensores - medición', title=m['mota_id'],message=' esta overheating - '+str(m['temperatura'])+'C')
 					time.sleep(1)
 				#~ else:
