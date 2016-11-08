@@ -69,8 +69,6 @@ class Info(FloatLayout):
 			popup.open()
 		else:
 			#instancio piso y paso el client - falta ahcer una consulta para saber cuantos pisos hay
-			#~ pisos = ["1","2"]
-			#~ pisos = [1,2]
 			pisos = self.client.query('SELECT * FROM piso')
 			print pisos.get_points().next()
 			print "----------------------aaaaaaaaaaaaaaaaaaaa-------------------------------------"

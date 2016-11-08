@@ -19,7 +19,7 @@ import datetime
 import json
 
 class Mota(Button):
-	def __init__(self, data, historial, temp_amb):
+	def __init__(self, data, historial, temp_amb, client):
 		super(Mota, self).__init__()
 		#try temporal hasta que esten terminados de cargar los datos en las tablas nuevas
 		print data
@@ -27,6 +27,7 @@ class Mota(Button):
 		self.name = data["mota_id"]
 		self.piso = data["piso_id"]
 		self.date = data["time"]
+		self.client = client
 		hist = historial.items()[0][1].next()["temperatura"]
 		self.text = str(hist)
 		self.temperature = hist
@@ -67,6 +68,7 @@ class Mota(Button):
 
 	def historial_mota(self, historial, *args):
 		print args
+		layout_pop = GridLayout(cols=1, rows=2)
 		layout = GridLayout(cols=4, spacing=30, size_hint_y=None)
 		layout.bind(minimum_height=layout.setter('height'))
 		print "....................***************************................................"
@@ -86,8 +88,34 @@ class Mota(Button):
 
 			contenido = ScrollView(size_hint=(1, 1), size=(400,400))
 			contenido.add_widget(layout)
-			popup = Popup(title='Historial '+self.name, content=contenido, size_hint=(.8, .6))
+			layout_pop.add_widget(contenido)
+			lay_btn = GridLayout(cols=2, rows=1, size_hint=(1,.2))
+			btn = Button(text="Apagar", size_hint=(1,.2))
+			btn.bind(on_press=self.apagar_mota)
+			lay_btn.add_widget(btn)
+			lay_btn.add_widget(Button(text="Algo mas", size_hint=(1,.2)))
+			layout_pop.add_widget(lay_btn)
+			popup = Popup(title='Historial '+self.name, content=layout_pop, size_hint=(.8, .6))
 			popup.open()
+
+	def apagar_mota(self, evt):
+		print "apaga "+str(self.name)
+		json_body = [
+			{
+				"measurement": "accion",
+				"tags": {
+					"mota_id": self.name,
+					"piso_id": self.piso
+				},
+				#~ "time": '2016-10-04T20:26:34Z',
+				"fields": {
+					"apagar": "true"
+				}
+			}
+		]
+
+		#~ print json_body
+		self.client.write_points(json_body)
 
 	def calcular_color(self, temp_amb):
 		if self.temperature > 1000:
@@ -165,7 +193,7 @@ class Piso(Screen):
 		#~ historial = self.client.query("SELECT mota_id, temperatura, motion, current, time FROM medicion WHERE mota_id = 'linti_control' ORDER BY time desc LIMIT 50")
 		historial = self.client.query("SELECT mota_id, temperatura, movimiento, corriente, time FROM medicion WHERE mota_id = 'linti_control' ORDER BY time desc LIMIT 50")
 
-		self.info_motas[res["mota_id"]] = Mota(res, historial, historial.items()[0][1].next()['temperatura'])
+		self.info_motas[res["mota_id"]] = Mota(res, historial, historial.items()[0][1].next()['temperatura'], self.client)
 
 		#ctrl = motas_ids.pop(0)
 		#~ print "???????????????SENSORES?????????????????????"
@@ -179,7 +207,7 @@ class Piso(Screen):
 
 				historial = self.client.query("SELECT mota_id, temperatura, movimiento, corriente, time FROM medicion WHERE mota_id = '"+s["mota_id"]+"' ORDER BY time desc LIMIT 50")
 
-				self.info_motas[res["mota_id"]] = Mota(res, historial, self.info_motas["linti_control"].getTemperatura())
+				self.info_motas[res["mota_id"]] = Mota(res, historial, self.info_motas["linti_control"].getTemperatura(), self.client)
 
 		self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
 		#motas_ids.insert(0, ctrl)
