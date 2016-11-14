@@ -31,6 +31,7 @@ class Mota(Button):
 		hist = historial.items()[0][1].next()["temperatura"]
 		self.text = str(hist)
 		self.temperature = hist
+		#~ self.temp_amb = temp_amb
 		#~ try:
 		res = data["resolucion"].split(",")
 		res = int(res[0][1:]),int(res[1][:-1])
@@ -55,18 +56,18 @@ class Mota(Button):
 	def setTemperature(self, temp, temp_amb):
 		self.temperature = temp
 		self.text = temp
-		self.calcular_color(temp_amb)
+		self.calcular_color(temp, temp_amb)
 
 	def getTemperatura(self):
 		return self.temperature
 
 	def actualizar(self, temp, historial):
-		temp_color = self.calcular_color(temp)
+		temp_color = self.calcular_color(self.temperature, temp)
 		self.text = temp_color
 		self.texture_update()
-		self.bind(on_release=partial(self.historial_mota,historial))
+		self.bind(on_release=partial(self.historial_mota,historial, temp))
 
-	def historial_mota(self, historial, *args):
+	def historial_mota(self, historial, temp_amb, *args):
 		print args
 		layout_pop = GridLayout(cols=1, rows=2)
 		layout = GridLayout(cols=4, spacing=30, size_hint_y=None)
@@ -77,7 +78,7 @@ class Mota(Button):
 			print re
 			for r in re:
 				print r
-				temp_color = self.calcular_color(r['temperatura'])
+				temp_color = self.calcular_color(r['temperatura'], temp_amb)
 				layout.add_widget(Label(text=temp_color, markup= True))
 				layout.add_widget(Label(text=str(r["corriente"])))
 				layout.add_widget(Label(text=str(r["time"])))
@@ -117,13 +118,15 @@ class Mota(Button):
 		#~ print json_body
 		self.client.write_points(json_body)
 
-	def calcular_color(self, temp_amb):
-		if self.temperature > 1000:
+	def calcular_color(self, temp, temp_amb):
+		print temp > 1000
+		print temp
+		if temp > 1000:
 			return "[color=FFD800]Low battery[/color]"
-		elif self.temperature > temp_amb + 5:
-			return "[color=f10000]" + self.text+"[/color]"
+		elif temp > temp_amb + 5:
+			return "[color=f10000]" + str(temp)+"[/color]"
 		else:
-			return "[color=13E400]"+self.text+"[/color]"
+			return "[color=13E400]"+str(temp)+"[/color]"
 		#return "[color=f10000]" + str(self.text)+"[/color]" if float(self.text) > float(temp_amb) + 5 else "[color=13E400]"+str(self.text)+"[/color]"
 
 
@@ -239,7 +242,7 @@ class Piso(Screen):
 				print res[s[0]]
 				print res[s[0]]['temperatura']
 				print "}{}{}{}{}{}{}}}}}}}}{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}"
-				temp_color = s[1].calcular_color(res[s[0]].items()[0][1].next()['temperatura'])
+				temp_color = s[1].calcular_color(res[s[0]].items()[0][1].next()['temperatura'], self.temp_amb)
 				s[1].text = temp_color
 				s[1].texture_update()
 				s[1].bind(on_release=partial(s[1].historial_mota,res[s[0]]))
