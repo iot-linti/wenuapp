@@ -17,6 +17,12 @@ from functools import partial
 import datetime
 #import shelve
 import json
+#kivymd
+from kivymd.navigationdrawer import NavigationDrawer
+from kivymd.bottomsheet import MDListBottomSheet, MDGridBottomSheet
+
+class NavDraw(NavigationDrawer):
+	pass
 
 class Mota(Button):
 	def __init__(self, data, historial, temp_amb, client):
@@ -69,6 +75,7 @@ class Mota(Button):
 
 	def historial_mota(self, historial, temp_amb, *args):
 		print args
+		bs = MDGridBottomSheet()
 		layout_pop = GridLayout(cols=1, rows=2)
 		layout = GridLayout(cols=4, spacing=30, size_hint_y=None)
 		layout.bind(minimum_height=layout.setter('height'))
@@ -155,7 +162,9 @@ class Piso(Screen):
 
 		layout = GridLayout(cols=1, size_hint_y=None)
 		layout.bind(minimum_height=layout.setter('height'))
+		#~ layout = NavBar()
 		for r in sp_vals:
+			#~ NavigationDrawerIconButton()
 			print r
 			btn = Button(text=r)
 			btn.bind(on_release=self.cambiar_piso)
@@ -168,6 +177,7 @@ class Piso(Screen):
 		self.btn_popup_pisos = Button(text="Pisos", pos_hint={'top':1,'left':.1}, size_hint=(.1, .1))
 		self.btn_popup_pisos.bind(on_press=self.abrir_popup_pisos)
 		self.add_widget(self.btn_popup_pisos)
+		#~ self.add_widget(NavDraw())
 
 	def abrir_popup_pisos(self, *args):
 		self.pisos.open()
