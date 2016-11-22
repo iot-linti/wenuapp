@@ -13,8 +13,8 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.spinner import Spinner
-from kivy.uix.tabbedpanel import TabbedPanel
-from kivy.uix.tabbedpanel import TabbedPanelHeader
+#~ from kivy.uix.tabbedpanel import TabbedPanel
+#~ from kivy.uix.tabbedpanel import TabbedPanelHeader
 from kivy.core.text import Label as CoreLabel
 from kivy.uix.popup import Popup
 from kivy.utils import platform
@@ -32,6 +32,8 @@ import urllib
 #influx
 from influxdb import InfluxDBClient
 
+#kivymd
+from kivymd.theming import ThemeManager
 
 #nuestros modulos
 from piso import Piso
@@ -126,6 +128,7 @@ class Info(FloatLayout):
 
 class DatosApp(App):
     """ App to show how to use back button """
+    #~ theme_cls = ThemeManager()
 
     def __init__(self, *args, **kwargs):
         super(DatosApp, self).__init__(*args, **kwargs)
