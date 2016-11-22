@@ -55,7 +55,7 @@ class Mota(Button):
 	def setTemperature(self, temp, temp_amb):
 		self.temperature = temp
 		self.text = temp
-		self.calcular_color(temp_amb)
+		#~ self.calcular_color(temp_amb)
 
 	def getTemperatura(self):
 		return self.temperature
@@ -275,7 +275,7 @@ class MakeFilePos(Widget):
 
 			if len(self.motas2) > 0:
 				key = self.motas2.keys()[0]
-				l = Label(text="Ingrese posición de la mota: "+str(key), pos=(400,200), color=(0,1,1))
+				l = Label(text="[color=00ff60]Ingrese posición de la mota: "+str(key)+"[/color]", pos=(400,200), markup=True)
 				self.add_widget(l)
 				self.m_pos[str(key)] = self.calc_pos(touch.pos[0], touch.pos[1], key)
 				#touch.pos[0]-(self.motas[str(key)].size[0]/2),touch.pos[1]-(self.motas[str(key)].size[1]/2)
