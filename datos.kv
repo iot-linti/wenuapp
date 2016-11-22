@@ -17,7 +17,6 @@
 <Info>:
     screen_manager: screen_manager
     #on_left_to_right_line: screen_manager.current = 'info';  screen_manager.transition.direction = 'right'
-
     ScreenManager:
         id: screen_manager
         Screen:
@@ -69,9 +68,9 @@
 	markup: True
 	valign: 'bottom'
 
+
 <Piso>:
 	flayout: flayout_id
-
 	FloatLayout:
 		id: flayout_id
 		size: self.parent.size
@@ -94,11 +93,3 @@
 			pos_hint: {'bottom':.2,'right':.1}
 			text: 'Posicionar'
 			on_press: root.config_mota_pos()
-
-#:import NavigationDrawer kivymd.navigationdrawer.NavigationDrawer
-
-<NavDraw>:
-	title: "Pisos"
-	NavigationDrawerIconButton:
-		icon: 'checkbox-blank-circle'
-		text: "Bottom sheets"
