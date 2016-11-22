@@ -17,12 +17,7 @@ from functools import partial
 import datetime
 #import shelve
 import json
-#kivymd
-from kivymd.navigationdrawer import NavigationDrawer
-from kivymd.bottomsheet import MDListBottomSheet, MDGridBottomSheet
 
-class NavDraw(NavigationDrawer):
-	pass
 
 class Mota(Button):
 	def __init__(self, data, historial, temp_amb, client):
