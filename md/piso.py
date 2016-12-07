@@ -47,7 +47,7 @@ class Mota(Button):
 		hist = historial.items()[0][1].next()["temperatura"]
 		self.text = str(hist)
 		self.temperature = hist
-		#~ self.temp_amb = temp_amb
+		self.temp_amb = temp_amb
 		#~ try:
 		res = data["resolucion"].split(",")
 		res = int(res[0][1:]),int(res[1][:-1])
@@ -84,7 +84,7 @@ class Mota(Button):
 		self.bind(on_release=partial(self.historial_mota,historial, temp))
 
 	def historial_mota(self, historial, temp_amb, *args):
-		print args
+		#print args
 		bs = MDGridBottomSheet()
 		layout_pop = GridLayout(cols=1, rows=2)
 		layout = GridLayout(cols=4, spacing=30, size_hint_y=None)
@@ -95,15 +95,19 @@ class Mota(Button):
 		#~ print self.callbaack()
 		#~ self.ids["bottomsheet"].add_widget(NavigationDrawerIconButton(text="sdads"))
 		for re in historial:
-			print re
+			#print re
 			for r in re:
 				#temp_color = self.calcular_color(r['temperatura'], temp_amb)
 				text = '{:^10}'.format(str(r['temperatura']))+'{:^50}'.format(str(r["corriente"]))+'{:^50}'.format(str(r["time"]))+'{:^20}'.format(str(r["movimiento"]))
-				bs.add_item(text, lambda x: x)#self.callbaack(x))
-		bs.add_item("Here's an item with text only", lambda x: x)
-		bs.add_item("Here's an item with an icon", lambda x: x,
-					icon='clipboard-account')
-		bs.add_item("Here's another!", lambda x: x, icon='nfc')
+				if (self.temp_amb + 5 < r['temperatura']):
+					bs.add_item(text, lambda x: x, icon='weather-hail')#self.callbaack(x))
+				elif (self.temp_amb - 5 < r['temperatura']):
+					bs.add_item(text, lambda x: x, icon='weather-sunny')#, icon='alert-circle-outline')
+				else:
+					bs.add_item(text, lambda x: x)
+		bs.add_item("Algo mas", lambda x: x)
+		bs.add_item("Apagar", self.apagar_mota, icon='clipboard-account')
+		#bs.add_item("Here's another!", lambda x: x, icon='nfc')
 		bs.open()
 
 	def apagar_mota(self, evt):
