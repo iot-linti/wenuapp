@@ -55,23 +55,23 @@
 	valign: 'bottom'
 
 <Piso>:
-	#flayout: flayout_id
-	title_color: [ 33/255., 150/255., 243/255., .9 ]
-	background: 'atlas:/data/images/defaulttheme/button_pressed'
+	flayout: flayout_id
+	#title_color: [ 33/255., 150/255., 243/255., .9 ]
+	#background: 'atlas:/data/images/defaulttheme/button_pressed'
 	FloatLayout:
 		id: flayout_id
 		size: self.parent.size
-		#Label:
-			#id: fecha
-			#size_hint: (0.8, .1)
-			#pos_hint: {'top': 1.01, 'right': .6}
-			#text: 'Ultima actualización: '
-			#markup: True
-		MDLabel:
+		Label:
 			id: fecha
 			size_hint: (0.8, .1)
 			pos_hint: {'top': 1.01, 'right': .6}
 			text: 'Ultima actualización: '
+			markup: True
+		#MDLabel:
+		#	id: fecha
+		#	size_hint: (0.8, .1)
+		#	pos_hint: {'top': 1.01, 'right': .6}
+		#	text: 'Ultima actualización: '
 		Button:
 			id: actualizar
 			size_hint: .09,.05

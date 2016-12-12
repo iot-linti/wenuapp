@@ -156,9 +156,8 @@ class Piso(Screen):
 		with self.canvas.before:
 			Rectangle(size=Window.size, pos=(0,0), source=img, allow_stretch=False)
 		print self.ids
-		self.flayout = FloatLayout()
 
-		#self.flayout = self.ids["flayout_id"]
+		self.flayout = self.ids["flayout_id"]
 
 	def getName(self):
 		return self.name
