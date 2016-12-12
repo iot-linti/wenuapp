@@ -12,6 +12,7 @@ from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.popup import Popup
 from kivy.uix.spinner import Spinner
+from kivy.uix.floatlayout import FloatLayout
 #python
 from functools import partial
 import datetime
@@ -154,8 +155,10 @@ class Piso(Screen):
 
 		with self.canvas.before:
 			Rectangle(size=Window.size, pos=(0,0), source=img, allow_stretch=False)
+		print self.ids
+		self.flayout = FloatLayout()
 
-		self.flayout = self.ids["flayout_id"]
+		#self.flayout = self.ids["flayout_id"]
 
 	def getName(self):
 		return self.name
@@ -193,7 +196,9 @@ class Piso(Screen):
 
 				self.info_motas[res["mota_id"]] = Mota(res, historial, self.info_motas["linti_control"].getTemperatura(), self.client)
 
-		self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
+		print "IDsss"
+		print self.ids
+		#self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
 		#motas_ids.insert(0, ctrl)
 
 	def actualizar_mapa(self):

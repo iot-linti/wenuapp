@@ -1,0 +1,87 @@
+#:import Toolbar kivymd.toolbar.Toolbar
+#:import ThemeManager kivymd.theming.ThemeManager
+#:import NavigationDrawer kivymd.navigationdrawer.NavigationDrawer
+#:import MDCheckbox kivymd.selectioncontrols.MDCheckbox
+#:import MDSwitch kivymd.selectioncontrols.MDSwitch
+#:import MDList kivymd.list.MDList
+#:import OneLineListItem kivymd.list.OneLineListItem
+#:import TwoLineListItem kivymd.list.TwoLineListItem
+#:import ThreeLineListItem kivymd.list.ThreeLineListItem
+#:import OneLineAvatarListItem kivymd.list.OneLineAvatarListItem
+#:import OneLineIconListItem kivymd.list.OneLineIconListItem
+#:import OneLineAvatarIconListItem kivymd.list.OneLineAvatarIconListItem
+#:import SingleLineTextField kivymd.textfields.SingleLineTextField
+#:import MDSpinner kivymd.spinner.MDSpinner
+#:import MDCard kivymd.card.MDCard
+#:import MDSeparator kivymd.card.MDSeparator
+
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+#:import colors kivymd.color_definitions.colors
+#:import SmartTile kivymd.grid.SmartTile
+#:import MDSlider kivymd.slider.MDSlider
+#:import MDTabbedPanel kivymd.tabs.MDTabbedPanel
+#:import MDTab kivymd.tabs.MDTab
+#:import MDProgressBar kivymd.progressbar.MDProgressBar
+#:import MDAccordion kivymd.accordion.MDAccordion
+#:import MDAccordionItem kivymd.accordion.MDAccordionItem
+#:import MDThemePicker kivymd.theme_picker.MDThemePicker
+<MainBox>:
+	id: datos
+	#BoxLayout:
+	orientation: 'vertical'
+	Toolbar:
+		id: toolbar
+		title: 'Datos sensores'
+		background_color: self.theme_cls.primary_color
+		left_action_items: [['menu', lambda x: self.parent.nav_drawer.toggle()]]
+		right_action_items: [['dots-vertical', lambda x: self.parent.nav_drawer.toggle()]]
+	ScreenManager:
+		id: scr_mngr
+		Screen:
+			name: 'bottomsheet'
+
+<PisosNavDrawer>
+	title: "Pisos"
+	id: pisos
+
+<NavigationDraweIconButton>:
+	icon: 'checkbox-blank-circle'
+
+#
+<Mota>:
+	background_color: [0.0, 0.0, 0.0, 0.0]
+	size_hint: (0.1, .1)
+	markup: True
+	valign: 'bottom'
+
+<Piso>:
+	#flayout: flayout_id
+	title_color: [ 33/255., 150/255., 243/255., .9 ]
+	background: 'atlas:/data/images/defaulttheme/button_pressed'
+	FloatLayout:
+		id: flayout_id
+		size: self.parent.size
+		#Label:
+			#id: fecha
+			#size_hint: (0.8, .1)
+			#pos_hint: {'top': 1.01, 'right': .6}
+			#text: 'Ultima actualización: '
+			#markup: True
+		MDLabel:
+			id: fecha
+			size_hint: (0.8, .1)
+			pos_hint: {'top': 1.01, 'right': .6}
+			text: 'Ultima actualización: '
+		Button:
+			id: actualizar
+			size_hint: .09,.05
+			#height: 30
+			pos_hint: {'bottom':1,'right':.1}
+			text: 'Actualizar'
+			on_press: root.actualizar_mapa()
+		Button:
+			id: config_mota_pos
+			size_hint: .09,.05
+			pos_hint: {'bottom':.2,'right':.1}
+			text: 'Posicionar'
+			on_press: root.config_mota_pos()

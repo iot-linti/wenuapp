@@ -2,6 +2,7 @@
 import kivymd.snackbar as Snackbar
 from kivy.app import App
 from kivy.lang import Builder
+from kivy.uix.boxlayout import BoxLayout
 from kivy.metrics import dp
 from kivy.properties import ObjectProperty
 from kivy.uix.image import Image
@@ -17,6 +18,8 @@ from kivymd.dialog import MDDialog
 from kivymd.time_picker import MDTimePicker
 from kivymd.date_picker import MDDatePicker
 
+from kivymd.toolbar import Toolbar
+
 from kivymd.navigationdrawer import NavigationDrawerIconButton
 
 import os
@@ -25,122 +28,26 @@ from piso import *
 #influx
 from influxdb import InfluxDBClient
 
-main_widget_kv = '''
-#:import Toolbar kivymd.toolbar.Toolbar
-#:import ThemeManager kivymd.theming.ThemeManager
-#:import NavigationDrawer kivymd.navigationdrawer.NavigationDrawer
-#:import MDList kivymd.list.MDList
-#:import OneLineListItem kivymd.list.OneLineListItem
-#:import TwoLineListItem kivymd.list.TwoLineListItem
-#:import ThreeLineListItem kivymd.list.ThreeLineListItem
-#:import OneLineAvatarListItem kivymd.list.OneLineAvatarListItem
-#:import OneLineIconListItem kivymd.list.OneLineIconListItem
-#:import OneLineAvatarIconListItem kivymd.list.OneLineAvatarIconListItem
-#:import SingleLineTextField kivymd.textfields.SingleLineTextField
-#:import MDSpinner kivymd.spinner.MDSpinner
-#:import MDCard kivymd.card.MDCard
-#:import MDSeparator kivymd.card.MDSeparator
-
-#:import get_color_from_hex kivy.utils.get_color_from_hex
-#:import colors kivymd.color_definitions.colors
-#:import SmartTile kivymd.grid.SmartTile
-#:import MDSlider kivymd.slider.MDSlider
-#:import MDTabbedPanel kivymd.tabs.MDTabbedPanel
-#:import MDTab kivymd.tabs.MDTab
-#:import MDThemePicker kivymd.theme_picker.MDThemePicker
-
-BoxLayout:
-	orientation: 'vertical'
-	Toolbar:
-		id: toolbar
-		title: 'Datos sensores'
-		background_color: app.theme_cls.primary_color
-		left_action_items: [['menu', lambda x: app.nav_drawer.toggle()]]
-		right_action_items: [['dots-vertical', lambda x: app.nav_drawer.toggle()]]
-	ScreenManager:
-		id: scr_mngr
-		Screen:
-			name: 'bottomsheet'
-			MDRaisedButton:
-				text: "Open list bottom sheet"
-				opposite_colors: True
-				size_hint: None, None
-				size: 4 * dp(48), dp(48)
-				pos_hint: {'center_x': 0.5, 'center_y': 0.6}
-				on_release: app.show_example_bottom_sheet()
-			MDRaisedButton:
-				text: "Open grid bottom sheet"
-				opposite_colors: True
-				size_hint: None, None
-				size: 4 * dp(48), dp(48)
-				pos_hint: {'center_x': 0.5, 'center_y': 0.3}
-				on_release: app.show_example_grid_bottom_sheet()
-<PisoNavDrawer>
-	title: "Pisos"
-	id: pisos
-
-<NavigationDraweIconButton>:
-	icon: 'checkbox-blank-circle'
-
-<Mota>:
-	background_color: [0.0, 0.0, 0.0, 0.0]
-	size_hint: (0.1, .1)
-	markup: True
-	valign: 'bottom'
-
-<Piso>:
-	flayout: flayout_id
-	title_color: [ 33/255., 150/255., 243/255., .9 ]
-	background: 'atlas:/data/images/defaulttheme/button_pressed'
-	FloatLayout:
-		id: flayout_id
-		size: self.parent.size
-		MDLabel:
-			id: fecha
-			size_hint: (0.8, .1)
-			pos_hint: {'top': 1.01, 'right': .6}
-			text: 'Ultima actualización: '
-			markup: True
-		Button:
-			id: actualizar
-			size_hint: .09,.05
-			#height: 30
-			pos_hint: {'bottom':1,'right':.1}
-			text: 'Actualizar'
-			on_press: root.actualizar_mapa()
-		Button:
-			id: config_mota_pos
-			size_hint: .09,.05
-			pos_hint: {'bottom':.2,'right':.1}
-			text: 'Posicionar'
-			on_press: root.config_mota_pos()
-'''
-
-class PisoNavDrawer(NavigationDrawer):
+class PisosNavDrawer(NavigationDrawer):
 	pass
 
-class DatosApp(App):
+class MainBox(BoxLayout):
 	theme_cls = ThemeManager()
 	#theme_cls.theme_style = 'Dark'
 	theme_cls.primary_palette = "Green"
 	theme_cls.secondary_palette = "Blue"
 	nav_drawer = ObjectProperty()
 
-	def build(self):
-		self.main_widget = Builder.load_string(main_widget_kv)
-		# self.theme_cls.theme_style = 'Dark'
+	def __init__(self, *args, **kwargs):
+		super(MainBox, self).__init__(**kwargs)
+		self.icon = 'pin_1.png'
+		self.title = 'Datos Sensores'
+		print self.ids
 
-		#~ main_widget.ids.text_field_error.bind(
-			#~ on_text_validate=self.set_error_message,
-			#~ on_focus=self.set_error_message)
-
-		self.nav_drawer = PisoNavDrawer()
-		#~ self.nav_drawer.add_widget(NavigationDrawerIconButton(text="seee"))
+		self.nav_drawer = PisosNavDrawer()
+		#self.nav_drawer.add_widget(NavigationDrawerIconButton(text="seee"))
 		self.iniciar("bottomsheet","piso_1")
-		return self.main_widget
 
-
-	########################################################################
 	def iniciar(self, actual_screen, next_screen):
 		#if next_screen == "info":
 			#Clock.schedule_interval(self.update, 0.5)
@@ -187,12 +94,30 @@ class DatosApp(App):
 					p_nav.icon = "checkbox-blank-circle"
 					p_nav.bind(on_release=partial(self.cambiar_piso, self.pisos[-1].getName()))
 					self.nav_drawer.add_widget(p_nav)
-					self.main_widget.ids["scr_mngr"].add_widget(self.pisos[-1])
+					#self.main_widget.ids["scr_mngr"].add_widget(self.pisos[-1])
+					self.ids["scr_mngr"].add_widget(self.pisos[-1])
 			else:
-				self.main_widget.ids["scr_mngr"].current = next_screen
+				#self.main_widget.ids["scr_mngr"].current = next_screen
+				self.ids["scr_mngr"].current = next_screen
 
 	def cambiar_piso(self, name, evnt):
-		self.main_widget.ids["scr_mngr"].current = name
+		#self.main_widget.ids["scr_mngr"].current = name
+		self.ids["scr_mngr"].current = name
+
+class DatosSensoresApp(App):
+	theme_cls = ThemeManager()
+	#theme_cls.theme_style = 'Dark'
+	theme_cls.primary_palette = "Green"
+	theme_cls.secondary_palette = "Blue"
+	#nav_drawer = ObjectProperty()
+
+	def build(self):
+		Builder.load_file('datosSensores.kv')
+		return MainBox()
+
+
+	########################################################################
+	
 
 	def on_pause(self):
 		if platform == 'android':
@@ -208,4 +133,4 @@ class DatosApp(App):
 ########################################################################
 
 if __name__ == '__main__':
-	DatosApp().run()
+	DatosSensoresApp().run()
