@@ -18,6 +18,9 @@ from kivymd.dialog import MDDialog
 from kivymd.time_picker import MDTimePicker
 from kivymd.date_picker import MDDatePicker
 
+from kivymd.menu import MDDropdownMenu
+from kivymd.menu import MDMenuItem
+
 from kivymd.toolbar import Toolbar
 
 from kivymd.navigationdrawer import NavigationDrawerIconButton
@@ -48,6 +51,14 @@ class MainBox(BoxLayout):
 		#self.nav_drawer.add_widget(NavigationDrawerIconButton(text="seee"))
 		self.iniciar("bottomsheet","piso_1")
 
+		self.menu_items = [
+        {'viewclass': 'MDMenuItem',
+         'text': 'Posicionar', 
+         'on_release': self.pos_motas},
+        {'viewclass': 'MDMenuItem',
+         'text': 'Actualizar'},
+    	]
+
 	def iniciar(self, actual_screen, next_screen):
 		#if next_screen == "info":
 			#Clock.schedule_interval(self.update, 0.5)
@@ -67,7 +78,8 @@ class MainBox(BoxLayout):
 			print pisos.get_points().next()
 			print "----------------------aaaaaaaaaaaaaaaaaaaa-------------------------------------"
 			#p_imgs = ["imagenes/plano-2piso.jpg","imagenes/primer_piso.jpg"]
-			self.pisos = []
+			#self.pisos = []
+			self.pisos = {}
 			#~ self.spinner = Spinner(text="1", size_hint= (.09,.05), pos_hint={'top':1,'left':.9})
 			for pp in pisos:
 				for p in pp:
@@ -87,15 +99,17 @@ class MainBox(BoxLayout):
 							print "Error al descargar la imagen del piso "+img+"\n"
 							print e
 					#~ else:
-					print pisos
-					self.pisos.append(Piso(p['piso_id'], sensores, img, self.client))
-					self.pisos[-1].agregar_motas()
-					p_nav = NavigationDrawerIconButton(text=self.pisos[-1].getName())
+					print "pisoooosss"
+					print p['piso_id']
+					#self.pisos.append(Piso(p['piso_id'], sensores, img, self.client))
+					self.pisos["piso_"+p['piso_id']] = Piso(p['piso_id'], sensores, img, self.client)
+					self.pisos["piso_"+p['piso_id']].agregar_motas()
+					p_nav = NavigationDrawerIconButton(text=self.pisos["piso_"+p['piso_id']].getName())
 					p_nav.icon = "checkbox-blank-circle"
-					p_nav.bind(on_release=partial(self.cambiar_piso, self.pisos[-1].getName()))
+					p_nav.bind(on_release=partial(self.cambiar_piso, self.pisos["piso_"+p['piso_id']].getName()))
 					self.nav_drawer.add_widget(p_nav)
 					#self.main_widget.ids["scr_mngr"].add_widget(self.pisos[-1])
-					self.ids["scr_mngr"].add_widget(self.pisos[-1])
+					self.ids["scr_mngr"].add_widget(self.pisos["piso_"+p['piso_id']])
 			else:
 				#self.main_widget.ids["scr_mngr"].current = next_screen
 				self.ids["scr_mngr"].current = next_screen
@@ -103,6 +117,19 @@ class MainBox(BoxLayout):
 	def cambiar_piso(self, name, evnt):
 		#self.main_widget.ids["scr_mngr"].current = name
 		self.ids["scr_mngr"].current = name
+
+	"""def open_menu(self):
+		print "Abre menu"
+		m_item = MDMenuItem()
+		#m_item.text = "ssdasld"
+		MD = MDDropdownMenu(items=self.menu_items,width_mult=2)
+		#MD.center_x = 
+		MD.open(self)"""
+
+	def pos_motas(self):
+		#print self.ids
+		print self.ids["scr_mngr"].current
+		self.pisos[self.ids["scr_mngr"].current].config_mota_pos()
 
 class DatosSensoresApp(App):
 	theme_cls = ThemeManager()

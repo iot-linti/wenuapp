@@ -146,6 +146,7 @@ class Piso(Screen):
 	def __init__(self, num, sensores, img, client, *args):
 		super(Piso, self).__init__(*args)
 		self.name = "piso_"+str(num)
+		self.id = self.name
 		self.num = num
 		self.client = client
 		self.info_motas = {}
@@ -197,7 +198,7 @@ class Piso(Screen):
 
 		print "IDsss"
 		print self.ids
-		#self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
+		self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
 		#motas_ids.insert(0, ctrl)
 
 	def actualizar_mapa(self):
