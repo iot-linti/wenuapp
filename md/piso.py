@@ -52,10 +52,10 @@ class Mota(Button):
 		#~ try:
 		res = data["resolucion"].split(",")
 		res = int(res[0][1:]),int(res[1][:-1])
-		orig_size = res#eval(data["resolucion"])#Window.size#(1280, 960)
+		self.orig_size = res#eval(data["resolucion"])#Window.size#(1280, 960)
 		#~ orig_size = Window.size#(1280, 960)
 		#~ img.size = translate(orig_size, Window.size, *img.size)
-		self.pos = self.translate(orig_size, Window.size, data["x"], data["y"])
+		self.pos = self.translate(self.orig_size, Window.size, data["x"], data["y"])
 		self.actualizar(temp_amb, historial)
 
 	def get_piso(self):
@@ -251,8 +251,10 @@ class MakeFilePos(Widget):
 		self.motas2 = motas.copy()
 		self.client = cli
 		self.m_pos = {}
+		self.size = Window.size
+		self.pos = 0,0
 		key = self.motas2.keys()[0]
-		l = Label(text="[color=00ff60]Ingrese posición de la mota: "+str(key)+"[/color]", pos_hint={'top':1.44,'right':.06}, markup=True)
+		l = MDLabel(text="Ingrese posición de la mota: "+str(key), pos_hint={'top':1.44,'right':.06})
 		self.add_widget(l)
 		#del self.motas2[key]
 		#~ self.size = self.parent.size
@@ -271,10 +273,10 @@ class MakeFilePos(Widget):
 			del self.motas2[key]
 			if len(self.motas2) > 0:
 				key = self.motas2.keys()[0]
-				l = Label(text="[color=00ff60]Ingrese posición de la mota: "+str(key)+"[/color]", pos_hint={'top':1.44,'right':.06}, markup=True)
+				l = MDLabel(text="Ingrese posición de la mota: "+str(key), pos_hint={'top':1.44,'right':.06})
 				self.add_widget(l)
 			else:
-				l = Label(text="[color=00ff60]Haga click para finalizar[/color]", pos_hint={'top':1.44,'right':.6}, markup=True)
+				l = MDLabel(text="Haga click para finalizar", pos_hint={'top':1.44,'right':.6})
 				self.add_widget(l)
 			#self.m_pos[str(key)] = self.calc_pos(touch.pos[0], touch.pos[1], key)
 			#touch.pos[0]-(self.motas[str(key)].size[0]/2),touch.pos[1]-(self.motas[str(key)].size[1]/2)
@@ -301,7 +303,8 @@ class MakeFilePos(Widget):
 				#~ print json_body
 				self.client.write_points(json_body)
 				#~ m.pos_hint = {'top':arch[m.name][0], 'right':arch[m.name][1]}
-				self.motas[str(m)].pos = self.calc_pos(self.m_pos[m][0],self.m_pos[m][1], m)
+				self.motas[str(m)].pos = self.motas[str(m)].pos = self.motas[str(m)].translate(self.motas[str(m)].orig_size, Window.size, self.m_pos[m][0],self.m_pos[m][1])
+				#self.motas[str(m)].pos = self.calc_pos(self.m_pos[m][0],self.m_pos[m][1], m)
 				#(self.m_pos[m][0]-(self.motas[str(m)].size[0]/2),self.m_pos[m][1]-(self.motas[str(m)].size[1]/2))
 			#~ self.parent.actualizar_mapa()
 			self.parent.remove_widget(self)
