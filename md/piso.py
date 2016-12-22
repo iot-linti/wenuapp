@@ -237,7 +237,7 @@ class Piso(Screen):
 
 
 	def config_mota_pos(self):
-		mfp = MakeFilePos(self.info_motas, self.ids["config_mota_pos"], self.client)
+		mfp = MakeFilePos(self.info_motas, self.client)
 		self.add_widget(mfp)
 		mfp.size = self.parent.size
 		self.actualizar_mapa
@@ -245,13 +245,16 @@ class Piso(Screen):
 
 class MakeFilePos(Widget):
 
-	def __init__(self, motas, btn_pos, cli, *args):
+	def __init__(self, motas, cli, *args):
 		super(MakeFilePos, self).__init__()
 		self.motas = motas
 		self.motas2 = motas.copy()
-		self.btn_pos = btn_pos
 		self.client = cli
 		self.m_pos = {}
+		key = self.motas2.keys()[0]
+		l = Label(text="[color=00ff60]Ingrese posición de la mota: "+str(key)+"[/color]", pos_hint={'top':1.44,'right':.06}, markup=True)
+		self.add_widget(l)
+		#del self.motas2[key]
 		#~ self.size = self.parent.size
 
 	def calc_pos(self, tx, ty, key):
@@ -260,39 +263,46 @@ class MakeFilePos(Widget):
 	def on_touch_down(self, touch):
 		print touch
 		print touch.spos
-		if (not self.btn_pos.collide_point(touch.x,touch.y)):
-
+		if len(self.children) > 0:
+			self.remove_widget(self.children[-1])
+		if len(self.motas2) > 0:
+			key = self.motas2.keys()[0]
+			self.m_pos[str(key)] = self.calc_pos(touch.pos[0], touch.pos[1], key)
+			del self.motas2[key]
 			if len(self.motas2) > 0:
 				key = self.motas2.keys()[0]
-				l = Label(text="[color=00ff60]Ingrese posición de la mota: "+str(key)+"[/color]", pos=(400,200), markup=True)
+				l = Label(text="[color=00ff60]Ingrese posición de la mota: "+str(key)+"[/color]", pos_hint={'top':1.44,'right':.06}, markup=True)
 				self.add_widget(l)
-				self.m_pos[str(key)] = self.calc_pos(touch.pos[0], touch.pos[1], key)
-				#touch.pos[0]-(self.motas[str(key)].size[0]/2),touch.pos[1]-(self.motas[str(key)].size[1]/2)
-				del self.motas2[key]
 			else:
-				for m in self.motas.keys():
-					print self.motas[m].get_piso()
-					json_body = [
-							{
-								"measurement": "mota",
-								"tags": {
-									"mota_id": m,
-									"piso_id": self.motas[m].get_piso()
-								},
-								"time": 0,
-								"fields": {
-									"x": self.m_pos[m][0],
-									"y": self.m_pos[m][1],
-									"resolucion": str(Window.size)
-								}
+				l = Label(text="[color=00ff60]Haga click para finalizar[/color]", pos_hint={'top':1.44,'right':.6}, markup=True)
+				self.add_widget(l)
+			#self.m_pos[str(key)] = self.calc_pos(touch.pos[0], touch.pos[1], key)
+			#touch.pos[0]-(self.motas[str(key)].size[0]/2),touch.pos[1]-(self.motas[str(key)].size[1]/2)
+			#del self.motas2[key]
+		else:
+			for m in self.motas.keys():
+				print self.motas[m].get_piso()
+				json_body = [
+						{
+							"measurement": "mota",
+							"tags": {
+								"mota_id": m,
+								"piso_id": self.motas[m].get_piso()
+							},
+							"time": 0,
+							"fields": {
+								"x": self.m_pos[m][0],
+								"y": self.m_pos[m][1],
+								"resolucion": str(Window.size)
 							}
-						]
+						}
+					]
 
-					#~ print json_body
-					self.client.write_points(json_body)
-					#~ m.pos_hint = {'top':arch[m.name][0], 'right':arch[m.name][1]}
-					self.motas[str(m)].pos = self.calc_pos(self.m_pos[m][0],self.m_pos[m][1], m)
-					#(self.m_pos[m][0]-(self.motas[str(m)].size[0]/2),self.m_pos[m][1]-(self.motas[str(m)].size[1]/2))
-				#~ self.parent.actualizar_mapa()
-				self.parent.remove_widget(self)
+				#~ print json_body
+				self.client.write_points(json_body)
+				#~ m.pos_hint = {'top':arch[m.name][0], 'right':arch[m.name][1]}
+				self.motas[str(m)].pos = self.calc_pos(self.m_pos[m][0],self.m_pos[m][1], m)
+				#(self.m_pos[m][0]-(self.motas[str(m)].size[0]/2),self.m_pos[m][1]-(self.motas[str(m)].size[1]/2))
+			#~ self.parent.actualizar_mapa()
+			self.parent.remove_widget(self)
 		return True

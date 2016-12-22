@@ -56,7 +56,8 @@ class MainBox(BoxLayout):
          'text': 'Posicionar', 
          'on_release': self.pos_motas},
         {'viewclass': 'MDMenuItem',
-         'text': 'Actualizar'},
+         'text': 'Actualizar'}#,
+         #'on_release': self.cambiar_piso},
     	]
 
 	def iniciar(self, actual_screen, next_screen):
