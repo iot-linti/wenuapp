@@ -39,21 +39,20 @@ class Mota(Button):
 	def __init__(self, data, historial, temp_amb, client):
 		super(Mota, self).__init__()
 		#try temporal hasta que esten terminados de cargar los datos en las tablas nuevas
-		self.name = data["mota_id"]
-		self.piso = data["piso_id"]
-		self.date = data["time"]
+		self.name = data.mote_id
+		self.piso = data.level
 		self.client = client
-		hist = historial.items()[0][1].next()["temperatura"]
+                hist = historial[0].temperature
 		self.text = str(hist)
 		self.temperature = hist
 		self.temp_amb = temp_amb
 		#~ try:
-		res = data["resolucion"].split(",")
+		res = data.resolution.split(",")
 		res = int(res[0][1:]),int(res[1][:-1])
 		self.orig_size = res#eval(data["resolucion"])#Window.size#(1280, 960)
 		#~ orig_size = Window.size#(1280, 960)
 		#~ img.size = translate(orig_size, Window.size, *img.size)
-		self.pos = self.translate(self.orig_size, Window.size, data["x"], data["y"])
+		self.pos = self.translate(self.orig_size, Window.size, data.x, data.y)
 		self.actualizar(temp_amb, historial)
 
 	def get_piso(self):
@@ -151,22 +150,16 @@ class Piso(Screen):
 			self.flayout.add_widget(each[1])
 
 	def procesar_datos(self, sensores):
-		query = "SELECT * as temperatura FROM mota WHERE mota_id = 'linti_control' ORDER BY time desc LIMIT 1"
-		res = self.client.query(query).items()[0][1].next()
+		control = self.client.Mote.first_where(mote_id='linti_control')
 
-		historial = self.client.query("SELECT mota_id, temperatura, movimiento, corriente, time FROM medicion WHERE mota_id = 'linti_control' ORDER BY time desc LIMIT 50")
+		historial = list(self.client.Measurement.where(mote_id='linti_control'))
 
-		self.info_motas[res["mota_id"]] = Mota(res, historial, historial.items()[0][1].next()['temperatura'], self.client)
+		self.info_motas['linti_control'] = Mota(control, historial, historial[0].temperature, self.client)
 
 		for sen in sensores:
-			for s in sen:
-				query = "SELECT * as temperatura FROM mota WHERE mota_id = '"+s["mota_id"]+"' ORDER BY time desc LIMIT 1"
+			historial = self.client.Measurement.where(mota_id=sen.mote_id)
 
-				res = self.client.query(query).items()[0][1].next()
-
-				historial = self.client.query("SELECT mota_id, temperatura, movimiento, corriente, time FROM medicion WHERE mota_id = '"+s["mota_id"]+"' ORDER BY time desc LIMIT 50")
-
-				self.info_motas[res["mota_id"]] = Mota(res, historial, self.info_motas["linti_control"].getTemperatura(), self.client)
+			self.info_motas[sen.mote_id] = Mota(sen, historial, self.info_motas["linti_control"].getTemperatura(), self.client)
 
 		self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
 

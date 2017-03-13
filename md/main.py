@@ -34,6 +34,8 @@ import urllib
 from piso import *
 #influx
 from influxdb import InfluxDBClient
+import wenuclient
+import requests
 
 class PisosNavDrawer(MDNavigationDrawer):
 	pass
@@ -98,28 +100,48 @@ class MainBox(ScreenManager):
 		self.client = client
 		#if next_screen == "info":
 			#Clock.schedule_interval(self.update, 0.5)
-		#instancio piso y paso el client - falta ahcer una consulta para saber cuantos pisos hay
-		pisos = self.client.query('SELECT * FROM piso')
-		self.pisos = {}
-		for pp in pisos:
-			for p in pp:
-				sensores = self.client.query("SELECT * FROM mota WHERE piso_id ='"+str(p["piso_id"])+"'")
-				img = 'piso_'+str(p["piso_id"])+'.png'
+		try:
+                        session = requests.Session()
+                        session.auth = ('admin', '4Onk_Slyo')
+			self.client = wenuclient.Client('http://163.10.10.111/wenuapi', session)
+		except Exception as e:
+			print("Error al efectuar la conexion")
+			#popup = Popup(title='Error al conectarse', content=Label(text="Error de conexión.\nVerifique su conexión a internet y sus credenciales de acceso.\n\n\nPara cerrar el cuadro de diálogo presione fuera de este."), size_hint=(.8, .6))
+			#popup.open()
+                        raise
+		else:
+			#instancio piso y paso el client - falta ahcer una consulta para saber cuantos pisos hay
+			# pisos = self.client.query('SELECT * FROM piso')
+			# print pisos.get_points().next()
+			print "----------------------aaaaaaaaaaaaaaaaaaaa-------------------------------------"
+			#p_imgs = ["imagenes/plano-2piso.jpg","imagenes/primer_piso.jpg"]
+			self.pisos = {}
+			#~ self.spinner = Spinner(text="1", size_hint= (.09,.05), pos_hint={'top':1,'left':.9})
+			for piso in self.client.Level.list():
+				sensores = self.client.Mote.where(level_id=piso._id)
+				print list(sensores)
+				print "+++++++++++++++++++++++++****++++++++++++++++++++++++++++++"
+				img = 'piso_'+str(piso._id)+'.png'
+				print img
 				if ((not os.path.exists(img)) and (not os.path.exists("imagenes/"+img))):
 					try:
-						urllib.urlretrieve(str(p['mapa']),img)
+						urllib.urlretrieve(str(piso.map),img)
 					except Exception as e:
 						print "Error al descargar la imagen del piso "+img+"\n"
 						print e
-				self.pisos["piso_"+p['piso_id']] = Piso(p['piso_id'], sensores, img, self.client)
-				self.pisos["piso_"+p['piso_id']].agregar_motas()
-				p_nav = NavigationDrawerIconButton(text=self.pisos["piso_"+p['piso_id']].getName().replace('_',' '))
+				#~ else:
+				print "pisoooosss"
+				print piso._id
+				self.pisos[piso._id] = Piso(piso._id, sensores, img, self.client)
+				self.pisos[piso._id].agregar_motas()
+				p_nav = NavigationDrawerIconButton(text=self.pisos[piso._id].getName())
 				p_nav.icon = "checkbox-blank-circle"
-				p_nav.bind(on_release=partial(self.cambiar_piso, self.pisos["piso_"+p['piso_id']].getName()))
-				self.pisos_nav.add_widget(p_nav)
-				self.ids["scr_mngr"].add_widget(self.pisos["piso_"+p['piso_id']])
-		else:
-			self.ids["scr_mngr"].current = next_screen
+				p_nav.bind(on_release=partial(self.cambiar_piso, self.pisos[piso._id].getName()))
+				self.nav_drawer.add_widget(p_nav)
+				#self.main_widget.ids["scr_mngr"].add_widget(self.pisos[-1])
+				self.ids["scr_mngr"].add_widget(self.pisos[piso._id])
+			else:
+				self.ids["scr_mngr"].current = next_screen
 
 	def cambiar_piso(self, name, evnt):
 		self.ids["scr_mngr"].current = name
