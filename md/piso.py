@@ -39,10 +39,11 @@ class Mota(Button):
 	def __init__(self, data, historial, temp_amb, client):
 		super(Mota, self).__init__()
 		#try temporal hasta que esten terminados de cargar los datos en las tablas nuevas
-		self.name = data.mote_id
-		self.piso = data.level
+		self.name = data._id
+		self.piso = data.level_id
+                # self.date = data.time # FIXME: porque esta esta
 		self.client = client
-                hist = historial[0].temperature
+		hist = historial
 		self.text = str(hist)
 		self.temperature = hist
 		self.temp_amb = temp_amb
@@ -152,9 +153,9 @@ class Piso(Screen):
 	def procesar_datos(self, sensores):
 		control = self.client.Mote.first_where(mote_id='linti_control')
 
-		historial = list(self.client.Measurement.where(mote_id='linti_control'))
+                historial = list(self.client.Measurement.where(mote_id='linti_control'))
 
-		self.info_motas['linti_control'] = Mota(control, historial, historial[0].temperature, self.client)
+		self.info_motas[control._id] = Mota(control, historial, historial[0].temperature, self.client)
 
 		for sen in sensores:
 			historial = self.client.Measurement.where(mota_id=sen.mote_id)
