@@ -28,7 +28,7 @@ from kivymd.button import MDIconButton
 from kivymd.button import MDRaisedButton
 from kivymd.label import MDLabel
 from kivymd.list import ILeftBody, ILeftBodyTouch, IRightBodyTouch
-from kivymd.navigationdrawer import NavigationDrawer
+from kivymd.navigationdrawer import MDNavigationDrawer as NavigationDrawer
 from kivymd.selectioncontrols import MDCheckbox
 from kivymd.theming import ThemeManager
 from kivymd.dialog import MDDialog

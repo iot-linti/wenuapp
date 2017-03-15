@@ -11,7 +11,7 @@ from kivymd.bottomsheet import MDListBottomSheet, MDGridBottomSheet
 from kivymd.button import MDIconButton
 from kivymd.label import MDLabel
 from kivymd.list import ILeftBody, ILeftBodyTouch, IRightBodyTouch
-from kivymd.navigationdrawer import NavigationDrawer
+from kivymd.navigationdrawer import MDNavigationDrawer, NavigationLayout
 from kivymd.selectioncontrols import MDCheckbox
 from kivymd.theming import ThemeManager
 from kivymd.dialog import MDDialog
@@ -31,7 +31,7 @@ from piso import *
 #influx
 from influxdb import InfluxDBClient
 
-class PisosNavDrawer(NavigationDrawer):
+class PisosNavDrawer(MDNavigationDrawer):
 	pass
 
 class MainBox(BoxLayout):
@@ -39,7 +39,10 @@ class MainBox(BoxLayout):
 	#theme_cls.theme_style = 'Dark'
 	theme_cls.primary_palette = "Green"
 	theme_cls.secondary_palette = "Blue"
-	nav_drawer = ObjectProperty()
+	pisos_nav = ObjectProperty(None)
+	#~ pisos_nav = PisosNavDrawer()
+	lay_nav = ObjectProperty(None)
+	#~ lay_nav = NavigationLayout()
 
 	def __init__(self, *args, **kwargs):
 		super(MainBox, self).__init__(**kwargs)
@@ -47,13 +50,18 @@ class MainBox(BoxLayout):
 		self.title = 'Datos Sensores'
 		print self.ids
 
-		self.nav_drawer = PisosNavDrawer()
-		#self.nav_drawer.add_widget(NavigationDrawerIconButton(text="seee"))
+		#~ self.nav_layout = self.ids["nav_layout"]
+		#~ self.nav_drawer = self.ids["nav_drawer"]
+		#~ self.nav_layout = NavigationLayout()
+		#~ self.nav_drawer = PisosNavDrawer()
+		#~ self.nav_drawer.add_widget(PisosNavDrawer())
+		#~ self.nav_layout.add_widget(self.nav_drawer)
+		self.pisos_nav.add_widget(NavigationDrawerIconButton(text="seee"))
 		self.iniciar("bottomsheet","piso_1")
 
 		self.menu_items = [
         {'viewclass': 'MDMenuItem',
-         'text': 'Posicionar', 
+         'text': 'Posicionar',
          'on_release': self.pos_motas},
         {'viewclass': 'MDMenuItem',
          'text': 'Actualizar'}#,
@@ -108,7 +116,7 @@ class MainBox(BoxLayout):
 					p_nav = NavigationDrawerIconButton(text=self.pisos["piso_"+p['piso_id']].getName())
 					p_nav.icon = "checkbox-blank-circle"
 					p_nav.bind(on_release=partial(self.cambiar_piso, self.pisos["piso_"+p['piso_id']].getName()))
-					self.nav_drawer.add_widget(p_nav)
+					self.pisos_nav.add_widget(p_nav)
 					#self.main_widget.ids["scr_mngr"].add_widget(self.pisos[-1])
 					self.ids["scr_mngr"].add_widget(self.pisos["piso_"+p['piso_id']])
 			else:
@@ -124,7 +132,7 @@ class MainBox(BoxLayout):
 		m_item = MDMenuItem()
 		#m_item.text = "ssdasld"
 		MD = MDDropdownMenu(items=self.menu_items,width_mult=2)
-		#MD.center_x = 
+		#MD.center_x =
 		MD.open(self)"""
 
 	def pos_motas(self):
@@ -145,7 +153,7 @@ class DatosSensoresApp(App):
 
 
 	########################################################################
-	
+
 
 	def on_pause(self):
 		if platform == 'android':
