@@ -40,23 +40,14 @@ class MainBox(BoxLayout):
 	theme_cls.primary_palette = "Green"
 	theme_cls.secondary_palette = "Blue"
 	pisos_nav = ObjectProperty(None)
-	#~ pisos_nav = PisosNavDrawer()
 	lay_nav = ObjectProperty(None)
-	#~ lay_nav = NavigationLayout()
 
 	def __init__(self, *args, **kwargs):
 		super(MainBox, self).__init__(**kwargs)
 		self.icon = 'pin_1.png'
 		self.title = 'Datos Sensores'
-		print self.ids
 
-		#~ self.nav_layout = self.ids["nav_layout"]
-		#~ self.nav_drawer = self.ids["nav_drawer"]
-		#~ self.nav_layout = NavigationLayout()
-		#~ self.nav_drawer = PisosNavDrawer()
-		#~ self.nav_drawer.add_widget(PisosNavDrawer())
-		#~ self.nav_layout.add_widget(self.nav_drawer)
-		self.pisos_nav.add_widget(NavigationDrawerIconButton(text="seee"))
+		#~ self.pisos_nav.add_widget(NavigationDrawerIconButton(text="seee"))
 		self.iniciar("bottomsheet","piso_1")
 
 		self.menu_items = [
@@ -71,46 +62,28 @@ class MainBox(BoxLayout):
 	def iniciar(self, actual_screen, next_screen):
 		#if next_screen == "info":
 			#Clock.schedule_interval(self.update, 0.5)
-		print "inicia!"
 		try:
 			self.client = InfluxDBClient('influxdb.linti.unlp.edu.ar', 8086, "lihuen", '***REMOVED***', 'uso_racional')
 			self.client.query('SELECT mota_id FROM medicion LIMIT 1') #por ahora la unica forma de testear la conexion.
 
 		except Exception as e:
-			print str(e)
 			print("Error al efectuar la conexion")
 			#popup = Popup(title='Error al conectarse', content=Label(text="Error de conexión.\nVerifique su conexión a internet y sus credenciales de acceso.\n\n\nPara cerrar el cuadro de diálogo presione fuera de este."), size_hint=(.8, .6))
 			#popup.open()
 		else:
 			#instancio piso y paso el client - falta ahcer una consulta para saber cuantos pisos hay
 			pisos = self.client.query('SELECT * FROM piso')
-			print pisos.get_points().next()
-			print "----------------------aaaaaaaaaaaaaaaaaaaa-------------------------------------"
-			#p_imgs = ["imagenes/plano-2piso.jpg","imagenes/primer_piso.jpg"]
-			#self.pisos = []
 			self.pisos = {}
-			#~ self.spinner = Spinner(text="1", size_hint= (.09,.05), pos_hint={'top':1,'left':.9})
 			for pp in pisos:
 				for p in pp:
-					print "*************************************"
-					print p
-					print "**********************pppppp*********"
-					#~ self.spinner.values.append(str(p))
 					sensores = self.client.query("SELECT * FROM mota WHERE piso_id ='"+str(p["piso_id"])+"'")
-					print sensores
-					print "+++++++++++++++++++++++++****++++++++++++++++++++++++++++++"
 					img = 'piso_'+str(p["piso_id"])+'.png'
-					print img
 					if ((not os.path.exists(img)) and (not os.path.exists("imagenes/"+img))):
 						try:
 							urllib.urlretrieve(str(p['mapa']),img)
 						except Exception as e:
 							print "Error al descargar la imagen del piso "+img+"\n"
 							print e
-					#~ else:
-					print "pisoooosss"
-					print p['piso_id']
-					#self.pisos.append(Piso(p['piso_id'], sensores, img, self.client))
 					self.pisos["piso_"+p['piso_id']] = Piso(p['piso_id'], sensores, img, self.client)
 					self.pisos["piso_"+p['piso_id']].agregar_motas()
 					p_nav = NavigationDrawerIconButton(text=self.pisos["piso_"+p['piso_id']].getName())
@@ -127,17 +100,7 @@ class MainBox(BoxLayout):
 		#self.main_widget.ids["scr_mngr"].current = name
 		self.ids["scr_mngr"].current = name
 
-	"""def open_menu(self):
-		print "Abre menu"
-		m_item = MDMenuItem()
-		#m_item.text = "ssdasld"
-		MD = MDDropdownMenu(items=self.menu_items,width_mult=2)
-		#MD.center_x =
-		MD.open(self)"""
-
 	def pos_motas(self):
-		#print self.ids
-		print self.ids["scr_mngr"].current
 		self.pisos[self.ids["scr_mngr"].current].config_mota_pos()
 
 class DatosSensoresApp(App):
