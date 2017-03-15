@@ -90,14 +90,11 @@ class MainBox(BoxLayout):
 					p_nav.icon = "checkbox-blank-circle"
 					p_nav.bind(on_release=partial(self.cambiar_piso, self.pisos["piso_"+p['piso_id']].getName()))
 					self.pisos_nav.add_widget(p_nav)
-					#self.main_widget.ids["scr_mngr"].add_widget(self.pisos[-1])
 					self.ids["scr_mngr"].add_widget(self.pisos["piso_"+p['piso_id']])
 			else:
-				#self.main_widget.ids["scr_mngr"].current = next_screen
 				self.ids["scr_mngr"].current = next_screen
 
 	def cambiar_piso(self, name, evnt):
-		#self.main_widget.ids["scr_mngr"].current = name
 		self.ids["scr_mngr"].current = name
 
 	def pos_motas(self):
