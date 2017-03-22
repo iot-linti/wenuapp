@@ -65,7 +65,6 @@ class MainBox(BoxLayout):
 		try:
 			self.client = InfluxDBClient('influxdb.linti.unlp.edu.ar', 8086, "lihuen", '***REMOVED***', 'uso_racional')
 			self.client.query('SELECT mota_id FROM medicion LIMIT 1') #por ahora la unica forma de testear la conexion.
-
 		except Exception as e:
 			print("Error al efectuar la conexion")
 			#popup = Popup(title='Error al conectarse', content=Label(text="Error de conexión.\nVerifique su conexión a internet y sus credenciales de acceso.\n\n\nPara cerrar el cuadro de diálogo presione fuera de este."), size_hint=(.8, .6))
@@ -86,7 +85,7 @@ class MainBox(BoxLayout):
 							print e
 					self.pisos["piso_"+p['piso_id']] = Piso(p['piso_id'], sensores, img, self.client)
 					self.pisos["piso_"+p['piso_id']].agregar_motas()
-					p_nav = NavigationDrawerIconButton(text=self.pisos["piso_"+p['piso_id']].getName())
+					p_nav = NavigationDrawerIconButton(text=self.pisos["piso_"+p['piso_id']].getName().replace('_',' '))
 					p_nav.icon = "checkbox-blank-circle"
 					p_nav.bind(on_release=partial(self.cambiar_piso, self.pisos["piso_"+p['piso_id']].getName()))
 					self.pisos_nav.add_widget(p_nav)

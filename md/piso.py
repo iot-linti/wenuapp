@@ -235,7 +235,7 @@ class MakeFilePos(Widget):
 				l = MDLabel(text="Ingrese posición de la mota: "+str(key), pos_hint={'top':1.44,'right':.06})
 				self.add_widget(l)
 			else:
-				l = MDLabel(text="Haga click para finalizar", pos_hint={'top':1.44,'right':.6})
+				l = MDLabel(text="Haga click para finalizar", pos_hint={'top':1.44,'right':.06})
 				self.add_widget(l)
 		else:
 			for m in self.motas.keys():
