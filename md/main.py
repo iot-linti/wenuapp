@@ -25,6 +25,8 @@ from kivymd.toolbar import Toolbar
 
 from kivymd.navigationdrawer import NavigationDrawerIconButton
 
+#~ from kivymd.textfields.MDTextField import MDTextField
+
 import os
 import urllib
 from piso import *
@@ -34,18 +36,47 @@ from influxdb import InfluxDBClient
 class PisosNavDrawer(MDNavigationDrawer):
 	pass
 
+class Login(BoxLayout):
+
+	def conectar(self):
+		usr = self.ids["usr"].text
+		passwd = self.ids["password"].text
+		print usr
+		print passwd
+		try:
+			self.client = InfluxDBClient('influxdb.linti.unlp.edu.ar', 8086, usr, passwd, 'uso_racional')
+			self.client.query('SELECT mota_id FROM medicion LIMIT 1') #por ahora la unica forma de testear la conexion.
+		except Exception as e:
+			print("Error al efectuar la conexion")
+			self.error_dialog()
+			#popup = Popup(title='Error al conectarse', content=Label(text="Error de conexión.\nVerifique su conexión a internet y sus credenciales de acceso.\n\n\nPara cerrar el cuadro de diálogo presione fuera de este."), size_hint=(.8, .6))
+			#popup.open()
+		else:
+			self.root = MainBox(client=self.client)
+			#~ self.root = MainBox()
+			#~ self.ids["scr_sm_log"].current = "sm_mb"
+
+	def error_dialog(self):
+		content = MDLabel(font_style='Body1',theme_text_color='Secondary', text="Error al conectar. Verifique el usuario y contraseña.", size_hint_y=None, valign='top')
+		content.bind(texture_size=content.setter('size'))
+		self.dialog = MDDialog(title="Error",content=content, size_hint=(.8, None),height=dp(200),auto_dismiss=False)
+		self.dialog.add_action_button("Cerrar", action=lambda *x: self.dialog.dismiss())
+		self.dialog.open()
+
 class MainBox(BoxLayout):
 	theme_cls = ThemeManager()
 	#theme_cls.theme_style = 'Dark'
 	theme_cls.primary_palette = "Green"
 	theme_cls.secondary_palette = "Blue"
 	pisos_nav = ObjectProperty(None)
-	lay_nav = ObjectProperty(None)
+	#~ lay_nav = ObjectProperty(None)
 
-	def __init__(self, *args, **kwargs):
-		super(MainBox, self).__init__(**kwargs)
+	def __init__(self, client, *args, **kwargs):
+	#~ def __init__(self, *args, **kwargs):
+		#~ super(MainBox, self).__init__(client, **kwargs)
 		self.icon = 'pin_1.png'
 		self.title = 'Datos Sensores'
+		self.client = client
 
 		#~ self.pisos_nav.add_widget(NavigationDrawerIconButton(text="seee"))
 		self.iniciar("bottomsheet","piso_1")
@@ -62,36 +93,38 @@ class MainBox(BoxLayout):
 	def iniciar(self, actual_screen, next_screen):
 		#if next_screen == "info":
 			#Clock.schedule_interval(self.update, 0.5)
-		try:
+		"""try:
 			self.client = InfluxDBClient('influxdb.linti.unlp.edu.ar', 8086, "lihuen", '***REMOVED***', 'uso_racional')
 			self.client.query('SELECT mota_id FROM medicion LIMIT 1') #por ahora la unica forma de testear la conexion.
 		except Exception as e:
-			print("Error al efectuar la conexion")
+			print("Error al efectuar la conexion", e)
 			#popup = Popup(title='Error al conectarse', content=Label(text="Error de conexión.\nVerifique su conexión a internet y sus credenciales de acceso.\n\n\nPara cerrar el cuadro de diálogo presione fuera de este."), size_hint=(.8, .6))
 			#popup.open()
-		else:
+		else:"""
 			#instancio piso y paso el client - falta ahcer una consulta para saber cuantos pisos hay
-			pisos = self.client.query('SELECT * FROM piso')
-			self.pisos = {}
-			for pp in pisos:
-				for p in pp:
-					sensores = self.client.query("SELECT * FROM mota WHERE piso_id ='"+str(p["piso_id"])+"'")
-					img = 'piso_'+str(p["piso_id"])+'.png'
-					if ((not os.path.exists(img)) and (not os.path.exists("imagenes/"+img))):
-						try:
-							urllib.urlretrieve(str(p['mapa']),img)
-						except Exception as e:
-							print "Error al descargar la imagen del piso "+img+"\n"
-							print e
-					self.pisos["piso_"+p['piso_id']] = Piso(p['piso_id'], sensores, img, self.client)
-					self.pisos["piso_"+p['piso_id']].agregar_motas()
-					p_nav = NavigationDrawerIconButton(text=self.pisos["piso_"+p['piso_id']].getName().replace('_',' '))
-					p_nav.icon = "checkbox-blank-circle"
-					p_nav.bind(on_release=partial(self.cambiar_piso, self.pisos["piso_"+p['piso_id']].getName()))
-					self.pisos_nav.add_widget(p_nav)
-					self.ids["scr_mngr"].add_widget(self.pisos["piso_"+p['piso_id']])
-			else:
-				self.ids["scr_mngr"].current = next_screen
+		pisos = self.client.query('SELECT * FROM piso')
+		self.pisos = {}
+		for pp in pisos:
+			for p in pp:
+				sensores = self.client.query("SELECT * FROM mota WHERE piso_id ='"+str(p["piso_id"])+"'")
+				img = 'piso_'+str(p["piso_id"])+'.png'
+				if ((not os.path.exists(img)) and (not os.path.exists("imagenes/"+img))):
+					try:
+						urllib.urlretrieve(str(p['mapa']),img)
+					except Exception as e:
+						print "Error al descargar la imagen del piso "+img+"\n"
+						print e
+				self.pisos["piso_"+p['piso_id']] = Piso(p['piso_id'], sensores, img, self.client)
+				self.pisos["piso_"+p['piso_id']].agregar_motas()
+				p_nav = NavigationDrawerIconButton(text=self.pisos["piso_"+p['piso_id']].getName().replace('_',' '))
+				p_nav.icon = "checkbox-blank-circle"
+				p_nav.bind(on_release=partial(self.cambiar_piso, self.pisos["piso_"+p['piso_id']].getName()))
+				print self.pisos_nav
+				print type(self.pisos_nav)
+				self.pisos_nav.add_widget(p_nav)
+				self.ids["scr_mngr"].add_widget(self.pisos["piso_"+p['piso_id']])
+		else:
+			self.ids["scr_mngr"].current = next_screen
 
 	def cambiar_piso(self, name, evnt):
 		self.ids["scr_mngr"].current = name
@@ -108,7 +141,8 @@ class DatosSensoresApp(App):
 
 	def build(self):
 		Builder.load_file('datosSensores.kv')
-		return MainBox()
+		#~ return MainBox()
+		return Login()
 
 
 	########################################################################
