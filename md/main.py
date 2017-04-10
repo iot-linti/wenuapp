@@ -61,12 +61,14 @@ class Login(BoxLayout):
 			mb = MainBox(client=self.client)
 			print mb
 			print "funciono???"
+			print self.parent.parent
 			print self.parent
 			#~ self.parent.add_widget(mb)
 			#~ self.parent.add(mb)
 			#~ print "kdkkdfj"
-			self.parent.current = 'main'
+			#~ self.parent.current = 'main'
 			self.parent.parent.iniciar("bottomsheet","piso_1", self.client)
+			self.parent.parent.current = 'main'
 			self.parent.remove_widget(self)
 			#~ self.parent.remove(self)
 			#~ self.add_widget(MainBox(client=self.client))

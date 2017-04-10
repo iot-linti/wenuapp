@@ -23,45 +23,11 @@
 #:import MDTextField kivymd.textfields.MDTextField
 
 
-#LoginScreen:
-	#name: 'login'
-	#size_hint: (1,1)
-#<Login>:
-	#orientation: 'vertical'
-	#size_hint_y: None
-	#BoxLayout:
-	#	size_hint_y: None
-	#	height: dp(400)
-	#	padding: dp(200)
-	#	orientation: 'vertical'
-	#	spacing: 10
-	#	MDTextField:
-	#		id: usr
-	#		hint_text: "Usuario"
-	#		message: "Debe ingresar un usuario"
-	#		required: True
-	#		message_mode: "on_error"
-	#	MDTextField:
-	#		id: password
-	#		hint_text: "Contraseña"
-	#		message: "Debe ingresar una contraseña"
-	#		required: True
-	#		password: True
-	#		message_mode: "on_error"
-	#	MDRaisedButton:
-	#		text: 'Conectar'
-	#		pos_hint: {'center_x': 0.5, 'center_y': 0.6}
-	#		on_press: root.conectar()
-		#Screen:
-		#	id: sm_mb
-		#	MainBox
-	#Screen:
-		#name: 'mainbox'
 <MainBox>:
 	#id: datos
 	#orientation: 'vertical'
 	#lay_nav: nav_layout
-	#pisos_nav: nav_drawer
+	pisos_nav: nav_drawer
 	Screen:
 		name: 'login'
 		Login:
@@ -102,7 +68,7 @@
 				title: 'Datos sensores'
 				background_color: self.theme_cls.primary_color
 				left_action_items: [['menu', lambda x: self.parent.lay_nav.toggle_nav_drawer()]]
-				right_action_items: [['dots-vertical', lambda x: MDDropdownMenu(items=self.parent.menu_items, width_mult=2).open(self)]]#self.parent.open_menu()]]
+				right_action_items: [['dots-vertical', lambda x: MDDropdownMenu(items=self.parent.parent.parent.menu_items, width_mult=2).open(self)]]#self.parent.open_menu()]]
 			NavigationLayout:
 				id: nav_layout
 				PisosNavDrawer:
