@@ -92,7 +92,8 @@ class Mota(Button):
 		bs = MDListBottomSheet()
 		for re in historial:
 			for r in re:
-				text = '{:^10}'.format(str(r['temperatura']))+'{:^50}'.format(str(r["corriente"]))+'{:^50}'.format(str(r["time"]))+'{:^20}'.format(str(r["movimiento"]))
+				mov = "Si" if r["movimiento"] == True else "No"
+				text = '{:^10}'.format(str(r['temperatura']))+'{:^50}'.format(str(r["corriente"]))+'{:^50}'.format(str(r["time"]))+'{:^20}'.format(mov)
 				if (self.temp_amb + 5 < r['temperatura']):
 					bs.add_item(text, lambda x: x, icon='weather-hail')#self.callbaack(x))
 				elif (self.temp_amb - 5 < r['temperatura']):

@@ -38,12 +38,14 @@
 			spacing: 10
 			MDTextField:
 				id: usr
+				text: 'lihuen' #quitar en version final
 				hint_text: "Usuario"
 				message: "Debe ingresar un usuario"
 				required: True
 				message_mode: "on_error"
 			MDTextField:
 				id: password
+				text: '***REMOVED***' #quitar en version final
 				hint_text: "Contraseña"
 				message: "Debe ingresar una contraseña"
 				required: True
@@ -68,7 +70,7 @@
 				title: 'Datos sensores'
 				background_color: self.theme_cls.primary_color
 				left_action_items: [['menu', lambda x: self.parent.lay_nav.toggle_nav_drawer()]]
-				right_action_items: [['dots-vertical', lambda x: MDDropdownMenu(items=root.menu_items, width_mult=2).open(self)]]#self.parent.open_menu()]]
+				right_action_items: [['dots-vertical', lambda x: MDDropdownMenu(items=root.menu_items, width_mult=2).open(self)]]
 			NavigationLayout:
 				id: nav_layout
 				PisosNavDrawer:

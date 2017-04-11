@@ -87,10 +87,8 @@ class MainBox(ScreenManager):
          'text': 'Actualizar'}#,
          #'on_release': self.cambiar_piso},
          	]
-		#~ self.log()
-		print "sssssssss"
+
 		self.current = 'login'
-		print "aaaaaaaaa"
 
 	def log(self):
 		print self.ids
