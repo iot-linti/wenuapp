@@ -130,14 +130,6 @@ class MainBox(ScreenManager):
 class LoginScreen(Screen):
 	pass
 
-class BL(BoxLayout):
-
-	def add(self, otro):
-		self.add_widget(otro)
-
-	def remove(self, otro):
-		self.remove_widget(otro)
-
 class DatosSensoresApp(App):
 	theme_cls = ThemeManager()
 	#theme_cls.theme_style = 'Dark'
