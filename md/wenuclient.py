@@ -66,7 +66,10 @@ class Entity(object):
 
     @classmethod
     def first_where(cls, **kwargs):
-        return next(cls.where(**kwargs))
+        try:
+            return next(cls.where(**kwargs))
+        except StopIteration:
+            return None
 
     def __str__(self):
         return str(self.fields)

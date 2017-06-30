@@ -23,8 +23,6 @@ import json
 import kivymd.snackbar as Snackbar
 from kivy.metrics import dp
 from kivy.uix.image import Image
-from kivymd.bottomsheet import MDListBottomSheet, MDGridBottomSheet
-from kivymd.button import MDIconButton
 from kivymd.button import MDRaisedButton
 from kivymd.label import MDLabel
 from kivymd.list import ILeftBody, ILeftBodyTouch, IRightBodyTouch
@@ -34,6 +32,7 @@ from kivymd.theming import ThemeManager
 from kivymd.dialog import MDDialog
 from kivymd.time_picker import MDTimePicker
 from kivymd.date_picker import MDDatePicker
+from kivymd.bottomsheet import MDListBottomSheet, MDGridBottomSheet
 
 class Mota(Button):
 	def __init__(self, data, historial, temp_amb, client):
@@ -152,10 +151,14 @@ class Piso(Screen):
 
 	def procesar_datos(self, sensores):
 		control = self.client.Mote.first_where(mote_id='linti_control')
+		if control is None:
+			# FIXME: Deberíamos tener algo más genérico
+			raise Exception('No existe linti_control, pensar otra forma de implementar esto')
 
                 historial = list(self.client.Measurement.where(mote_id='linti_control'))
 
-		self.info_motas[control._id] = Mota(control, historial, historial[0].temperature, self.client)
+		temperature = historial[0].temperature if historial else float('nan')
+		self.info_motas[control._id] = Mota(control, historial, temperature, self.client)
 
 		for sen in sensores:
 			historial = self.client.Measurement.where(mota_id=sen.mote_id)

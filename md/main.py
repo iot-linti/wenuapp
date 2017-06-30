@@ -9,8 +9,6 @@ from kivy.uix.image import Image
 from kivy.uix.button import Button
 from kivy.uix.screenmanager import ScreenManager, Screen
 
-from kivymd.bottomsheet import MDListBottomSheet, MDGridBottomSheet
-from kivymd.button import MDIconButton
 from kivymd.label import MDLabel
 from kivymd.list import ILeftBody, ILeftBodyTouch, IRightBodyTouch
 from kivymd.navigationdrawer import MDNavigationDrawer, NavigationLayout
@@ -42,19 +40,21 @@ class PisosNavDrawer(MDNavigationDrawer):
 
 class Login(BoxLayout):
 
-	def conectar(self,usrer, password):
-		usr = usrer
-		passwd = password
+	def conectar(self, user, password):
+		config = App.get_running_app().config
 		try:
-			self.client = InfluxDBClient('influxdb.linti.unlp.edu.ar', 8086, usr, passwd, 'uso_racional')
-			self.client.query('SELECT mota_id FROM medicion LIMIT 1') #por ahora la unica forma de testear la conexion.
-		except Exception as e:
+			config.set('WENU', 'USER', user)
+			config.set('WENU', 'PASS', password)
+			config.write()
+			server = config.get('WENU', 'SERVER')
+			
+			session = requests.Session()
+			session.auth = (user, password)
+			self.client = wenuclient.Client(server, session)
+		except requests.exceptions.RequestException as e:
 			print("Error al efectuar la conexion")
 			self.error_dialog()
-			#popup = Popup(title='Error al conectarse', content=Label(text="Error de conexión.\nVerifique su conexión a internet y sus credenciales de acceso.\n\n\nPara cerrar el cuadro de diálogo presione fuera de este."), size_hint=(.8, .6))
-			#popup.open()
 		else:
-			mb = MainBox(client=self.client)
 			self.parent.parent.iniciar("bottomsheet","piso_1", self.client)
 			self.parent.parent.current = 'main'
 			self.parent.remove_widget(self)
@@ -73,13 +73,15 @@ class MainBox(ScreenManager):
 	theme_cls.secondary_palette = "Blue"
 	pisos_nav = ObjectProperty(None)
 
-	def __init__(self, *args, **kwargs):
+	def __init__(self, config, *args, **kwargs):
 		super(MainBox, self).__init__(**kwargs)
 		#~ super(MainBox, self).__init__(client, **kwargs)
 		self.icon = 'pin_1.png'
 		self.title = 'Datos Sensores'
 		#~ self.client = client
 		self.client = None
+
+		self.config = config
 
 		self.menu_items = [
         {'viewclass': 'MDMenuItem',
@@ -100,48 +102,40 @@ class MainBox(ScreenManager):
 		self.client = client
 		#if next_screen == "info":
 			#Clock.schedule_interval(self.update, 0.5)
-		try:
-                        session = requests.Session()
-                        session.auth = ('admin', '4Onk_Slyo')
-			self.client = wenuclient.Client('http://163.10.10.111/wenuapi', session)
-		except Exception as e:
-			print("Error al efectuar la conexion")
-			#popup = Popup(title='Error al conectarse', content=Label(text="Error de conexión.\nVerifique su conexión a internet y sus credenciales de acceso.\n\n\nPara cerrar el cuadro de diálogo presione fuera de este."), size_hint=(.8, .6))
-			#popup.open()
-                        raise
+
+		#instancio piso y paso el client - falta ahcer una consulta para saber cuantos pisos hay
+		# pisos = self.client.query('SELECT * FROM piso')
+		# print pisos.get_points().next()
+		print "----------------------aaaaaaaaaaaaaaaaaaaa-------------------------------------"
+		#p_imgs = ["imagenes/plano-2piso.jpg","imagenes/primer_piso.jpg"]
+		self.pisos = {}
+		#~ self.spinner = Spinner(text="1", size_hint= (.09,.05), pos_hint={'top':1,'left':.9})
+		for piso in self.client.Level.list():
+			sensores = self.client.Mote.where(level_id=piso._id)
+			print list(sensores)
+			print "+++++++++++++++++++++++++****++++++++++++++++++++++++++++++"
+			img = 'piso_'+str(piso._id)+'.png'
+			print img
+			if ((not os.path.exists(img)) and (not os.path.exists("imagenes/"+img))):
+				try:
+					urllib.urlretrieve(str(piso.map),img)
+				except Exception as e:
+					print "Error al descargar la imagen del piso "+img+"\n"
+					print e
+			#~ else:
+			print "pisoooosss"
+			print piso._id
+			self.pisos[piso._id] = Piso(piso._id, sensores, img, self.client)
+			self.pisos[piso._id].agregar_motas()
+			p_nav = NavigationDrawerIconButton(text=self.pisos[piso._id].getName())
+			p_nav.icon = "checkbox-blank-circle"
+			p_nav.bind(on_release=partial(self.cambiar_piso, self.pisos[piso._id].getName()))
+			#self.nav_drawer.add_widget(p_nav)
+			self.pisos_nav.add_widget(p_nav)
+			#self.main_widget.ids["scr_mngr"].add_widget(self.pisos[-1])
+			self.ids["scr_mngr"].add_widget(self.pisos[piso._id])
 		else:
-			#instancio piso y paso el client - falta ahcer una consulta para saber cuantos pisos hay
-			# pisos = self.client.query('SELECT * FROM piso')
-			# print pisos.get_points().next()
-			print "----------------------aaaaaaaaaaaaaaaaaaaa-------------------------------------"
-			#p_imgs = ["imagenes/plano-2piso.jpg","imagenes/primer_piso.jpg"]
-			self.pisos = {}
-			#~ self.spinner = Spinner(text="1", size_hint= (.09,.05), pos_hint={'top':1,'left':.9})
-			for piso in self.client.Level.list():
-				sensores = self.client.Mote.where(level_id=piso._id)
-				print list(sensores)
-				print "+++++++++++++++++++++++++****++++++++++++++++++++++++++++++"
-				img = 'piso_'+str(piso._id)+'.png'
-				print img
-				if ((not os.path.exists(img)) and (not os.path.exists("imagenes/"+img))):
-					try:
-						urllib.urlretrieve(str(piso.map),img)
-					except Exception as e:
-						print "Error al descargar la imagen del piso "+img+"\n"
-						print e
-				#~ else:
-				print "pisoooosss"
-				print piso._id
-				self.pisos[piso._id] = Piso(piso._id, sensores, img, self.client)
-				self.pisos[piso._id].agregar_motas()
-				p_nav = NavigationDrawerIconButton(text=self.pisos[piso._id].getName())
-				p_nav.icon = "checkbox-blank-circle"
-				p_nav.bind(on_release=partial(self.cambiar_piso, self.pisos[piso._id].getName()))
-				self.nav_drawer.add_widget(p_nav)
-				#self.main_widget.ids["scr_mngr"].add_widget(self.pisos[-1])
-				self.ids["scr_mngr"].add_widget(self.pisos[piso._id])
-			else:
-				self.ids["scr_mngr"].current = next_screen
+			self.ids["scr_mngr"].current = next_screen
 
 	def cambiar_piso(self, name, evnt):
 		self.ids["scr_mngr"].current = name
@@ -160,10 +154,17 @@ class DatosSensoresApp(App):
 	#nav_drawer = ObjectProperty()
 
 	def build(self):
+		self.configuration = self.config
 		Builder.load_file('datosSensores.kv')
-		return MainBox()
+		return MainBox(self.config)
 
 	########################################################################
+	def build_config(self, config):
+		config.setdefaults('WENU', {
+			'SERVER': 'http://localhost:5000',
+			'USER': 'admin',
+			'PASS': 'wenu',
+		})
 
 
 	def on_pause(self):
