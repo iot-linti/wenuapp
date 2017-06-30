@@ -18,7 +18,11 @@ def validate_and_jsonify(func):
             http_request.status_code,
         )
         logger.debug(http_request.text)
-        assert http_request.status_code == 200 or http_request.status_code == 201
+        if not http_request.status_code in (200, 201):
+            raise Exception('Status {}: {}'.format(
+                http_request.status_code,
+                http_request.text,
+            ))
         return json.loads(http_request.text)
 
     return closure

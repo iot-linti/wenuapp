@@ -158,7 +158,7 @@ class Piso(Screen):
                 historial = list(self.client.Measurement.where(mote_id='linti_control'))
 
 		temperature = historial[0].temperature if historial else float('nan')
-		self.info_motas[control._id] = Mota(control, historial, temperature, self.client)
+		self.info_motas[control.mote_id] = Mota(control, historial, temperature, self.client)
 
 		for sen in sensores:
 			historial = self.client.Measurement.where(mota_id=sen.mote_id)
@@ -219,7 +219,8 @@ class MakeFilePos(Widget):
 		#~ self.size = self.parent.size
 
 	def calc_pos(self, tx, ty, key):
-		return tx-(self.motas[str(key)].size[0]/2),ty-(self.motas[str(key)].size[1]/2)
+		pos = (tx-(self.motas[str(key)].size[0]/2),ty-(self.motas[str(key)].size[1]/2))
+		return map(int, pos)
 
 	def on_touch_down(self, touch):
 		if len(self.children) > 0:
@@ -237,22 +238,11 @@ class MakeFilePos(Widget):
 				self.add_widget(l)
 		else:
 			for m in self.motas.keys():
-				json_body = [
-						{
-							"measurement": "mota",
-							"tags": {
-								"mota_id": m,
-								"piso_id": self.motas[m].get_piso()
-							},
-							"time": 0,
-							"fields": {
-								"x": self.m_pos[m][0],
-								"y": self.m_pos[m][1],
-								"resolucion": str(Window.size)
-							}
-						}
-					]
-				self.client.write_points(json_body)
+				mote = self.client.Mote.first_where(mote_id=m, level_id = self.motas[m].get_piso())
+				mote.x = self.m_pos[m][0];
+				mote.y = self.m_pos[m][1];
+				mote.resolution = str(Window.size)
+				mote.save()
 				self.motas[str(m)].pos = self.motas[str(m)].pos = self.motas[str(m)].translate(self.motas[str(m)].orig_size, Window.size, self.m_pos[m][0],self.m_pos[m][1])
 			self.parent.remove_widget(self)
 		return True

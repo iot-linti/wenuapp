@@ -141,7 +141,8 @@ class MainBox(ScreenManager):
 		self.ids["scr_mngr"].current = name
 
 	def pos_motas(self):
-		self.pisos[self.ids["scr_mngr"].current].config_mota_pos()
+		piso_id = int(self.ids["scr_mngr"].current.split('_')[-1])
+		self.pisos[piso_id].config_mota_pos()
 
 class LoginScreen(Screen):
 	pass
