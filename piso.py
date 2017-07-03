@@ -12,34 +12,47 @@ from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.popup import Popup
 from kivy.uix.spinner import Spinner
+from kivy.uix.floatlayout import FloatLayout
 #python
 from functools import partial
 import datetime
 #import shelve
 import json
+#kivymd
 
+import kivymd.snackbar as Snackbar
+from kivy.metrics import dp
+from kivy.uix.image import Image
+from kivymd.button import MDRaisedButton
+from kivymd.label import MDLabel
+from kivymd.list import ILeftBody, ILeftBodyTouch, IRightBodyTouch
+from kivymd.navigationdrawer import MDNavigationDrawer as NavigationDrawer
+from kivymd.selectioncontrols import MDCheckbox
+from kivymd.theming import ThemeManager
+from kivymd.dialog import MDDialog
+from kivymd.time_picker import MDTimePicker
+from kivymd.date_picker import MDDatePicker
+from kivymd.bottomsheet import MDListBottomSheet, MDGridBottomSheet
 
 class Mota(Button):
 	def __init__(self, data, historial, temp_amb, client):
 		super(Mota, self).__init__()
 		#try temporal hasta que esten terminados de cargar los datos en las tablas nuevas
-		print data
-		print "daaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-		self.name = data["mota_id"]
-		self.piso = data["piso_id"]
-		self.date = data["time"]
+		self.name = data._id
+		self.piso = data.level_id
+                # self.date = data.time # FIXME: porque esta esta
 		self.client = client
-		hist = historial.items()[0][1].next()["temperatura"]
+		hist = historial
 		self.text = str(hist)
 		self.temperature = hist
-		#~ self.temp_amb = temp_amb
+		self.temp_amb = temp_amb
 		#~ try:
-		res = data["resolucion"].split(",")
+		res = data.resolution.split(",")
 		res = int(res[0][1:]),int(res[1][:-1])
-		orig_size = res#eval(data["resolucion"])#Window.size#(1280, 960)
+		self.orig_size = res#eval(data["resolucion"])#Window.size#(1280, 960)
 		#~ orig_size = Window.size#(1280, 960)
 		#~ img.size = translate(orig_size, Window.size, *img.size)
-		self.pos = self.translate(orig_size, Window.size, data["x"], data["y"])
+		self.pos = self.translate(self.orig_size, Window.size, data.x, data.y)
 		self.actualizar(temp_amb, historial)
 
 	def get_piso(self):
@@ -69,40 +82,28 @@ class Mota(Button):
 		self.bind(on_release=partial(self.historial_mota,historial, temp))
 
 	def historial_mota(self, historial, temp_amb, *args):
-		print args
 		bs = MDGridBottomSheet()
 		layout_pop = GridLayout(cols=1, rows=2)
 		layout = GridLayout(cols=4, spacing=30, size_hint_y=None)
 		layout.bind(minimum_height=layout.setter('height'))
-		print "....................***************************................................"
-		print historial
+
+
+		bs = MDListBottomSheet()
 		for re in historial:
-			print re
 			for r in re:
-				print r
-				temp_color = self.calcular_color(r['temperatura'], temp_amb)
-				layout.add_widget(Label(text=temp_color, markup= True))
-				layout.add_widget(Label(text=str(r["corriente"])))
-				layout.add_widget(Label(text=str(r["time"])))
-				layout.add_widget(Label(text=str(r["movimiento"])))
-
-
-			#~ layout.add_widget(Button(text="Cerrar"))
-
-			contenido = ScrollView(size_hint=(1, 1), size=(400,400))
-			contenido.add_widget(layout)
-			layout_pop.add_widget(contenido)
-			lay_btn = GridLayout(cols=2, rows=1, size_hint=(1,.2))
-			btn = Button(text="Apagar", size_hint=(1,.2))
-			btn.bind(on_press=self.apagar_mota)
-			lay_btn.add_widget(btn)
-			lay_btn.add_widget(Button(text="Algo mas", size_hint=(1,.2)))
-			layout_pop.add_widget(lay_btn)
-			popup = Popup(title='Historial '+self.name, content=layout_pop, size_hint=(.8, .6))
-			popup.open()
+				mov = "Si" if r["movimiento"] == True else "No"
+				text = '{:^10}'.format(str(r['temperatura']))+'{:^50}'.format(str(r["corriente"]))+'{:^50}'.format(str(r["time"]))+'{:^20}'.format(mov)
+				if (self.temp_amb + 5 < r['temperatura']):
+					bs.add_item(text, lambda x: x, icon='weather-hail')#self.callbaack(x))
+				elif (self.temp_amb - 5 < r['temperatura']):
+					bs.add_item(text, lambda x: x, icon='weather-sunny')#, icon='alert-circle-outline')
+				else:
+					bs.add_item(text, lambda x: x)
+		bs.add_item("Algo mas", lambda x: x)
+		bs.add_item("Apagar", self.apagar_mota, icon='clipboard-account')
+		bs.open()
 
 	def apagar_mota(self, evt):
-		print "apaga "+str(self.name)
 		json_body = [
 			{
 				"measurement": "accion",
@@ -116,109 +117,55 @@ class Mota(Button):
 				}
 			}
 		]
-
-		#~ print json_body
 		self.client.write_points(json_body)
 
 	def calcular_color(self, temp, temp_amb):
-		print temp > 1000
-		print temp
 		if temp > 1000:
 			return "[color=FFD800]Low battery[/color]"
 		elif temp > temp_amb + 5:
 			return "[color=f10000]" + str(temp)+"[/color]"
 		else:
 			return "[color=13E400]"+str(temp)+"[/color]"
-		#return "[color=f10000]" + str(self.text)+"[/color]" if float(self.text) > float(temp_amb) + 5 else "[color=13E400]"+str(self.text)+"[/color]"
-
 
 class Piso(Screen):
-	def __init__(self, num, sensores, img, client, pisos, *args):
+	def __init__(self, num, sensores, img, client, *args):
 		super(Piso, self).__init__(*args)
 		self.name = "piso_"+str(num)
+		self.id = self.name
 		self.num = num
 		self.client = client
 		self.info_motas = {}
-		print "+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-++-+-+-++-++-++-+"
-		print sensores
 		self.procesar_datos(sensores)
 
 		with self.canvas.before:
 			Rectangle(size=Window.size, pos=(0,0), source=img, allow_stretch=False)
 
 		self.flayout = self.ids["flayout_id"]
-		#~ self.sp = spinner
-		sp_vals = []
-		for pp in pisos:
-			for p in pp:
-				sp_vals.append(str(p["piso_id"]))
-				print "pisoooooooooooooo"
-		print sp_vals
 
-		layout = GridLayout(cols=1, size_hint_y=None)
-		layout.bind(minimum_height=layout.setter('height'))
-		#~ layout = NavBar()
-		for r in sp_vals:
-			#~ NavigationDrawerIconButton()
-			print r
-			btn = Button(text=r)
-			btn.bind(on_release=self.cambiar_piso)
-			layout.add_widget(btn)
-		contenido = ScrollView(size_hint=(1, 1))
-		contenido.add_widget(layout)
-		self.pisos = Popup(title='Pisos', content=contenido, pos_hint={'top':1,'left':.1},size_hint=(.4, .9))
-		#~ self.add_widget(self.pisos)
-		#~ self.pisos.open()
-		self.btn_popup_pisos = Button(text="Pisos", pos_hint={'top':1,'left':.1}, size_hint=(.1, .1))
-		self.btn_popup_pisos.bind(on_press=self.abrir_popup_pisos)
-		self.add_widget(self.btn_popup_pisos)
-		#~ self.add_widget(NavDraw())
-
-	def abrir_popup_pisos(self, *args):
-		self.pisos.open()
-
-	def cambiar_piso(self, *args):
-		print "cambio de piso"
-		print args
-		self.parent.current = "piso_"+args[0].text
-		self.pisos.dismiss()
-		#~ self.sp.text = str(self.num)
+	def getName(self):
+		return self.name
 
 	def agregar_motas(self):
 		for each in self.info_motas.items():
-			print each
-			#~ self.ids["Piso_"+str(self.num)].add_widget(each)
 			self.flayout.add_widget(each[1])
 
 	def procesar_datos(self, sensores):
-		query = "SELECT * as temperatura FROM mota WHERE mota_id = 'linti_control' ORDER BY time desc LIMIT 1"
-		print query
-		print sensores
-		res = self.client.query(query).items()[0][1].next()
-		print res
-		print "reeeeeeeeeeeeeeeeeeessssssssssssss"
+		control = self.client.Mote.first_where(mote_id='linti_control')
+		if control is None:
+			# FIXME: Deberíamos tener algo más genérico
+			raise Exception('No existe linti_control, pensar otra forma de implementar esto')
 
-		#~ historial = self.client.query("SELECT mota_id, temperatura, motion, current, time FROM medicion WHERE mota_id = 'linti_control' ORDER BY time desc LIMIT 50")
-		historial = self.client.query("SELECT mota_id, temperatura, movimiento, corriente, time FROM medicion WHERE mota_id = 'linti_control' ORDER BY time desc LIMIT 50")
+                historial = list(self.client.Measurement.where(mote_id='linti_control'))
 
-		self.info_motas[res["mota_id"]] = Mota(res, historial, historial.items()[0][1].next()['temperatura'], self.client)
+		temperature = historial[0].temperature if historial else float('nan')
+		self.info_motas[control.mote_id] = Mota(control, historial, temperature, self.client)
 
-		#ctrl = motas_ids.pop(0)
-		#~ print "???????????????SENSORES?????????????????????"
-		#~ print sensores
 		for sen in sensores:
-			print sen
-			for s in sen:
-				query = "SELECT * as temperatura FROM mota WHERE mota_id = '"+s["mota_id"]+"' ORDER BY time desc LIMIT 1"
-				#~ print query
-				res = self.client.query(query).items()[0][1].next()
+			historial = self.client.Measurement.where(mota_id=sen.mote_id)
 
-				historial = self.client.query("SELECT mota_id, temperatura, movimiento, corriente, time FROM medicion WHERE mota_id = '"+s["mota_id"]+"' ORDER BY time desc LIMIT 50")
-
-				self.info_motas[res["mota_id"]] = Mota(res, historial, self.info_motas["linti_control"].getTemperatura(), self.client)
+			self.info_motas[sen.mote_id] = Mota(sen, historial, self.info_motas["linti_control"].getTemperatura(), self.client)
 
 		self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
-		#motas_ids.insert(0, ctrl)
 
 	def actualizar_mapa(self):
 		try:
@@ -229,24 +176,17 @@ class Piso(Screen):
 				query[s] = "SELECT mota_id, temperatura, movimiento, corriente, time FROM medicion WHERE mota_id = '"+s+"' ORDER BY time desc LIMIT 50"
 			res = {}
 			for q in query.items():
-				print "------------------------------------________________--------------------------------------------"
-				print q[0]
-				print q[1]
 				#~ res.append(self.client.query(q)) #Consulta meramente de prueba
 				res[q[0]] = self.client.query(q[1])
 			try:
 				self.temp_amb = res['linti_control']['temperatura']#[0][('climatizacion', None)].next()['temperature']
 			except:
-				print "asdkmaskdnkasndasmd---------------------------------------------------------------"
-				#~ print res['linti_control'][0].next()
+				print "Error x"
 		except Exception, e:
 			print("Error al efectuar la consulta 1 "+str(e))
 		else:
 			#~ self.temp_amb = res['linti_control']['temperature']#[('climatizacion', None)].next()['temperature']
 			for s in self.info_motas.items():
-				print res[s[0]]
-				print res[s[0]]['temperatura']
-				print "}{}{}{}{}{}{}}}}}}}}{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}"
 				temp_color = s[1].calcular_color(res[s[0]].items()[0][1].next()['temperatura'], self.temp_amb)
 				s[1].text = temp_color
 				s[1].texture_update()
@@ -256,7 +196,7 @@ class Piso(Screen):
 
 
 	def config_mota_pos(self):
-		mfp = MakeFilePos(self.info_motas, self.ids["config_mota_pos"], self.client)
+		mfp = MakeFilePos(self.info_motas, self.client)
 		self.add_widget(mfp)
 		mfp.size = self.parent.size
 		self.actualizar_mapa
@@ -264,54 +204,45 @@ class Piso(Screen):
 
 class MakeFilePos(Widget):
 
-	def __init__(self, motas, btn_pos, cli, *args):
+	def __init__(self, motas, cli, *args):
 		super(MakeFilePos, self).__init__()
 		self.motas = motas
 		self.motas2 = motas.copy()
-		self.btn_pos = btn_pos
 		self.client = cli
 		self.m_pos = {}
+		self.size = Window.size
+		self.pos = 0,0
+		key = self.motas2.keys()[0]
+		l = MDLabel(text="Ingrese posición de la mota: "+str(key), pos_hint={'top':1.44,'right':.06})
+		self.add_widget(l)
+		#del self.motas2[key]
 		#~ self.size = self.parent.size
 
 	def calc_pos(self, tx, ty, key):
-		return tx-(self.motas[str(key)].size[0]/2),ty-(self.motas[str(key)].size[1]/2)
+		pos = (tx-(self.motas[str(key)].size[0]/2),ty-(self.motas[str(key)].size[1]/2))
+		return map(int, pos)
 
 	def on_touch_down(self, touch):
-		print touch
-		print touch.spos
-		if (not self.btn_pos.collide_point(touch.x,touch.y)):
-
+		if len(self.children) > 0:
+			self.remove_widget(self.children[-1])
+		if len(self.motas2) > 0:
+			key = self.motas2.keys()[0]
+			self.m_pos[str(key)] = self.calc_pos(touch.pos[0], touch.pos[1], key)
+			del self.motas2[key]
 			if len(self.motas2) > 0:
 				key = self.motas2.keys()[0]
-				l = Label(text="[color=00ff60]Ingrese posición de la mota: "+str(key)+"[/color]", pos=(400,200), markup=True)
+				l = MDLabel(text="Ingrese posición de la mota: "+str(key), pos_hint={'top':1.44,'right':.06})
 				self.add_widget(l)
-				self.m_pos[str(key)] = self.calc_pos(touch.pos[0], touch.pos[1], key)
-				#touch.pos[0]-(self.motas[str(key)].size[0]/2),touch.pos[1]-(self.motas[str(key)].size[1]/2)
-				del self.motas2[key]
 			else:
-				for m in self.motas.keys():
-					print self.motas[m].get_piso()
-					json_body = [
-							{
-								"measurement": "mota",
-								"tags": {
-									"mota_id": m,
-									"piso_id": self.motas[m].get_piso()
-								},
-								"time": 0,
-								"fields": {
-									"x": self.m_pos[m][0],
-									"y": self.m_pos[m][1],
-									"resolucion": str(Window.size)
-								}
-							}
-						]
-
-					#~ print json_body
-					self.client.write_points(json_body)
-					#~ m.pos_hint = {'top':arch[m.name][0], 'right':arch[m.name][1]}
-					self.motas[str(m)].pos = self.calc_pos(self.m_pos[m][0],self.m_pos[m][1], m)
-					#(self.m_pos[m][0]-(self.motas[str(m)].size[0]/2),self.m_pos[m][1]-(self.motas[str(m)].size[1]/2))
-				#~ self.parent.actualizar_mapa()
-				self.parent.remove_widget(self)
+				l = MDLabel(text="Haga click para finalizar", pos_hint={'top':1.44,'right':.06})
+				self.add_widget(l)
+		else:
+			for m in self.motas.keys():
+				mote = self.client.Mote.first_where(mote_id=m, level_id = self.motas[m].get_piso())
+				mote.x = self.m_pos[m][0];
+				mote.y = self.m_pos[m][1];
+				mote.resolution = str(Window.size)
+				mote.save()
+				self.motas[str(m)].pos = self.motas[str(m)].pos = self.motas[str(m)].translate(self.motas[str(m)].orig_size, Window.size, self.m_pos[m][0],self.m_pos[m][1])
+			self.parent.remove_widget(self)
 		return True
