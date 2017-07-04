@@ -112,8 +112,7 @@ class MainBox(ScreenManager):
 		#~ self.spinner = Spinner(text="1", size_hint= (.09,.05), pos_hint={'top':1,'left':.9})
 		for piso in self.client.Level.list():
 			sensores = self.client.Mote.where(level_id=piso._id)
-			print list(sensores)
-			print "+++++++++++++++++++++++++****++++++++++++++++++++++++++++++"
+			sensores = list(sensores)
 			img = 'piso_'+str(piso._id)+'.png'
 			print img
 			if ((not os.path.exists(img)) and (not os.path.exists("imagenes/"+img))):

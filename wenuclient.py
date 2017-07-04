@@ -3,8 +3,8 @@ import json
 import requests
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
-logging.Logger(__name__, logging.DEBUG)
+#~ logging.basicConfig(level=logging.DEBUG)
+#~ logging.Logger(__name__, logging.DEBUG)
 
 
 def validate_and_jsonify(func):
