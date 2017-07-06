@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import sys
 from functools import wraps
 import json
@@ -22,6 +23,8 @@ def validate_and_jsonify(func):
             http_request.status_code,
         )
         logger.debug(http_request.text)
+        # FIXME: Cambiar para que lance una excepción con un
+        # error específico si lo hubo
         assert http_request.status_code == 200 or http_request.status_code == 201 or http_request.status_code == 204
         return json.loads(http_request.text)
 
@@ -98,7 +101,10 @@ class Entity(object):
 
     @classmethod
     def first_where(cls,**kwargs):
-        return next(cls.where(**kwargs))
+        try:
+            return next(cls.where(**kwargs))
+        except StopIteration:
+            return None
 
     def __str__(self):
         return str(self.fields)
