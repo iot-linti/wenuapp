@@ -160,8 +160,11 @@ class Piso(Screen):
 		temperature = historial[0].temperature if historial else float('nan')
 		self.info_motas[control.mote_id] = Mota(control, historial, temperature, self.client)
 		for sen in sensores:
+			print "\nProcesando un sensor\n"
 			historial = self.client.Measurement.where(mota_id=sen.mote_id)
+			print "\nSe cargo el historial\n"
 			self.info_motas[sen.mote_id] = Mota(sen, historial, self.info_motas["linti_control"].getTemperatura(), self.client)
+			print "\nSe agrego la mota\n"
 
 		self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
 

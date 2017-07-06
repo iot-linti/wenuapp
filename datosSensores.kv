@@ -22,6 +22,8 @@
 
 #:import MDTextField kivymd.textfields.MDTextField
 
+#:import MDProgressBar kivymd.progressbar.MDProgressBar
+
 
 <MainBox>:
 	#id: datos
@@ -55,6 +57,22 @@
 				text: 'Conectar'
 				pos_hint: {'center_x': 0.5, 'center_y': 0.6}
 				on_press: self.parent.conectar(usr.text, password.text)
+	Load:
+		id: progressbar
+		name: 'progressbar'
+		prog_b: progress_bar
+		BoxLayout:
+			id: box_progress
+			orientation:'vertical'
+			padding: '8dp'
+			spacing: '40dp'
+			#prog_b: progress_bar
+			
+			MDProgressBar:
+				id: progress_bar
+				min: 0
+				max: 100
+				value: 0
 	Screen:
 		name: 'main'
 		BoxLayout:

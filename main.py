@@ -27,9 +27,15 @@ from kivymd.navigationdrawer import NavigationDrawerIconButton
 
 #~ from kivymd.textfields.MDTextField import MDTextField
 
+from kivymd.progressbar import MDProgressBar
+
+from kivy.clock import Clock
+
 import os
 import urllib
 from piso import *
+import time
+import threading
 #influx
 from influxdb import InfluxDBClient
 import wenuclient
@@ -50,13 +56,14 @@ class Login(BoxLayout):
 			
 			session = requests.Session()
 			session.auth = (user, password)
-			self.client = wenuclient.Client(server, session)
+			self.parent.parent.client = wenuclient.Client(server, session)
 		except requests.exceptions.RequestException as e:
 			print("Error al efectuar la conexion")
 			self.error_dialog()
 		else:
-			self.parent.parent.iniciar("bottomsheet","piso_1", self.client)
-			self.parent.parent.current = 'main'
+			self.parent.parent.current = 'progressbar'
+			#~ self.parent.parent.iniciar("bottomsheet","piso_1", self.client, self)
+			#~ self.parent.parent.current = 'main'
 			self.parent.remove_widget(self)
 
 	def error_dialog(self):
@@ -65,6 +72,27 @@ class Login(BoxLayout):
 		self.dialog = MDDialog(title="Error",content=content, size_hint=(.8, None),height=dp(200),auto_dismiss=False)
 		self.dialog.add_action_button("Cerrar", action=lambda x: self.dialog.dismiss())
 		self.dialog.open()
+
+class Load(Screen):
+	prog_b = ObjectProperty(None)
+	
+	def __init__(self, *args, **kwargs):
+		super(Load, self).__init__(**kwargs)
+		#~ print "PROGREEESSS"
+		#~ self.parent.iniciar("bottomsheet","piso_1", self)
+		#~ self.cargar()
+		
+	def on_enter(self, *args):
+		print "enter"
+		self.parent.iniciar("bottomsheet","piso_1")
+		
+	def update(self, cant=10, sig=0):
+		print "cant"
+		print cant
+		print 100 / cant
+		print self.prog_b.value + 100 / cant
+		self.prog_b.value += 100 / cant
+		self.parent.iniciar("bottomsheet","piso_1", sig)
 
 class MainBox(ScreenManager):
 	theme_cls = ThemeManager()
@@ -98,8 +126,10 @@ class MainBox(ScreenManager):
 		print self.ids
 		self.ids["smp"].current = 'login'
 
-	def iniciar(self, actual_screen, next_screen, client):
-		self.client = client
+	def iniciar(self, actual_screen, next_screen, sig=0):
+		#~ self.client = client
+		#~ self.parent.remove_widget(login_widget)
+		#~ self.current = "progressbar"
 		#if next_screen == "info":
 			#Clock.schedule_interval(self.update, 0.5)
 
@@ -110,22 +140,32 @@ class MainBox(ScreenManager):
 		#p_imgs = ["imagenes/plano-2piso.jpg","imagenes/primer_piso.jpg"]
 		self.pisos = {}
 		#~ self.spinner = Spinner(text="1", size_hint= (.09,.05), pos_hint={'top':1,'left':.9})
-		for piso in self.client.Level.list():
+		#~ self.add_widget(MDProgressBar())
+		#~ self.ids["scr_mngr"].current = next_screen
+		cant_p = len(self.client.Level.list())
+		#~ for piso in self.client.Level.list():
+		#-------------------------------------------------------------------------#
+		if sig != len(self.client.Level.list()):
+			#~ print "before"
+			piso = self.client.Level.list()[sig]
 			sensores = self.client.Mote.where(level_id=piso._id)
+			#~ print "after"
 			sensores = list(sensores)
-			img = 'piso_'+str(piso._id)+'.png'
+			img = 'imagenes/piso_'+str(piso._id)+'.png'
 			print img
-			if ((not os.path.exists(img)) and (not os.path.exists("imagenes/"+img))):
+			if (not os.path.exists(img)):
 				try:
 					urllib.urlretrieve(str(piso.map),img)
 				except Exception as e:
 					print "Error al descargar la imagen del piso "+img+"\n"
 					print e
 			#~ else:
-			print "pisoooosss"
+			#~ print "pisoooosss"
 			print piso._id
 			self.pisos[piso._id] = Piso(piso._id, sensores, img, self.client)
+			#~ print "Se creo el piso"
 			self.pisos[piso._id].agregar_motas()
+			#~ print "Se agregaron las motas al piso"
 			p_nav = NavigationDrawerIconButton(text=self.pisos[piso._id].getName())
 			p_nav.icon = "checkbox-blank-circle"
 			p_nav.bind(on_release=partial(self.cambiar_piso, self.pisos[piso._id].getName()))
@@ -133,8 +173,13 @@ class MainBox(ScreenManager):
 			self.pisos_nav.add_widget(p_nav)
 			#self.main_widget.ids["scr_mngr"].add_widget(self.pisos[-1])
 			self.ids["scr_mngr"].add_widget(self.pisos[piso._id])
+			#~ self.ids["progressbar"].update(cant_p, sig+1)
+			print "Piso listo"
 		else:
 			self.ids["scr_mngr"].current = next_screen
+		self.ids["progressbar"].update(cant_p, sig+1)
+		#~ time.sleep(2)
+		#~ self.current = 'main'
 
 	def cambiar_piso(self, name, evnt):
 		self.ids["scr_mngr"].current = name
