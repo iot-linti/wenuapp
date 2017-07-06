@@ -1,10 +1,15 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import sys
 from functools import wraps
 import json
 import requests
 import logging
+import getpass
+from requests.models import Response
 
-#~ logging.basicConfig(level=logging.DEBUG)
-#~ logging.Logger(__name__, logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
+logging.Logger(__name__, logging.DEBUG)
 
 
 def validate_and_jsonify(func):
@@ -18,14 +23,32 @@ def validate_and_jsonify(func):
             http_request.status_code,
         )
         logger.debug(http_request.text)
-        if not http_request.status_code in (200, 201):
-            raise Exception('Status {}: {}'.format(
-                http_request.status_code,
-                http_request.text,
-            ))
+        # FIXME: Cambiar para que lance una excepción con un
+        # error específico si lo hubo
+        assert http_request.status_code == 200 or http_request.status_code == 201 or http_request.status_code == 204
         return json.loads(http_request.text)
 
     return closure
+
+
+
+def get_session(url,username,password):
+
+
+    r = requests.get(url, auth=(username, password))
+    item = r.json()
+    assert r.status_code == 200 or r.status_code == 201
+    token = item['token']
+
+    s = requests.Session()
+    s.auth = (token, None)
+    return s
+
+def register_user(url,username,password):
+    payload = {'username': username, 'password': password}
+    r = requests.post(url, data=payload)
+    assert r.status_code == 201
+    return True
 
 
 class Entity(object):
@@ -56,20 +79,28 @@ class Entity(object):
         return entity
 
     @classmethod
-    def list(cls):
-        return [cls(**entry) for entry in cls.server.get(cls.link)['_items']]
+    def list(cls, arg=''):
+        return [cls(**entry) for entry in cls.server.get('?'.join((cls.link, arg)))['_items']]
 
     @classmethod
-    def get_by_id(cls, _id):
-        return cls(**cls.server.get('{}/{}'.format(cls.link, _id)))
+    def get_by_id(cls, _id,arg=''):
+        assert cls.link != 'measurement'
+        return cls(**cls.server.get('{}/{}?{}'.format(cls.link, _id,arg)))
+
 
     @classmethod
-    def where(cls, **kwargs):
-        results = cls.server.get('{}?where={}'.format(cls.link, json.dumps(kwargs)))
+    def where(cls,arg='', **kwargs):
+        print 'where={}'.format(json.dumps(kwargs))
+        results = cls.server.get('{}?where={}&{}'.format(cls.link, json.dumps(kwargs),arg))
         return (cls(**result) for result in results['_items'])
 
     @classmethod
-    def first_where(cls, **kwargs):
+    def embedded(cls,arg='',**kwargs):
+        results = cls.server.get('{}?embedded={}&{}'.format(cls.link, json.dumps(kwargs),arg))
+        return (cls(**result) for result in results['_items'])
+
+    @classmethod
+    def first_where(cls,**kwargs):
         try:
             return next(cls.where(**kwargs))
         except StopIteration:
@@ -80,6 +111,11 @@ class Entity(object):
 
     def regular_fields(self):
         return {k: v for k, v in self.fields.items() if not k.startswith('_')}
+
+    def remove(self):
+        response = self.server.delete(
+        '{}/{}'.format(self.link, self.fields['_id']))
+        return response
 
     def create(self):
         response = self.server.post(self.link, json=self.fields)
@@ -94,7 +130,6 @@ class Entity(object):
         )
         return response
 
-
 class Client(object):
     def __init__(self, url, session=None):
         if session is None:
@@ -107,6 +142,19 @@ class Client(object):
             {u'title': u'Measurement', u'href': u'measurement'},
         ]
         self.entities = self._spawn_entities(insert=extra_entities)
+
+
+    def refresh_token(self):
+
+        r = self.session.get('/'.join((self.url, 'refreshtoken')))
+        item = r.json()
+        assert r.status_code == 200 or r.status_code == 201    or r.status_code == 204
+        token = item['token']
+
+        s = requests.Session()
+        s.auth = (token, None)
+        self.session = s
+
 
 
     def __getattr__(self, attr):
@@ -161,9 +209,13 @@ class Client(object):
     def post(self, route, json):
         return self.session.post('/'.join((self.url, route)), json=json)
 
+    @validate_and_jsonify
+    def delete(self, route):
+        response = self.session.get('/'.join((self.url, route)))
+        r = self.session.delete('/'.join((self.url, route)))
+        delete_response = Response()
+        delete_response.status_code = r.status_code
+        delete_response._content = response._content
+        delete_response._text = response.text
+        return delete_response
 
-if __name__ == '__main__':
-    s = Client('http://localhost:5000')
-    print(s.entities)
-    print(s.Mote)
-    print(s.Mote.list())
