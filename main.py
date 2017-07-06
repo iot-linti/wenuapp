@@ -34,8 +34,6 @@ from kivy.clock import Clock
 import os
 import urllib
 from piso import *
-import time
-import threading
 #influx
 from influxdb import InfluxDBClient
 import wenuclient
@@ -86,7 +84,7 @@ class Load(Screen):
 		print "enter"
 		self.parent.iniciar("bottomsheet","piso_1")
 		
-	def update(self, cant=10, sig=0):
+	def update(self, cant=10, sig=0, *args):
 		print "cant"
 		print cant
 		print 100 / cant
@@ -145,7 +143,7 @@ class MainBox(ScreenManager):
 		cant_p = len(self.client.Level.list())
 		#~ for piso in self.client.Level.list():
 		#-------------------------------------------------------------------------#
-		if sig != len(self.client.Level.list()):
+		if sig < len(self.client.Level.list()):
 			#~ print "before"
 			piso = self.client.Level.list()[sig]
 			sensores = self.client.Mote.where(level_id=piso._id)
@@ -175,9 +173,12 @@ class MainBox(ScreenManager):
 			self.ids["scr_mngr"].add_widget(self.pisos[piso._id])
 			#~ self.ids["progressbar"].update(cant_p, sig+1)
 			print "Piso listo"
+			Clock.schedule_once(partial(self.ids["progressbar"].update, cant_p, sig+1), .5)
 		else:
 			self.ids["scr_mngr"].current = next_screen
-		self.ids["progressbar"].update(cant_p, sig+1)
+			self.current = 'main'
+		#~ Clock.schedule_once(partial(self.ids["progressbar"].update, cant_p, sig+1), .5)
+		#~ self.ids["progressbar"].update(cant_p, sig+1)
 		#~ time.sleep(2)
 		#~ self.current = 'main'
 
