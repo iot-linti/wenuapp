@@ -34,8 +34,6 @@ from kivy.clock import Clock
 import os
 import urllib
 from piso import *
-import time
-import threading
 #influx
 from influxdb import InfluxDBClient
 import wenuclient
