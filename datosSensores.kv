@@ -23,6 +23,7 @@
 #:import MDTextField kivymd.textfields.MDTextField
 
 #:import MDProgressBar kivymd.progressbar.MDProgressBar
+#:import MDSpinner kivymd.spinner.MDSpinner
 
 <MainBox>:
 	#id: datos
@@ -127,3 +128,11 @@
 			pos_hint: {'top': 1.44, 'right': 1.01}
 			text: 'Ultima actualización: '
 			#markup: True
+
+#MDSpinner:
+#	id: spinner
+#	size_hint: None, None
+#	size: dp(46), dp(46)
+#	pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+#	active: True
+

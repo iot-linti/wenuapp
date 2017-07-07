@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-import kivymd.snackbar as Snackbar
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 from kivy.metrics import dp
 from kivy.properties import ObjectProperty
 from kivy.uix.image import Image
-from kivy.uix.button import Button
 from kivy.uix.screenmanager import ScreenManager, Screen
 
 from kivymd.label import MDLabel
@@ -89,10 +87,6 @@ class Load(Screen):
 		self.parent.iniciar("bottomsheet","piso_1",+ sig)
 
 class MainBox(ScreenManager):
-	theme_cls = ThemeManager()
-	#theme_cls.theme_style = 'Dark'
-	theme_cls.primary_palette = "Green"
-	theme_cls.secondary_palette = "Blue"
 	pisos_nav = ObjectProperty(None)
 
 	def __init__(self, config, *args, **kwargs):
@@ -129,7 +123,7 @@ class MainBox(ScreenManager):
 		cant_p = len(self.client.Level.list())
 		#~ for piso in self.client.Level.list():
 		#-------------------------------------------------------------------------#
-		if sig < len(self.client.Level.list()):
+		if sig < cant_p:
 			#~ print "before"
 			piso = self.client.Level.list()[sig]
 			sensores = self.client.Mote.where(level_id=piso._id)

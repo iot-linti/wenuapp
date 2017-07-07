@@ -20,7 +20,7 @@ import datetime
 import json
 #kivymd
 
-import kivymd.snackbar as Snackbar
+from kivymd.snackbar import Snackbar
 from kivy.metrics import dp
 from kivy.uix.image import Image
 from kivymd.button import MDRaisedButton
@@ -144,14 +144,19 @@ class Piso(Screen):
 
 		self.flayout = self.ids["flayout_id"]
 		
+	def on_pre_enter(self):
+		if self.sensores != None:
+			Snackbar(text="Espere un momento mientras se cargan las motas.").show()
+			
 	def on_enter(self):
 		if self.sensores != None:
 			print "Carga sensores"
-			#~ self.sp = MDSpinner(active=True)
+			#~ self.sp = MDSpinner()
 			#~ self.flayout.add_widget(self.sp)
 			self.procesar_datos()
 			self.agregar_motas()
 			self.sensores = None
+			Snackbar(text="Carga completada.").show()
 
 	def getName(self):
 		return self.name
