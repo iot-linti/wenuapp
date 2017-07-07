@@ -102,6 +102,7 @@ class MainBox(ScreenManager):
 		self.title = 'Datos Sensores'
 		#~ self.client = client
 		self.client = None
+		self.pisos = {}
 
 		self.config = config
 
@@ -124,7 +125,6 @@ class MainBox(ScreenManager):
 
 		print "----------------------aaaaaaaaaaaaaaaaaaaa-------------------------------------"
 		#p_imgs = ["imagenes/plano-2piso.jpg","imagenes/primer_piso.jpg"]
-		self.pisos = {}
 
 		cant_p = len(self.client.Level.list())
 		#~ for piso in self.client.Level.list():
@@ -163,6 +163,8 @@ class MainBox(ScreenManager):
 
 	def pos_motas(self):
 		piso_id = int(self.ids["scr_mngr"].current.split('_')[-1])
+		print piso_id
+		print self.pisos.keys()
 		self.pisos[piso_id].config_mota_pos()
 
 class LoginScreen(Screen):
