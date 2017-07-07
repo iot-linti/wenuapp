@@ -85,12 +85,8 @@ class Load(Screen):
 		self.parent.iniciar("bottomsheet","piso_1")
 		
 	def update(self, cant=10, sig=0, *args):
-		print "cant"
-		print cant
-		print 100 / cant
-		print self.prog_b.value + 100 / cant
 		self.prog_b.value += 100 / cant
-		self.parent.iniciar("bottomsheet","piso_1", sig)
+		self.parent.iniciar("bottomsheet","piso_1",+ sig)
 
 class MainBox(ScreenManager):
 	theme_cls = ThemeManager()
@@ -125,21 +121,11 @@ class MainBox(ScreenManager):
 		self.ids["smp"].current = 'login'
 
 	def iniciar(self, actual_screen, next_screen, sig=0):
-		#~ self.client = client
-		#~ self.parent.remove_widget(login_widget)
-		#~ self.current = "progressbar"
-		#if next_screen == "info":
-			#Clock.schedule_interval(self.update, 0.5)
 
-		#instancio piso y paso el client - falta ahcer una consulta para saber cuantos pisos hay
-		# pisos = self.client.query('SELECT * FROM piso')
-		# print pisos.get_points().next()
 		print "----------------------aaaaaaaaaaaaaaaaaaaa-------------------------------------"
 		#p_imgs = ["imagenes/plano-2piso.jpg","imagenes/primer_piso.jpg"]
 		self.pisos = {}
-		#~ self.spinner = Spinner(text="1", size_hint= (.09,.05), pos_hint={'top':1,'left':.9})
-		#~ self.add_widget(MDProgressBar())
-		#~ self.ids["scr_mngr"].current = next_screen
+
 		cant_p = len(self.client.Level.list())
 		#~ for piso in self.client.Level.list():
 		#-------------------------------------------------------------------------#
@@ -157,30 +143,20 @@ class MainBox(ScreenManager):
 				except Exception as e:
 					print "Error al descargar la imagen del piso "+img+"\n"
 					print e
-			#~ else:
-			#~ print "pisoooosss"
 			print piso._id
 			self.pisos[piso._id] = Piso(piso._id, sensores, img, self.client)
-			#~ print "Se creo el piso"
 			self.pisos[piso._id].agregar_motas()
-			#~ print "Se agregaron las motas al piso"
 			p_nav = NavigationDrawerIconButton(text=self.pisos[piso._id].getName())
 			p_nav.icon = "checkbox-blank-circle"
 			p_nav.bind(on_release=partial(self.cambiar_piso, self.pisos[piso._id].getName()))
-			#self.nav_drawer.add_widget(p_nav)
+
 			self.pisos_nav.add_widget(p_nav)
-			#self.main_widget.ids["scr_mngr"].add_widget(self.pisos[-1])
 			self.ids["scr_mngr"].add_widget(self.pisos[piso._id])
-			#~ self.ids["progressbar"].update(cant_p, sig+1)
 			print "Piso listo"
 			Clock.schedule_once(partial(self.ids["progressbar"].update, cant_p, sig+1), .5)
 		else:
 			self.ids["scr_mngr"].current = next_screen
 			self.current = 'main'
-		#~ Clock.schedule_once(partial(self.ids["progressbar"].update, cant_p, sig+1), .5)
-		#~ self.ids["progressbar"].update(cant_p, sig+1)
-		#~ time.sleep(2)
-		#~ self.current = 'main'
 
 	def cambiar_piso(self, name, evnt):
 		self.ids["scr_mngr"].current = name

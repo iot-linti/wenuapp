@@ -33,6 +33,7 @@ from kivymd.dialog import MDDialog
 from kivymd.time_picker import MDTimePicker
 from kivymd.date_picker import MDDatePicker
 from kivymd.bottomsheet import MDListBottomSheet, MDGridBottomSheet
+#~ from kivymd.spinner import MDSpinner
 
 class Mota(Button):
 	def __init__(self, data, historial, temp_amb, client):
@@ -135,12 +136,22 @@ class Piso(Screen):
 		self.num = num
 		self.client = client
 		self.info_motas = {}
-		self.procesar_datos(sensores)
+		self.sensores = sensores
+		#~ self.procesar_datos(sensores)
 
 		with self.canvas.before:
 			Rectangle(size=Window.size, pos=(0,0), source=img, allow_stretch=False)
 
 		self.flayout = self.ids["flayout_id"]
+		
+	def on_enter(self):
+		if self.sensores != None:
+			print "Carga sensores"
+			#~ self.sp = MDSpinner(active=True)
+			#~ self.flayout.add_widget(self.sp)
+			self.procesar_datos()
+			self.agregar_motas()
+			self.sensores = None
 
 	def getName(self):
 		return self.name
@@ -149,7 +160,7 @@ class Piso(Screen):
 		for each in self.info_motas.items():
 			self.flayout.add_widget(each[1])
 
-	def procesar_datos(self, sensores):
+	def procesar_datos(self):
 		control = self.client.Mote.first_where(mote_id='linti_control')
 		if control is None:
 			# FIXME: Deberíamos tener algo más genérico
@@ -159,12 +170,12 @@ class Piso(Screen):
 
 		temperature = historial[0].temperature if historial else float('nan')
 		self.info_motas[control.mote_id] = Mota(control, historial, temperature, self.client)
-		for sen in sensores:
-			print "\nProcesando un sensor\n"
+		for sen in self.sensores:
+			#~ print "\nProcesando un sensor\n"
 			historial = self.client.Measurement.where(mota_id=sen.mote_id)
-			print "\nSe cargo el historial\n"
+			#~ print "\nSe cargo el historial\n"
 			self.info_motas[sen.mote_id] = Mota(sen, historial, self.info_motas["linti_control"].getTemperatura(), self.client)
-			print "\nSe agrego la mota\n"
+			#~ print "\nSe agrego la mota\n"
 
 		self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
 
