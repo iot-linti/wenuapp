@@ -16,6 +16,7 @@ from kivy.uix.floatlayout import FloatLayout
 #python
 from functools import partial
 import datetime
+import time
 #import shelve
 import json
 #kivymd
@@ -43,9 +44,12 @@ class Mota(Button):
 		self.piso = data.level_id
                 # self.date = data.time # FIXME: porque esta esta
 		self.client = client
-		hist = historial
-		self.text = str(hist)
-		self.temperature = hist
+		self.historial = []
+		print "historial"
+		print historial
+		#~ print list(historial)
+		self.text = str(historial[0])
+		self.temperature = historial[0]
 		self.temp_amb = temp_amb
 		#~ try:
 		res = data.resolution.split(",")
@@ -54,7 +58,7 @@ class Mota(Button):
 		#~ orig_size = Window.size#(1280, 960)
 		#~ img.size = translate(orig_size, Window.size, *img.size)
 		self.pos = self.translate(self.orig_size, Window.size, data.x, data.y)
-		self.actualizar(temp_amb, historial)
+		self.actualizar(temp_amb, historial[0])
 
 	def get_piso(self):
 		return self.piso
@@ -82,15 +86,17 @@ class Mota(Button):
 		self.texture_update()
 		self.bind(on_release=partial(self.historial_mota,historial, temp))
 
-	def historial_mota(self, historial, temp_amb, *args):
+	def historial_mota(self, temp_amb, *args):
 		bs = MDGridBottomSheet()
 		layout_pop = GridLayout(cols=1, rows=2)
 		layout = GridLayout(cols=4, spacing=30, size_hint_y=None)
 		layout.bind(minimum_height=layout.setter('height'))
-
-
+		
+		#~ if len(self.historial) == 0:
+		self.historial = self.client.Measurement.where(mota_id=self.name)
+		
 		bs = MDListBottomSheet()
-		for re in historial:
+		for re in self.historial:
 			for r in re:
 				mov = "Si" if r["movimiento"] == True else "No"
 				text = '{:^10}'.format(str(r['temperatura']))+'{:^50}'.format(str(r["corriente"]))+'{:^50}'.format(str(r["time"]))+'{:^20}'.format(mov)
@@ -171,13 +177,17 @@ class Piso(Screen):
 			# FIXME: Deberíamos tener algo más genérico
 			raise Exception('No existe linti_control, pensar otra forma de implementar esto')
 
-                historial = list(self.client.Measurement.where(mote_id='linti_control'))
+                historial = list(self.client.Measurement.where(mote_id='linti_control')) #NO DEVUELVE NADA
 
 		temperature = historial[0].temperature if historial else float('nan')
+		historial = [15]  #QUITAR HARDCODEO
 		self.info_motas[control.mote_id] = Mota(control, historial, temperature, self.client)
 		for sen in self.sensores:
 			#~ print "\nProcesando un sensor\n"
-			historial = self.client.Measurement.where(mota_id=sen.mote_id)
+			#~ historial = self.client.Measurement.where(mota_id=sen.mote_id) #NO DEVUELVE NADA
+			#~ historial = self.client.Measurement.first_where(mota_id=sen.mote_id) #FIX ME
+			print historial
+			historial = [25] #QUITAR HARDCODEO
 			#~ print "\nSe cargo el historial\n"
 			self.info_motas[sen.mote_id] = Mota(sen, historial, self.info_motas["linti_control"].getTemperatura(), self.client)
 			#~ print "\nSe agrego la mota\n"
