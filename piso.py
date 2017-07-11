@@ -267,16 +267,6 @@ class MakeFilePos(Widget):
 		else:
 			Snackbar(text="Espere un momento mientras se guardan las nuevas posiciones.").show()
 			Clock.schedule_once(self.posicionar, .5)
-			#~ Clock.schedule_once(lambda x: Snackbar(text="Espere un momento mientras se guardan las nuevas posiciones.").show(), .5)
-			#~ for m in self.motas.keys():
-				#~ mote = self.client.Mote.first_where(mote_id=m, level_id = self.motas[m].get_piso())
-				#~ mote.x = self.m_pos[m][0];
-				#~ mote.y = self.m_pos[m][1];
-				#~ mote.resolution = str(Window.size)
-				#~ mote.save()
-				#~ self.motas[str(m)].pos = self.motas[str(m)].pos = self.motas[str(m)].translate(self.motas[str(m)].orig_size, Window.size, self.m_pos[m][0],self.m_pos[m][1])
-			#~ self.parent.remove_widget(self)
-			#~ Snackbar(text="Posiciones guardadas.").show()
 		return True
 		
 	def posicionar(self, *evt):
