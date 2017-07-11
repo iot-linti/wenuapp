@@ -13,6 +13,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.popup import Popup
 from kivy.uix.spinner import Spinner
 from kivy.uix.floatlayout import FloatLayout
+from kivy.clock import Clock
 #python
 from functools import partial
 import datetime
@@ -264,12 +265,27 @@ class MakeFilePos(Widget):
 				l = MDLabel(text="Haga click para finalizar", pos_hint={'top':1.44,'right':.06})
 				self.add_widget(l)
 		else:
-			for m in self.motas.keys():
-				mote = self.client.Mote.first_where(mote_id=m, level_id = self.motas[m].get_piso())
-				mote.x = self.m_pos[m][0];
-				mote.y = self.m_pos[m][1];
-				mote.resolution = str(Window.size)
-				mote.save()
-				self.motas[str(m)].pos = self.motas[str(m)].pos = self.motas[str(m)].translate(self.motas[str(m)].orig_size, Window.size, self.m_pos[m][0],self.m_pos[m][1])
-			self.parent.remove_widget(self)
+			Snackbar(text="Espere un momento mientras se guardan las nuevas posiciones.").show()
+			Clock.schedule_once(self.posicionar, .5)
+			#~ Clock.schedule_once(lambda x: Snackbar(text="Espere un momento mientras se guardan las nuevas posiciones.").show(), .5)
+			#~ for m in self.motas.keys():
+				#~ mote = self.client.Mote.first_where(mote_id=m, level_id = self.motas[m].get_piso())
+				#~ mote.x = self.m_pos[m][0];
+				#~ mote.y = self.m_pos[m][1];
+				#~ mote.resolution = str(Window.size)
+				#~ mote.save()
+				#~ self.motas[str(m)].pos = self.motas[str(m)].pos = self.motas[str(m)].translate(self.motas[str(m)].orig_size, Window.size, self.m_pos[m][0],self.m_pos[m][1])
+			#~ self.parent.remove_widget(self)
+			#~ Snackbar(text="Posiciones guardadas.").show()
 		return True
+		
+	def posicionar(self, *evt):
+		for m in self.motas.keys():
+			mote = self.client.Mote.first_where(mote_id=m, level_id = self.motas[m].get_piso())
+			mote.x = self.m_pos[m][0];
+			mote.y = self.m_pos[m][1];
+			mote.resolution = str(Window.size)
+			mote.save()
+			self.motas[str(m)].pos = self.motas[str(m)].pos = self.motas[str(m)].translate(self.motas[str(m)].orig_size, Window.size, self.m_pos[m][0],self.m_pos[m][1])
+		self.parent.remove_widget(self)
+		Snackbar(text="Posiciones guardadas.").show()
