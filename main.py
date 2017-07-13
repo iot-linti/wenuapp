@@ -41,8 +41,10 @@ class PisosNavDrawer(MDNavigationDrawer):
 	pass
 
 class Login(BoxLayout):
+	"""Clase de inicio de sesion/coneccion al servidor de influx mediante wenuapi"""
 
 	def conectar(self, user, password):
+		"""Conecta al servidor"""
 		config = App.get_running_app().config
 		try:
 			config.set('WENU', 'USER', user)
@@ -63,6 +65,7 @@ class Login(BoxLayout):
 			self.parent.remove_widget(self)
 
 	def error_dialog(self):
+		"""Muestra un dialogo de error en caso de no poder conectarse."""
 		content = MDLabel(font_style='Body1',theme_text_color='Secondary', text="Error al conectar. Verifique el usuario y contraseña.", size_hint_y=None, valign='top')
 		content.bind(texture_size=content.setter('size'))
 		self.dialog = MDDialog(title="Error",content=content, size_hint=(.8, None),height=dp(200),auto_dismiss=False)
@@ -70,6 +73,7 @@ class Login(BoxLayout):
 		self.dialog.open()
 
 class Load(Screen):
+	"""Clase de progressbar mientras se cargan los pisos."""
 	prog_b = ObjectProperty(None)
 	
 	def __init__(self, *args, **kwargs):
@@ -87,6 +91,7 @@ class Load(Screen):
 		self.parent.iniciar("bottomsheet","piso_1",+ sig)
 
 class MainBox(ScreenManager):
+	"""Clase principal que contiene el primer screen manager."""
 	pisos_nav = ObjectProperty(None)
 
 	def __init__(self, config, *args, **kwargs):
@@ -112,11 +117,12 @@ class MainBox(ScreenManager):
 		self.current = 'login'
 
 	def log(self):
+		"""Cambia al screen de login."""
 		#~ print self.ids
 		self.ids["smp"].current = 'login'
 
 	def iniciar(self, actual_screen, next_screen, sig=0):
-
+		"""Crea un piso a la vez. Cuando creó todos pasa al siguiente screen."""
 		#~ print "----------------------aaaaaaaaaaaaaaaaaaaa-------------------------------------"
 		#p_imgs = ["imagenes/plano-2piso.jpg","imagenes/primer_piso.jpg"]
 
@@ -153,9 +159,11 @@ class MainBox(ScreenManager):
 			self.current = 'main'
 
 	def cambiar_piso(self, name, evnt):
+		"""Cambia de piso (Screen)"""
 		self.ids["scr_mngr"].current = name
 
 	def pos_motas(self):
+		"""Ubica las motas en el piso."""
 		piso_id = int(self.ids["scr_mngr"].current.split('_')[-1])
 		#~ print piso_id
 		#~ print self.pisos.keys()
@@ -192,7 +200,7 @@ class DatosSensoresApp(App):
 			service.start('service started')
 			self.service = service
 		return True
-			#~ #~
+	
 	def on_resume(self):
 		self.service.stop()
 		self.service = None

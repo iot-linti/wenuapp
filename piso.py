@@ -38,14 +38,15 @@ from kivymd.bottomsheet import MDListBottomSheet, MDGridBottomSheet
 #~ from kivymd.spinner import MDSpinner
 
 class Mota(Button):
+	"""Clase (Boton) que representa a la mota."""
 	def __init__(self, data, historial, temp_amb, client):
 		super(Mota, self).__init__()
 		#try temporal hasta que esten terminados de cargar los datos en las tablas nuevas
 		self.name = data._id
 		self.piso = data.level_id
                 # self.date = data.time # FIXME: porque esta esta
-		self.client = client
-		self.historial = []
+		self.client = client #Cliente de la bd
+		self.historial = [] #Historial de la mota (temperaturas).
 		#~ print "historial"
 		#~ print historial
 		#~ print list(historial)
@@ -62,32 +63,40 @@ class Mota(Button):
 		self.actualizar(temp_amb, historial[0])
 
 	def get_piso(self):
+		"""Retorna el numero de piso."""
 		return self.piso
 
 
 	def translate(self, orig_size, new_size, x, y):
+		"""Cambia la posicion de la mota a corde a su posicion original y la resolucion de la pantalla
+			del dispositivo en uso."""
 		ow, oh = orig_size
 		nw, nh = new_size
 		return (x * nw / ow, y * nh / oh)
 
 	def getName(self):
+		"""Retorna el nombre/id de la mota."""
 		return self.name
 
 	def setTemperature(self, temp, temp_amb):
+		"""Setea la temperatura de la mota."""
 		self.temperature = temp
 		self.text = temp
 		#~ self.calcular_color(temp_amb)
 
 	def getTemperatura(self):
+		"""Retorna la temperatura de la mota."""
 		return self.temperature
 
 	def actualizar(self, temp, historial):
+		"""Actualiza la temperatura de la mota modificando su color en relación a la temp. ambiente."""
 		temp_color = self.calcular_color(self.temperature, temp)
 		self.text = temp_color
 		self.texture_update()
 		self.bind(on_release=partial(self.historial_mota,historial, temp))
 
 	def historial_mota(self, temp_amb, *args):
+		"""Muestra el historial de la mota en un MDGridBottomSheet."""
 		bs = MDGridBottomSheet()
 		layout_pop = GridLayout(cols=1, rows=2)
 		layout = GridLayout(cols=4, spacing=30, size_hint_y=None)
@@ -112,6 +121,7 @@ class Mota(Button):
 		bs.open()
 
 	def apagar_mota(self, evt):
+		"""Pone en la bd que hay que apagar el aire donde se encuentra la mota (cambiar a wenuapi)."""
 		json_body = [
 			{
 				"measurement": "accion",
@@ -128,6 +138,7 @@ class Mota(Button):
 		self.client.write_points(json_body)
 
 	def calcular_color(self, temp, temp_amb):
+		"""Calcula el color de la mota segun su temperatura y la del ambiente."""
 		if temp > 1000:
 			return "[color=FFD800]Low battery[/color]"
 		elif temp > temp_amb + 5:
@@ -136,6 +147,7 @@ class Mota(Button):
 			return "[color=13E400]"+str(temp)+"[/color]"
 
 class Piso(Screen):
+	"""Clase que representa un piso (Screen) con sus motas, imagen."""
 	def __init__(self, num, sensores, img, client, *args):
 		super(Piso, self).__init__(*args)
 		self.name = "piso_"+str(num)
@@ -152,10 +164,13 @@ class Piso(Screen):
 		self.flayout = self.ids["flayout_id"]
 		
 	def on_pre_enter(self):
+		"""Antes de cargar el screen muestra el mensaje si es la primera vez que entra al piso."""
 		if self.sensores != None:
 			Snackbar(text="Espere un momento mientras se cargan las motas.", duration=2).show()
 			
 	def on_enter(self):
+		"""Cuando carga el piso/screen agrega las motas y muestra mensaje indicando que termino 
+			(si es la primera vez que entra al piso)."""
 		if self.sensores != None:
 			#~ print "Carga sensores"
 			#~ self.sp = MDSpinner()
@@ -166,13 +181,16 @@ class Piso(Screen):
 			Snackbar(text="Carga completada.").show()
 
 	def getName(self):
+		"""Retorna el nombre del piso."""
 		return self.name
 
 	def agregar_motas(self):
+		"""Agrega las motas que se crearon al floatlayout."""
 		for each in self.info_motas.items():
 			self.flayout.add_widget(each[1])
 
 	def procesar_datos(self):
+		"""Crea las motas en base a lo que recibio al instanciarse el piso."""
 		control = self.client.Mote.first_where(mote_id='linti_control')
 		if control is None:
 			# FIXME: Deberíamos tener algo más genérico
@@ -196,6 +214,7 @@ class Piso(Screen):
 		self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
 
 	def actualizar_mapa(self):
+		"""Deprecated (cambiar con wenuapi). ACtualiza los valores/datos de las motas del piso."""
 		try:
 			#~ query = []
 			query = {}
@@ -224,6 +243,7 @@ class Piso(Screen):
 
 
 	def config_mota_pos(self):
+		"""Cambia de posicion las motas (FIXME)."""
 		mfp = MakeFilePos(self.info_motas, self.client)
 		self.add_widget(mfp)
 		mfp.size = self.parent.size
@@ -231,8 +251,10 @@ class Piso(Screen):
 
 
 class MakeFilePos(Widget):
+	"""Clase para modificar la posicion de las motas."""
 
 	def __init__(self, motas, cli, *args):
+		"""Crea una copia de las motas para cambiar su posicion."""
 		super(MakeFilePos, self).__init__()
 		self.motas = motas
 		self.motas2 = motas.copy()
@@ -247,10 +269,12 @@ class MakeFilePos(Widget):
 		#~ self.size = self.parent.size
 
 	def calc_pos(self, tx, ty, key):
+		"""Calcula la nueva posicion."""
 		pos = (tx-(self.motas[str(key)].size[0]/2),ty-(self.motas[str(key)].size[1]/2))
 		return map(int, pos)
 
 	def on_touch_down(self, touch):
+		"""Con cada touch obtiene la posicion nueva de una mota y la quita de la lista."""
 		if len(self.children) > 0:
 			self.remove_widget(self.children[-1])
 		if len(self.motas2) > 0:
@@ -270,6 +294,7 @@ class MakeFilePos(Widget):
 		return True
 		
 	def posicionar(self, *evt):
+		"""Actualiza la posicion de las motas en base a las nuevas ingresadas."""
 		for m in self.motas.keys():
 			mote = self.client.Mote.first_where(mote_id=m, level_id = self.motas[m].get_piso())
 			mote.x = self.m_pos[m][0];
