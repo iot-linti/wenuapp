@@ -46,8 +46,8 @@ class Mota(Button):
                 # self.date = data.time # FIXME: porque esta esta
 		self.client = client
 		self.historial = []
-		print "historial"
-		print historial
+		#~ print "historial"
+		#~ print historial
 		#~ print list(historial)
 		self.text = str(historial[0])
 		self.temperature = historial[0]
@@ -153,11 +153,11 @@ class Piso(Screen):
 		
 	def on_pre_enter(self):
 		if self.sensores != None:
-			Snackbar(text="Espere un momento mientras se cargan las motas.").show()
+			Snackbar(text="Espere un momento mientras se cargan las motas.", duration=2).show()
 			
 	def on_enter(self):
 		if self.sensores != None:
-			print "Carga sensores"
+			#~ print "Carga sensores"
 			#~ self.sp = MDSpinner()
 			#~ self.flayout.add_widget(self.sp)
 			self.procesar_datos()
@@ -187,7 +187,7 @@ class Piso(Screen):
 			#~ print "\nProcesando un sensor\n"
 			#~ historial = self.client.Measurement.where(mota_id=sen.mote_id) #NO DEVUELVE NADA
 			#~ historial = self.client.Measurement.first_where(mota_id=sen.mote_id) #FIX ME
-			print historial
+			#~ print historial
 			historial = [25] #QUITAR HARDCODEO
 			#~ print "\nSe cargo el historial\n"
 			self.info_motas[sen.mote_id] = Mota(sen, historial, self.info_motas["linti_control"].getTemperatura(), self.client)

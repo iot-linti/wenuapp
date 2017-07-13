@@ -79,7 +79,7 @@ class Load(Screen):
 		#~ self.cargar()
 		
 	def on_enter(self, *args):
-		print "enter"
+		#~ print "enter"
 		self.parent.iniciar("bottomsheet","piso_1")
 		
 	def update(self, cant=10, sig=0, *args):
@@ -112,12 +112,12 @@ class MainBox(ScreenManager):
 		self.current = 'login'
 
 	def log(self):
-		print self.ids
+		#~ print self.ids
 		self.ids["smp"].current = 'login'
 
 	def iniciar(self, actual_screen, next_screen, sig=0):
 
-		print "----------------------aaaaaaaaaaaaaaaaaaaa-------------------------------------"
+		#~ print "----------------------aaaaaaaaaaaaaaaaaaaa-------------------------------------"
 		#p_imgs = ["imagenes/plano-2piso.jpg","imagenes/primer_piso.jpg"]
 
 		cant_p = len(self.client.Level.list())
@@ -130,14 +130,14 @@ class MainBox(ScreenManager):
 			#~ print "after"
 			sensores = list(sensores)
 			img = 'imagenes/piso_'+str(piso._id)+'.png'
-			print img
+			#~ print img
 			if (not os.path.exists(img)):
 				try:
 					urllib.urlretrieve(str(piso.map),img)
 				except Exception as e:
 					print "Error al descargar la imagen del piso "+img+"\n"
 					print e
-			print piso._id
+			#~ print piso._id
 			self.pisos[piso._id] = Piso(piso._id, sensores, img, self.client)
 			self.pisos[piso._id].agregar_motas()
 			p_nav = NavigationDrawerIconButton(text=self.pisos[piso._id].getName())
@@ -146,7 +146,7 @@ class MainBox(ScreenManager):
 
 			self.pisos_nav.add_widget(p_nav)
 			self.ids["scr_mngr"].add_widget(self.pisos[piso._id])
-			print "Piso listo"
+			#~ print "Piso listo"
 			Clock.schedule_once(partial(self.ids["progressbar"].update, cant_p, sig+1), .5)
 		else:
 			self.ids["scr_mngr"].current = next_screen
@@ -157,8 +157,8 @@ class MainBox(ScreenManager):
 
 	def pos_motas(self):
 		piso_id = int(self.ids["scr_mngr"].current.split('_')[-1])
-		print piso_id
-		print self.pisos.keys()
+		#~ print piso_id
+		#~ print self.pisos.keys()
 		self.pisos[piso_id].config_mota_pos()
 
 class LoginScreen(Screen):
