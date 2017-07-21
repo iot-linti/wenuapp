@@ -13,6 +13,12 @@ logging.Logger(__name__, logging.DEBUG)
 
 
 def validate_and_jsonify(func):
+    '''
+    Decorador, hace que un método que normalmente retorna una instancia
+    de `requests.Response` con un cuerpo codificado en JSON pase a retornar
+    el resultado de decodificar el mensaje JSON. Si la respuesta es un error
+    el método lanzará una excepción.
+    '''
     @wraps(func)
     def closure(self, route, *args, **kwargs):
         logger = logging.getLogger(__name__)
@@ -53,10 +59,19 @@ def register_user(url,username,password):
 
 class Entity(object):
     def __init__(self, **kwargs):
+        '''
+        Recibe como keyword arguments los campos y valores de la tabla
+        '''
         self.fields = kwargs
         self.initialized = True
 
     def __getattr__(self, attr):
+        '''
+        Cada campo de la base de datos se puede acceder como un atributo
+        de la instancia usando la notación habitual `entity.nombre_campo`,
+        alternativamente se puede acceder al diccionario `fields` con
+        `entity.fields`.
+        '''
         try:
             return self.fields[attr]
         except KeyError:
@@ -72,6 +87,10 @@ class Entity(object):
 
     @classmethod
     def spawn_subclass(cls, title, link, server):
+        '''
+        `spawn_sublcass` es el método que debe ser utilizado para crear
+        nuevas clases que representen tablas en la base de datos.
+        '''
         entity = type(str(title), (cls,), {
             'server': server,
             'link': link,
@@ -79,18 +98,27 @@ class Entity(object):
         return entity
 
     @classmethod
-    def list(cls, arg=''):
-        return [cls(**entry) for entry in cls.server.get('?'.join((cls.link, arg)))['_items']]
+    def list(cls, args=None):
+        '''
+        Retorna una lista con todas las filas de la tabla actual en la
+        base de datos. Cada fila será una instancia de una subclase
+        de `Entity`.
+        '''
+        link = cls.link if args is None else '{}?{}'.format(cls.link, args)
+        return [cls(**entry) for entry in cls.server.get(link)['_items']]
 
     @classmethod
-    def get_by_id(cls, _id,arg=''):
+    def get_by_id(cls, _id, args=None):
         assert cls.link != 'measurement'
-        return cls(**cls.server.get('{}/{}?{}'.format(cls.link, _id,arg)))
+        if args is None:
+            link = '{}/{}'.format(cls.link, _id)
+        else:
+            link = '{}/{}?{}'.format(cls.link, _id, args)
+        return cls(**cls.server.get(link))
 
 
     @classmethod
     def where(cls,arg='', **kwargs):
-        print 'where={}'.format(json.dumps(kwargs))
         results = cls.server.get('{}?where={}&{}'.format(cls.link, json.dumps(kwargs),arg))
         return (cls(**result) for result in results['_items'])
 
@@ -110,6 +138,10 @@ class Entity(object):
         return str(self.fields)
 
     def regular_fields(self):
+        '''
+        Diccionario con las entradas de `self.fields` cuyo nombre no empieza
+        con `_`.
+        '''
         return {k: v for k, v in self.fields.items() if not k.startswith('_')}
 
     def remove(self):
@@ -118,11 +150,19 @@ class Entity(object):
         return response
 
     def create(self):
+        '''
+        Crea una nueva fila en la base de datos con los datos de la instancia
+        actual.
+        '''
         response = self.server.post(self.link, json=self.fields)
         self.fields.update(response)
         return response
 
     def save(self):
+        '''
+        Actualiza una fila de la base de datos usando los datos cargados en
+        la instancia actual.
+        '''
         response = self.server.put(
             '{}/{}'.format(self.link, self.fields['_id']),
             json=self.regular_fields(),
@@ -138,6 +178,9 @@ class Client(object):
             self.session = session
 
         self.url = url
+        # `measurement` no es una tabla reconocida por Eve, por lo que
+        # el servidor no la reporará. Forzamos la creación de una clase
+        # que la represente del lado del cliente.
         extra_entities = [
             {u'title': u'Measurement', u'href': u'measurement'},
         ]
@@ -158,6 +201,10 @@ class Client(object):
 
 
     def __getattr__(self, attr):
+        '''
+        Las clases que representan a cada tabla pueden ser accedidas como
+        atributos de las instancias de `Server`.
+        '''
         try:
             return self.entities[attr]
         except KeyError:
@@ -169,6 +216,12 @@ class Client(object):
         response.raise_for_status()
 
     def _spawn_entities(self, insert=None):
+        '''
+        Hace una petición `GET` a la URL base del servidor Eve, el mismo
+        retornará las tablas disponibles, a excepción de `Measurement` que
+        es manejada de forma especial en el servidor ya que se encuentra
+        en una base de datos InfluxDB.
+        '''
         http_response = self.session.get(self.url)
         self._validate(http_response)
         logger = logging.getLogger()
