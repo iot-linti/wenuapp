@@ -98,37 +98,43 @@ class Entity(object):
         return entity
 
     @classmethod
-    def list(cls, args=None):
+    def list(cls, options=None):
         '''
         Retorna una lista con todas las filas de la tabla actual en la
         base de datos. Cada fila será una instancia de una subclase
         de `Entity`.
         '''
-        link = cls.link if args is None else '{}?{}'.format(cls.link, args)
+        link = cls.link if options is None else '{}?{}'.format(cls.link, options)
         return [cls(**entry) for entry in cls.server.get(link)['_items']]
 
     @classmethod
-    def get_by_id(cls, _id, args=None):
+    def get_by_id(cls, _id, options=None):
         assert cls.link != 'measurement'
-        if args is None:
+        if options is None:
             link = '{}/{}'.format(cls.link, _id)
         else:
-            link = '{}/{}?{}'.format(cls.link, _id, args)
+            link = '{}/{}?{}'.format(cls.link, _id, options)
         return cls(**cls.server.get(link))
 
 
     @classmethod
-    def where(cls,arg='', **kwargs):
-        results = cls.server.get('{}?where={}&{}'.format(cls.link, json.dumps(kwargs),arg))
+    def where(cls, options=None, **kwargs):
+        link = '{}?where={}'.format(cls.link, json.dumps(kwargs))
+        if options is not None:
+            link = '{}&{}'.format(link, options)
+        results = cls.server.get(link)
         return (cls(**result) for result in results['_items'])
 
     @classmethod
-    def embedded(cls,arg='',**kwargs):
-        results = cls.server.get('{}?embedded={}&{}'.format(cls.link, json.dumps(kwargs),arg))
+    def embedded(cls, options=None, **kwargs):
+        link = '{}?embedded={}'.format(cls.link, json.dumps(kwargs))
+        if options is not None:
+            link = '{}&{}'.format(link, options)
+        results = cls.server.get(link)
         return (cls(**result) for result in results['_items'])
 
     @classmethod
-    def first_where(cls,**kwargs):
+    def first_where(cls, **kwargs):
         try:
             return next(cls.where(**kwargs))
         except StopIteration:
