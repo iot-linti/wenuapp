@@ -10,10 +10,13 @@ from kivy.core.window import Window
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
-from kivy.uix.popup import Popup
+from kivy.uix.boxlayout import BoxLayout
+#~ from kivy.uix.popup import Popup
 from kivy.uix.spinner import Spinner
 from kivy.uix.floatlayout import FloatLayout
 from kivy.clock import Clock
+from kivy.uix.image import AsyncImage
+from kivy.uix.scatter import Scatter
 #python
 from functools import partial
 import datetime
@@ -36,6 +39,27 @@ from kivymd.time_picker import MDTimePicker
 from kivymd.date_picker import MDDatePicker
 from kivymd.bottomsheet import MDListBottomSheet, MDGridBottomSheet
 #~ from kivymd.spinner import MDSpinner
+
+class MotaImage(Widget):
+	def __init__(self, src, *args, **kwargs):
+		super(MotaImage, self).__init__(**kwargs)
+		#video = Video(source='http://163.10.10.103', play=True)
+		self.cols = 2
+		self.video = AsyncImage(source=src, nocache=True)
+		#~ self.add_widget(Image(source='imagenes/close.png', pos_hint={'x':1}))
+		self.add_widget(self.video)
+		Clock.schedule_interval(self.refresh, 1)
+		
+	def refresh(self, *evnt):
+		print "reload"
+		try:
+			self.video.reload()
+		except:
+			print "Error al cargar la imagen"
+			
+	#~ def on_touch_down(self, touch):
+		#~ print "touch"
+		#~ self.parent.remove_widget(self)
 
 class Mota(Button):
 	"""Clase (Boton) que representa a la mota."""
@@ -61,11 +85,44 @@ class Mota(Button):
 		#~ img.size = translate(orig_size, Window.size, *img.size)
 		self.pos = self.translate(self.orig_size, Window.size, data.x, data.y)
 		self.actualizar(temp_amb, historial[0])
+		#Ip de la camara de la mota
+		self.ipv = "http://163.10.10.103/cgi-bin/viewer/video.jpg"
 
 	def get_piso(self):
 		"""Retorna el numero de piso."""
 		return self.piso
+		
+	def refresh(self, *evnt):
+		try:
+			self.mota_img.reload()
+		except:
+			print "No pudo cargar la imagen"
+		else:
+			print "Recargo la imagen"
 
+	def get_picture(self, *evt):
+		#~ content = BoxLayout(cols=2)
+		#~ self.mota_img = AsyncImage(source=self.ipv, nocache=True)
+		#~ content.add_widget(self.mota_img)
+		#~ self.dialog = MDDialog(title="Imagen de la mota",
+							   #~ content=content,
+							   #~ size_hint=(.8, None),
+							   #~ height=dp(200),
+							   #~ auto_dismiss=False)
+#~ 
+		#~ self.dialog.add_action_button("Cerrar", action=lambda *x: self.close_picture())
+		#~ self.dialog.open()
+		#~ return img
+		self.mota_img = AsyncImage(source='http://163.10.10.103/cgi-bin/viewer/video.jpg', size=(300,300), nocache=True)
+		self.add_widget(self.mota_img)
+		self.evt_refresh = Clock.schedule_interval(self.refresh, 1)
+		#~ self.image = MotaImage('http://163.10.10.103/cgi-bin/viewer/video.jpg')
+		#~ self.add_widget(self.image)
+		
+	def close_picture(self, *evt):
+		self.dialog.dismiss()
+		#~ Clock.unschedule_interval(self.refresh)
+		self.evt_refresh.cancel()
 
 	def translate(self, orig_size, new_size, x, y):
 		"""Cambia la posicion de la mota a corde a su posicion original y la resolucion de la pantalla
@@ -118,6 +175,7 @@ class Mota(Button):
 					bs.add_item(text, lambda x: x)
 		bs.add_item("Algo mas", lambda x: x)
 		bs.add_item("Apagar", self.apagar_mota, icon='clipboard-account')
+		bs.add_item("Ver imagen", self.get_picture, icon='clipboard-account')
 		bs.open()
 
 	def apagar_mota(self, evt):
