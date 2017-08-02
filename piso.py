@@ -45,10 +45,11 @@ class MotaImage(Widget):
 		super(MotaImage, self).__init__(**kwargs)
 		#video = Video(source='http://163.10.10.103', play=True)
 		self.cols = 2
-		self.video = AsyncImage(source=src, nocache=True)
+		self.size = 300,300
+		self.video = AsyncImage(source=src, nocache=True, size=(300,300))
 		#~ self.add_widget(Image(source='imagenes/close.png', pos_hint={'x':1}))
 		self.add_widget(self.video)
-		Clock.schedule_interval(self.refresh, 1)
+		self.event = Clock.schedule_interval(self.refresh, 2)
 		
 	def refresh(self, *evnt):
 		print "reload"
@@ -57,9 +58,11 @@ class MotaImage(Widget):
 		except:
 			print "Error al cargar la imagen"
 			
-	#~ def on_touch_down(self, touch):
-		#~ print "touch"
-		#~ self.parent.remove_widget(self)
+	def on_touch_down(self, touch):
+		print "Close"
+		if self.collide_point(*touch.pos):
+			self.event.cancel()
+			self.parent.remove_widget(self)
 
 class Mota(Button):
 	"""Clase (Boton) que representa a la mota."""
@@ -91,33 +94,10 @@ class Mota(Button):
 	def get_piso(self):
 		"""Retorna el numero de piso."""
 		return self.piso
-		
-	def refresh(self, *evnt):
-		try:
-			self.mota_img.reload()
-		except:
-			print "No pudo cargar la imagen"
-		else:
-			print "Recargo la imagen"
 
 	def get_picture(self, *evt):
-		#~ content = BoxLayout(cols=2)
-		#~ self.mota_img = AsyncImage(source=self.ipv, nocache=True)
-		#~ content.add_widget(self.mota_img)
-		#~ self.dialog = MDDialog(title="Imagen de la mota",
-							   #~ content=content,
-							   #~ size_hint=(.8, None),
-							   #~ height=dp(200),
-							   #~ auto_dismiss=False)
-#~ 
-		#~ self.dialog.add_action_button("Cerrar", action=lambda *x: self.close_picture())
-		#~ self.dialog.open()
-		#~ return img
-		self.mota_img = AsyncImage(source='http://163.10.10.103/cgi-bin/viewer/video.jpg', size=(300,300), nocache=True)
-		self.add_widget(self.mota_img)
-		self.evt_refresh = Clock.schedule_interval(self.refresh, 1)
-		#~ self.image = MotaImage('http://163.10.10.103/cgi-bin/viewer/video.jpg')
-		#~ self.add_widget(self.image)
+		self.image = MotaImage(self.ipv)
+		self.add_widget(self.image)
 		
 	def close_picture(self, *evt):
 		self.dialog.dismiss()

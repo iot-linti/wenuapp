@@ -65,14 +65,20 @@
 			id: box_progress
 			orientation:'vertical'
 			padding: '8dp'
-			spacing: '40dp'
+			spacing: '20dp'
 			#prog_b: progress_bar
+			
+			MDLabel:
+				size_hint: None, None
+				pos_hint: {'center_x': .55, 'center_y':1}
+				text: 'Cargando...'
 			
 			MDProgressBar:
 				id: progress_bar
 				min: 0
 				max: 100
 				value: 0
+				text: 'Cargando...'
 	Screen:
 		name: 'main'
 		BoxLayout:
