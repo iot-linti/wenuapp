@@ -154,10 +154,11 @@ class MainBox(ScreenManager):
 			self.pisos_nav.add_widget(p_nav)
 			self.ids["scr_mngr"].add_widget(self.pisos[piso._id])
 			#~ print "Piso listo"
-			Clock.schedule_once(partial(self.ids["progressbar"].update, cant_p, sig+1), .5)
+			Clock.schedule_once(partial(self.ids["progressbar"].update, cant_p, sig+1), .1)
 		else:
 			self.ids["scr_mngr"].current = next_screen
 			self.current = 'main'
+			self.pisos[1].on_enter()
 
 	def cambiar_piso(self, name, evnt):
 		"""Cambia de piso (Screen)"""
