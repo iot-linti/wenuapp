@@ -24,7 +24,7 @@ from kivymd.toolbar import Toolbar
 from kivymd.navigationdrawer import NavigationDrawerIconButton
 
 #~ from kivymd.textfields.MDTextField import MDTextField
-
+from kivymd.tabs import MDTabbedPanel
 from kivymd.progressbar import MDProgressBar
 
 from kivy.clock import Clock
@@ -40,17 +40,18 @@ import requests
 class PisosNavDrawer(MDNavigationDrawer):
 	pass
 
-class Login(BoxLayout):
+class Login(MDTabbedPanel):
 	"""Clase de inicio de sesion/coneccion al servidor de influx mediante wenuapi"""
 
-	def conectar(self, user, password):
+	def conectar(self, user, password, server):
 		"""Conecta al servidor"""
 		config = App.get_running_app().config
 		try:
 			config.set('WENU', 'USER', user)
 			config.set('WENU', 'PASS', password)
+			config.set('WENU', 'SERVER', server)
 			config.write()
-			server = config.get('WENU', 'SERVER')
+			#~ server = config.get('WENU', 'SERVER')
 			
 			session = requests.Session()
 			session.auth = (user, password)
