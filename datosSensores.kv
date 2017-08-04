@@ -27,7 +27,7 @@
 ##:import MDSpinner kivymd.spinner.MDSpinner
 
 <MainBox>:
-	#id: datos
+	id: datos
 	#orientation: 'vertical'
 	#lay_nav: nav_layout
 	pisos_nav: nav_drawer
@@ -60,6 +60,10 @@
 						required: True
 						password: True
 						message_mode: "on_error"
+					MDRaisedButton:
+						text: 'Conectar'
+						pos_hint: {'center_x': 0.5, 'center_y': 0.6}
+						on_press: root.ids["tab_panel"].conectar(usr.text, password.text, ip.text)
 			MDTab:
 				name: 'config_tab'
 				text: "Configuración"
@@ -83,10 +87,6 @@
 						message: "Debe ingresar un puerto al cual conectarse"
 						required: True
 						message_mode: "on_error"
-			MDRaisedButton:
-				text: 'Conectar'
-				pos_hint: {'center_x': 0.5, 'center_y': 0.6}
-				on_press: self.parent.conectar(usr.text, password.text, ip.text)
 	Load:
 		id: progressbar
 		name: 'progressbar'
