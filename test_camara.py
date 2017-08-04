@@ -12,7 +12,7 @@ class MainBox(BoxLayout):
 	def __init__(self, *args, **kwargs):
 		super(MainBox, self).__init__(**kwargs)
 		#~ video = Video(source='http://163.10.10.103', play=True)
-		self.video = AsyncImage(source='http://163.10.10.103/cgi-bin/viewer/video.jpg', nocache=True)
+		self.video = AsyncImage(source='http://lihuen:lihuen@163.10.10.103/cgi-bin/viewer/video.jpg', nocache=True)
 		self.add_widget(self.video)
 		Clock.schedule_interval(self.refresh, 1)
 		

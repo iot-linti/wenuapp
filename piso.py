@@ -15,7 +15,10 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.spinner import Spinner
 from kivy.uix.floatlayout import FloatLayout
 from kivy.clock import Clock
-from kivy.uix.image import AsyncImage
+#~ from kivy.uix.image import AsyncImage
+from kivy.metrics import dp
+from kivy.uix.image import Image
+from kivy.uix.video import Video
 from kivy.uix.scatter import Scatter
 #python
 from functools import partial
@@ -26,8 +29,6 @@ import json
 #kivymd
 
 from kivymd.snackbar import Snackbar
-from kivy.metrics import dp
-from kivy.uix.image import Image
 from kivymd.button import MDRaisedButton
 from kivymd.label import MDLabel
 from kivymd.list import ILeftBody, ILeftBodyTouch, IRightBodyTouch
@@ -39,6 +40,8 @@ from kivymd.time_picker import MDTimePicker
 from kivymd.date_picker import MDDatePicker
 from kivymd.bottomsheet import MDListBottomSheet, MDGridBottomSheet
 #~ from kivymd.spinner import MDSpinner
+#otros
+import mjpegviewer
 
 class MotaImage(Widget):
 	def __init__(self, src, *args, **kwargs):
@@ -46,22 +49,26 @@ class MotaImage(Widget):
 		#video = Video(source='http://163.10.10.103', play=True)
 		self.cols = 2
 		self.size = 300,300
-		self.video = AsyncImage(source=src, nocache=True, size=(300,300))
+		#~ self.video = AsyncImage(source=src, nocache=True, size=(300,300))
+		#~ self.video = Video(source="http://lihuen:lihuen@163.10.10.103/video4.mjpg", size=(300,300), state='play')
 		#~ self.add_widget(Image(source='imagenes/close.png', pos_hint={'x':1}))
-		self.add_widget(self.video)
-		self.event = Clock.schedule_interval(self.refresh, 2)
 		
-	def refresh(self, *evnt):
-		print "reload"
-		try:
-			self.video.reload()
-		except:
-			print "Error al cargar la imagen"
+		self.video = mjpegviewer.MjpegViewer(url="http://lihuen:lihuen@163.10.10.103/video4.mjpg", size=(300,300))
+		self.video.start()
+		self.add_widget(self.video)
+		#~ self.event = Clock.schedule_interval(self.refresh, 2)
+		
+	#~ def refresh(self, *evnt):
+		#~ print "reload"
+		#~ try:
+			#~ self.video.reload()
+		#~ except:
+			#~ print "Error al cargar la imagen"
 			
 	def on_touch_down(self, touch):
 		print "Close"
 		if self.collide_point(*touch.pos):
-			self.event.cancel()
+			#~ self.event.cancel()
 			self.parent.remove_widget(self)
 
 class Mota(Button):
@@ -89,7 +96,7 @@ class Mota(Button):
 		self.pos = self.translate(self.orig_size, Window.size, data.x, data.y)
 		self.actualizar(temp_amb, historial[0])
 		#Ip de la camara de la mota
-		self.ipv = "http://163.10.10.103/cgi-bin/viewer/video.jpg"
+		self.ipv = "http://163.10.10.103/video4.mjpg"
 
 	def get_piso(self):
 		"""Retorna el numero de piso."""
