@@ -53,7 +53,7 @@ class MotaImage(Widget):
 		#~ self.video = Video(source="http://lihuen:lihuen@163.10.10.103/video4.mjpg", size=(300,300), state='play')
 		#~ self.add_widget(Image(source='imagenes/close.png', pos_hint={'x':1}))
 		
-		self.video = mjpegviewer.MjpegViewer(url="http://lihuen:lihuen@163.10.10.103/video4.mjpg", size=(300,300))
+		self.video = mjpegviewer.MjpegViewer(url=src, size=(300,300))
 		self.video.start()
 		self.add_widget(self.video)
 		#~ self.event = Clock.schedule_interval(self.refresh, 2)
@@ -96,7 +96,7 @@ class Mota(Button):
 		self.pos = self.translate(self.orig_size, Window.size, data.x, data.y)
 		self.actualizar(temp_amb, historial[0])
 		#Ip de la camara de la mota
-		self.ipv = "http://163.10.10.103/video4.mjpg"
+		self.ipv = "http://lihuen:lihuen@163.10.10.103/video4.mjpg"
 
 	def get_piso(self):
 		"""Retorna el numero de piso."""
