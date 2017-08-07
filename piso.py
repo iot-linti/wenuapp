@@ -305,10 +305,21 @@ class MakeFilePos(Widget):
 		self.motas2 = motas.copy()
 		self.client = cli
 		self.m_pos = {}
-		self.size = Window.size
+		#~ self.size = Window.size
+		self.size_hint_y= None
+		self.size_hint_x= None
+		self.size = 900, 150
 		self.pos = 0,0
 		key = self.motas2.keys()[0]
-		l = MDLabel(text="Ingrese posición de la mota: "+str(key), pos_hint={'top':1.44,'right':.06})
+		l = MDLabel(text="Ingrese posición de la mota: "+str(key), 
+				pos_hint={'top':1.44,'right':.06})#,
+				#~ font_style= 'Display1',
+				#~ theme_text_color= 'Primary',
+				#~ halign= 'center',
+				#~ size_hint_y= None,
+				#~ size_hint_x= None,
+				#~ height= dp(4))
+		#~ Snackbar(text="Ingrese posición de la mota: "+str(key)).show()
 		self.add_widget(l)
 		#del self.motas2[key]
 		#~ self.size = self.parent.size
@@ -328,10 +339,19 @@ class MakeFilePos(Widget):
 			del self.motas2[key]
 			if len(self.motas2) > 0:
 				key = self.motas2.keys()[0]
-				l = MDLabel(text="Ingrese posición de la mota: "+str(key), pos_hint={'top':1.44,'right':.06})
+				l = MDLabel(text="Ingrese posición de la mota: "+str(key), 
+						pos_hint={'top':1.44,'right':.06})#,
+						#~ font_style= 'Display1',
+						#~ theme_text_color= 'Primary',
+						#~ halign= 'center',
+						#~ size_hint_y= None,
+						#~ size_hint_x= None,
+						#~ height= dp(12))
+				#~ Snackbar(text="Ingrese posición de la mota: "+str(key)).show()
 				self.add_widget(l)
 			else:
 				l = MDLabel(text="Haga click para finalizar", pos_hint={'top':1.44,'right':.06})
+				#~ Snackbar(text="Haga click para finalizar").show()
 				self.add_widget(l)
 		else:
 			Snackbar(text="Espere un momento mientras se guardan las nuevas posiciones.").show()

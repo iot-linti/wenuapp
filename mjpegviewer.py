@@ -1,3 +1,8 @@
+"""
+MJpeg Viewer using pure Kivy + urllib
+=====================================
+.. author:: Mathieu Virbel <mat@meltingrocks.com>
+"""
 import io
 import urllib
 import threading
