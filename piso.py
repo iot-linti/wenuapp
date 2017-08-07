@@ -49,21 +49,11 @@ class MotaImage(Widget):
 		#video = Video(source='http://163.10.10.103', play=True)
 		self.cols = 2
 		self.size = 300,300
-		#~ self.video = AsyncImage(source=src, nocache=True, size=(300,300))
-		#~ self.video = Video(source="http://lihuen:lihuen@163.10.10.103/video4.mjpg", size=(300,300), state='play')
-		#~ self.add_widget(Image(source='imagenes/close.png', pos_hint={'x':1}))
-		
+
 		self.video = mjpegviewer.MjpegViewer(url=src, size=(300,300))
 		self.video.start()
 		self.add_widget(self.video)
-		#~ self.event = Clock.schedule_interval(self.refresh, 2)
-		
-	#~ def refresh(self, *evnt):
-		#~ print "reload"
-		#~ try:
-			#~ self.video.reload()
-		#~ except:
-			#~ print "Error al cargar la imagen"
+
 			
 	def on_touch_down(self, touch):
 		print "Close"
@@ -104,7 +94,8 @@ class Mota(Button):
 
 	def get_picture(self, *evt):
 		self.image = MotaImage(self.ipv)
-		self.add_widget(self.image)
+		#~ self.add_widget(self.image)
+		self.parent.add_widget(self.image)
 		
 	def close_picture(self, *evt):
 		self.dialog.dismiss()
