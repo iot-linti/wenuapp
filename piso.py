@@ -46,8 +46,6 @@ import mjpegviewer
 class MotaImage(Widget):
 	def __init__(self, src, *args, **kwargs):
 		super(MotaImage, self).__init__(**kwargs)
-		#video = Video(source='http://163.10.10.103', play=True)
-		self.cols = 2
 		self.size = 300,300
 
 		self.video = mjpegviewer.MjpegViewer(url=src, size=(300,300))
@@ -66,7 +64,8 @@ class Mota(Button):
 	def __init__(self, data, historial, temp_amb, client):
 		super(Mota, self).__init__()
 		#try temporal hasta que esten terminados de cargar los datos en las tablas nuevas
-		self.name = data._id
+		self.name = data.mote_id
+		self.mote_id = data._id
 		self.piso = data.level_id
                 # self.date = data.time # FIXME: porque esta esta
 		self.client = client #Cliente de la bd
@@ -84,6 +83,7 @@ class Mota(Button):
 		#~ orig_size = Window.size#(1280, 960)
 		#~ img.size = translate(orig_size, Window.size, *img.size)
 		self.pos = self.translate(self.orig_size, Window.size, data.x, data.y)
+		self.edit_position = False
 		self.actualizar(temp_amb, historial[0])
 		#Ip de la camara de la mota
 		self.ipv = "http://lihuen:lihuen@163.10.10.103/video4.mjpg"
@@ -96,6 +96,9 @@ class Mota(Button):
 		self.image = MotaImage(self.ipv)
 		#~ self.add_widget(self.image)
 		self.parent.add_widget(self.image)
+		
+	def set_edit(self, val=True):
+		self.edit_position = val
 		
 	def close_picture(self, *evt):
 		self.dialog.dismiss()
@@ -110,8 +113,12 @@ class Mota(Button):
 		return (x * nw / ow, y * nh / oh)
 
 	def getName(self):
-		"""Retorna el nombre/id de la mota."""
+		"""Retorna el nombre de la mota."""
 		return self.name
+
+	def getId(self):
+		"""Retorna el id de la mota."""
+		return self.mote_id
 
 	def setTemperature(self, temp, temp_amb):
 		"""Setea la temperatura de la mota."""
@@ -151,7 +158,7 @@ class Mota(Button):
 					bs.add_item(text, lambda x: x, icon='weather-sunny')#, icon='alert-circle-outline')
 				else:
 					bs.add_item(text, lambda x: x)
-		bs.add_item("Algo mas", lambda x: x)
+		bs.add_item("Cambiar posicion", self.set_edit)
 		bs.add_item("Apagar", self.apagar_mota, icon='clipboard-account')
 		bs.add_item("Ver imagen", self.get_picture, icon='clipboard-account')
 		bs.open()
@@ -181,6 +188,28 @@ class Mota(Button):
 			return "[color=f10000]" + str(temp)+"[/color]"
 		else:
 			return "[color=13E400]"+str(temp)+"[/color]"
+			
+	def posicionar(self, pos, *evt):
+		"""Actualiza la posicion de la mota en bd."""
+		mote = self.client.Mote.first_where(mote_id=self.getName(), level_id = self.get_piso())
+		mote.x = int(pos[0]);
+		mote.y = int(pos[1]);
+		mote.resolution = str(Window.size)
+		mote.save()
+		self.calc_pos(int(pos[0]),int(pos[1]))
+		Snackbar(text="Posicion guardada.").show()
+		
+	#~ def calc_pos(self, tx, ty, key):
+		#~ """Calcula la nueva posicion."""
+		#~ self.x, self.y = (tx-(self.motas[str(key)].size[0]/2),ty-(self.motas[str(key)].size[1]/2))
+		#~ return map(int, pos)
+		
+	def on_touch_down(self, touch):
+		if self.edit_position:
+			self.posicionar(touch.pos)
+			self.edit_position = False
+		elif self.collide_point(*touch.pos):
+			self.historial_mota(self.historial)
 
 class Piso(Screen):
 	"""Clase que representa un piso (Screen) con sus motas, imagen."""
@@ -234,15 +263,22 @@ class Piso(Screen):
 
                 historial = list(self.client.Measurement.where(mote_id='linti_control')) #NO DEVUELVE NADA
 
-		temperature = historial[0].temperature if historial else float('nan')
-		historial = [15]  #QUITAR HARDCODEO
+		temperature = historial[0].temperature if len(historial) > 0 else 0#float('nan')
+		print historial
+		print len(historial)
+		historial = historial if len(historial) > 0 else [0]
+		print historial
+		print "-{-{-{-{-{}-{-{-{-{-{}-{-{-{-{-{}-{-{-{-{-{}-{-{-{-{-{}-{-{-{-{-{}"
+		#~ historial = [15]  #QUITAR HARDCODEO
 		self.info_motas[control.mote_id] = Mota(control, historial, temperature, self.client)
 		for sen in self.sensores:
 			#~ print "\nProcesando un sensor\n"
-			#~ historial = self.client.Measurement.where(mota_id=sen.mote_id) #NO DEVUELVE NADA
+			historial = list(self.client.Measurement.where(mota_id=sen.mote_id)) #NO DEVUELVE NADA
 			#~ historial = self.client.Measurement.first_where(mota_id=sen.mote_id) #FIX ME
-			#~ print historial
-			historial = [25] #QUITAR HARDCODEO
+			print historial
+			historial = historial if len(historial) > 0 else [100]
+			print historial
+			#~ historial = [25] #QUITAR HARDCODEO
 			#~ print "\nSe cargo el historial\n"
 			self.info_motas[sen.mote_id] = Mota(sen, historial, self.info_motas["linti_control"].getTemperatura(), self.client)
 			#~ print "\nSe agrego la mota\n"
@@ -294,6 +330,8 @@ class MakeFilePos(Widget):
 		super(MakeFilePos, self).__init__()
 		self.motas = motas
 		self.motas2 = motas.copy()
+		print self.motas
+		print self.motas2
 		self.client = cli
 		self.m_pos = {}
 		#~ self.size = Window.size
@@ -303,13 +341,13 @@ class MakeFilePos(Widget):
 		self.pos = 0,0
 		key = self.motas2.keys()[0]
 		l = MDLabel(text="Ingrese posición de la mota: "+str(key), 
-				pos_hint={'top':1.44,'right':.06})#,
-				#~ font_style= 'Display1',
-				#~ theme_text_color= 'Primary',
-				#~ halign= 'center',
-				#~ size_hint_y= None,
-				#~ size_hint_x= None,
-				#~ height= dp(4))
+				pos_hint={'top':1.44,'right':.06},
+				font_style= 'Display1',
+				theme_text_color= 'Primary',
+				halign= 'center',
+				size_hint_y= None,
+				size_hint_x= None,
+				height= dp(4))
 		#~ Snackbar(text="Ingrese posición de la mota: "+str(key)).show()
 		self.add_widget(l)
 		#del self.motas2[key]
