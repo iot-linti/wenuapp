@@ -1,7 +1,15 @@
-INICIANDO EL CLIENTE:
+wenuclient.py
+-------------
+
+`wenuclient.py` provee una API de alto nivel que permite modificar la base de
+datos de Wenu de forma remota. Internamente `wenuclient.py` se comunica con el
+servidor REST "wenuapi".
+
+## Login
 
 -CON USUARIO Y CONTRASEÑA:
 
+    from wenuclient import *
     username = 'admin'
     password = 1234
     s = get_session('http://localhost:5000/login',username,password)
@@ -17,6 +25,8 @@ INICIANDO EL CLIENTE:
     s.auth = (token, None)
     server = Client('http://localhost:5000',s)
 
+## Queries
+
 REGISTRAR USUARIO:
 
     register_user('http://localhost:5000/user',username,password)
@@ -30,13 +40,18 @@ AGREGAR ELEMENTOS:
     server.Action(mote_id=3, command='turn_off', arguments='').create()
     server.Action(mote_id=4, command='turn_off', arguments='').create()
 
+Listar elementos:
+
+    for elemento in server.Action.list():
+        print(elemento.command)
+
 VER UN ELEMENTO:
 
     action = server.Action().get_by_id(1)
 
 MODIFICAR ELEMENTO:
 
-    action.__setattr__('viewed', True)
+    action.viewed = True
     action.save()
 
 
@@ -45,14 +60,11 @@ VER LOS PERFIL DE USUARIOS, LISTANTO SUS ROLES E IMPRIMIENDOLOS (en el caso de n
 desea ver su perfil no enviar 'list'):
 
     def getUser():
-        arg2 = {
-            "roles" : 1,
-        }
-        users = server.User.embedded('list',**arg2)
+        users = server.User.embedded('list', roles=1)
         for user in users:
-            roles =  user.__getattr__('roles')
-            #print user.__dict__['fields']['username']
-            print 'Username: ' + user.__getattr__('username')
+            roles =  user.roles
+            #print user.fields['username']
+            print 'Username: ' + user.username
             print 'Roles:'
             for rol in roles:
                 print rol['rolname']
@@ -74,12 +86,9 @@ ELIMINAR ACTION:
 
 LISTAR MEASUREMENTS USANDO WHERE:
 
-        arg = {
-        "mota_id" : "'linti_cocina'"
-    }
-    measurements = server.Measurement.where(**arg)
+    measurements = server.Measurement.where(mota_id="linti_cocina")
     for measure in measurements:
-        print 'Mote id: {}'.format(measure.__getattr__('mote_id'))
-        print 'Temperature: {}'.format(measure.__getattr__('temperature'))
-        print 'Date: {}'.format(measure.__getattr__('_created'))
+        print 'Mote id: {}'.format(measure.mote_id)
+        print 'Temperature: {}'.format(measure.temperature)
+        print 'Date: {}'.format(measure._created)
         print "--------"
