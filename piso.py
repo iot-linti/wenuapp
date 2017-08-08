@@ -196,7 +196,7 @@ class Mota(Button):
 		mote.y = int(pos[1]);
 		mote.resolution = str(Window.size)
 		mote.save()
-		self.calc_pos(int(pos[0]),int(pos[1]))
+		#~ self.calc_pos(int(pos[0]),int(pos[1]))
 		Snackbar(text="Posicion guardada.").show()
 		
 	#~ def calc_pos(self, tx, ty, key):
