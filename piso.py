@@ -196,13 +196,12 @@ class Mota(Button):
 		mote.y = int(pos[1]);
 		mote.resolution = str(Window.size)
 		mote.save()
-		#~ self.calc_pos(int(pos[0]),int(pos[1]))
+		self.calc_pos(int(pos[0]),int(pos[1]))
 		Snackbar(text="Posicion guardada.").show()
 		
-	#~ def calc_pos(self, tx, ty, key):
-		#~ """Calcula la nueva posicion."""
-		#~ self.x, self.y = (tx-(self.motas[str(key)].size[0]/2),ty-(self.motas[str(key)].size[1]/2))
-		#~ return map(int, pos)
+	def calc_pos(self, tx, ty):
+		"""Calcula la nueva posicion."""
+		self.x, self.y = (tx-(self.size[0]/2),ty-(self.size[1]/2))
 		
 	def on_touch_down(self, touch):
 		if self.edit_position:
@@ -264,20 +263,14 @@ class Piso(Screen):
                 historial = list(self.client.Measurement.where(mote_id='linti_control')) #NO DEVUELVE NADA
 
 		temperature = historial[0].temperature if len(historial) > 0 else 0#float('nan')
-		print historial
-		print len(historial)
 		historial = historial if len(historial) > 0 else [0]
-		print historial
-		print "-{-{-{-{-{}-{-{-{-{-{}-{-{-{-{-{}-{-{-{-{-{}-{-{-{-{-{}-{-{-{-{-{}"
 		#~ historial = [15]  #QUITAR HARDCODEO
 		self.info_motas[control.mote_id] = Mota(control, historial, temperature, self.client)
 		for sen in self.sensores:
 			#~ print "\nProcesando un sensor\n"
 			historial = list(self.client.Measurement.where(mota_id=sen.mote_id)) #NO DEVUELVE NADA
 			#~ historial = self.client.Measurement.first_where(mota_id=sen.mote_id) #FIX ME
-			print historial
 			historial = historial if len(historial) > 0 else [100]
-			print historial
 			#~ historial = [25] #QUITAR HARDCODEO
 			#~ print "\nSe cargo el historial\n"
 			self.info_motas[sen.mote_id] = Mota(sen, historial, self.info_motas["linti_control"].getTemperatura(), self.client)
@@ -311,15 +304,14 @@ class Piso(Screen):
 				s[1].texture_update()
 				s[1].bind(on_release=partial(s[1].historial_mota,res[s[0]]))
 			self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
-
-
-
+	
+	
 	def config_mota_pos(self):
 		"""Cambia de posicion las motas (FIXME)."""
 		mfp = MakeFilePos(self.info_motas, self.client)
 		self.add_widget(mfp)
 		mfp.size = self.parent.size
-		self.actualizar_mapa
+		self.actualizar_mapa()
 
 
 class MakeFilePos(Widget):
@@ -330,8 +322,6 @@ class MakeFilePos(Widget):
 		super(MakeFilePos, self).__init__()
 		self.motas = motas
 		self.motas2 = motas.copy()
-		print self.motas
-		print self.motas2
 		self.client = cli
 		self.m_pos = {}
 		#~ self.size = Window.size
@@ -341,13 +331,13 @@ class MakeFilePos(Widget):
 		self.pos = 0,0
 		key = self.motas2.keys()[0]
 		l = MDLabel(text="Ingrese posición de la mota: "+str(key), 
-				pos_hint={'top':1.44,'right':.06},
-				font_style= 'Display1',
-				theme_text_color= 'Primary',
-				halign= 'center',
-				size_hint_y= None,
-				size_hint_x= None,
-				height= dp(4))
+				pos_hint={'top':1.44,'right':.06})#,
+				#~ font_style= 'Display1',
+				#~ theme_text_color= 'Primary',
+				#~ halign= 'center',
+				#~ size_hint_y= None,
+				#~ size_hint_x= None,
+				#~ height= dp(4))
 		#~ Snackbar(text="Ingrese posición de la mota: "+str(key)).show()
 		self.add_widget(l)
 		#del self.motas2[key]
