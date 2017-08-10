@@ -22,39 +22,31 @@ def validate_and_jsonify(func):
     @wraps(func)
     def closure(self, route, *args, **kwargs):
         logger = logging.getLogger(__name__)
-        http_request = func(self, route, *args, **kwargs)
+        http_response = func(self, route, *args, **kwargs)
         logger.debug(
             'Request to route %s returned status %d',
             route,
-            http_request.status_code,
+            http_response.status_code,
         )
-        logger.debug(http_request.text)
-        # FIXME: Cambiar para que lance una excepción con un
-        # error específico si lo hubo
-        assert http_request.status_code == 200 or http_request.status_code == 201 or http_request.status_code == 204
-        return json.loads(http_request.text)
+        http_response.raise_for_status()
+        return json.loads(http_response.text)
 
     return closure
 
 
+def get_session(url, username, password):
+    session = requests.Session()
+    response = session.get(url, auth=(username, password))
+    response.raise_for_status()
+    token = response.json()['token']
+    session.auth = (token, None)
+    return session
 
-def get_session(url,username,password):
 
-
-    r = requests.get(url, auth=(username, password))
-    item = r.json()
-    assert r.status_code == 200 or r.status_code == 201
-    token = item['token']
-
-    s = requests.Session()
-    s.auth = (token, None)
-    return s
-
-def register_user(url,username,password):
+def register_user(url, username, password):
     payload = {'username': username, 'password': password}
-    r = requests.post(url, data=payload)
-    assert r.status_code == 201
-    return True
+    response = requests.post(url, data=payload)
+    return response.status_code == 201
 
 
 class Entity(object):
@@ -194,22 +186,17 @@ class Client(object):
 
 
     def refresh_token(self):
+        response = self.session.get('/'.join((self.url, 'refreshtoken')))
+        self._validate(response)
+        token = response.json()['token']
 
-        r = self.session.get('/'.join((self.url, 'refreshtoken')))
-        item = r.json()
-        assert r.status_code == 200 or r.status_code == 201    or r.status_code == 204
-        token = item['token']
-
-        s = requests.Session()
-        s.auth = (token, None)
-        self.session = s
-
+        self.session.auth = (token, None)
 
 
     def __getattr__(self, attr):
         '''
         Las clases que representan a cada tabla pueden ser accedidas como
-        atributos de las instancias de `Server`.
+        atributos de las instancias de `Client`.
         '''
         try:
             return self.entities[attr]
