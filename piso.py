@@ -93,14 +93,17 @@ class Mota(Button):
 		return self.piso
 
 	def get_picture(self, *evt):
+		"""Instancia la clase MotaImage para mostrar el video."""
 		self.image = MotaImage(self.ipv)
 		#~ self.add_widget(self.image)
 		self.parent.add_widget(self.image)
 		
 	def set_edit(self, val=True):
+		"""Cambia si se esta editando la posicion de la mota o no."""
 		self.edit_position = val
 		
 	def close_picture(self, *evt):
+		"""Cierra el video."""
 		self.dialog.dismiss()
 		#~ Clock.unschedule_interval(self.refresh)
 		self.evt_refresh.cancel()
@@ -158,9 +161,9 @@ class Mota(Button):
 					bs.add_item(text, lambda x: x, icon='weather-sunny')#, icon='alert-circle-outline')
 				else:
 					bs.add_item(text, lambda x: x)
-		bs.add_item("Cambiar posicion", self.set_edit)
-		bs.add_item("Apagar", self.apagar_mota, icon='clipboard-account')
-		bs.add_item("Ver imagen", self.get_picture, icon='clipboard-account')
+		bs.add_item("Cambiar posicion", self.set_edit, icon='map-marker')
+		bs.add_item("Apagar aire", self.apagar_mota, icon='clipboard-account')
+		bs.add_item("Ver imagen", self.get_picture, icon='camera')
 		bs.open()
 
 	def apagar_mota(self, evt):
@@ -198,6 +201,9 @@ class Mota(Button):
 		mote.save()
 		self.calc_pos(int(pos[0]),int(pos[1]))
 		Snackbar(text="Posicion guardada.").show()
+		m = self.client.Mote.first_where(mote_id=self.getName(), level_id = self.get_piso())
+		print m.x
+		print m.y
 		
 	def calc_pos(self, tx, ty):
 		"""Calcula la nueva posicion."""
@@ -279,7 +285,7 @@ class Piso(Screen):
 		self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
 
 	def actualizar_mapa(self):
-		"""Deprecated (cambiar con wenuapi). ACtualiza los valores/datos de las motas del piso."""
+		"""Deprecated (cambiar con wenuapi). Actualiza los valores/datos de las motas del piso."""
 		try:
 			#~ query = []
 			query = {}
