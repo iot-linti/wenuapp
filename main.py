@@ -53,8 +53,11 @@ class Login(MDTabbedPanel):
 			config.write()
 			#~ server = config.get('WENU', 'SERVER')
 			
-			session = requests.Session()
-			session.auth = (user, password)
+                        session = wenuclient.get_session(
+                            '/'.join((server, 'login')),
+                            user,
+                            password,
+                        )
 			self.parent.parent.client = wenuclient.Client(server, session)
 		except requests.exceptions.RequestException as e:
 			print("Error al efectuar la conexion")
