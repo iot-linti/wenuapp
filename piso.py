@@ -12,14 +12,14 @@ from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.boxlayout import BoxLayout
 #~ from kivy.uix.popup import Popup
-from kivy.uix.spinner import Spinner
+#~ from kivy.uix.spinner import Spinner
 from kivy.uix.floatlayout import FloatLayout
 from kivy.clock import Clock
 #~ from kivy.uix.image import AsyncImage
 from kivy.metrics import dp
-from kivy.uix.image import Image
-from kivy.uix.video import Video
-from kivy.uix.scatter import Scatter
+#~ from kivy.uix.image import Image
+#~ from kivy.uix.video import Video
+#~ from kivy.uix.scatter import Scatter
 #python
 from functools import partial
 import datetime
@@ -36,8 +36,8 @@ from kivymd.navigationdrawer import MDNavigationDrawer as NavigationDrawer
 from kivymd.selectioncontrols import MDCheckbox
 from kivymd.theming import ThemeManager
 from kivymd.dialog import MDDialog
-from kivymd.time_picker import MDTimePicker
-from kivymd.date_picker import MDDatePicker
+#~ from kivymd.time_picker import MDTimePicker
+#~ from kivymd.date_picker import MDDatePicker
 from kivymd.bottomsheet import MDListBottomSheet, MDGridBottomSheet
 #~ from kivymd.spinner import MDSpinner
 #otros
@@ -82,7 +82,10 @@ class Mota(Button):
 		self.orig_size = res#eval(data["resolucion"])#Window.size#(1280, 960)
 		#~ orig_size = Window.size#(1280, 960)
 		#~ img.size = translate(orig_size, Window.size, *img.size)
+		#~ t = self.translate(self.orig_size, Window.size, data.x, data.y)
+		#~ self.calc_pos(t[0],t[1])
 		self.pos = self.translate(self.orig_size, Window.size, data.x, data.y)
+		#~ self.pos = data.x, data.y
 		self.edit_position = False
 		self.actualizar(temp_amb, historial[0])
 		#Ip de la camara de la mota
@@ -99,7 +102,7 @@ class Mota(Button):
 		self.parent.add_widget(self.image)
 		
 	def set_edit(self, val=True):
-		"""Cambia si se esta editando la posicion de la mota o no."""
+		"""Cambia si se esta editando la posicion de la mota o no (permite ver el historial al presionar)."""
 		self.edit_position = val
 		
 	def close_picture(self, *evt):
@@ -113,6 +116,8 @@ class Mota(Button):
 			del dispositivo en uso."""
 		ow, oh = orig_size
 		nw, nh = new_size
+		#~ print "Translate"
+		#~ print x * nw / ow, y * nh / oh
 		return (x * nw / ow, y * nh / oh)
 
 	def getName(self):
@@ -195,19 +200,24 @@ class Mota(Button):
 	def posicionar(self, pos, *evt):
 		"""Actualiza la posicion de la mota en bd."""
 		mote = self.client.Mote.first_where(mote_id=self.getName(), level_id = self.get_piso())
+		#~ print mote.x
+		#~ print mote.y
 		mote.x = int(pos[0]);
 		mote.y = int(pos[1]);
 		mote.resolution = str(Window.size)
 		mote.save()
 		self.calc_pos(int(pos[0]),int(pos[1]))
 		Snackbar(text="Posicion guardada.").show()
-		m = self.client.Mote.first_where(mote_id=self.getName(), level_id = self.get_piso())
-		print m.x
-		print m.y
+		#~ m = self.client.Mote.first_where(mote_id=self.getName(), level_id = self.get_piso())
+		#~ print m
+		#~ print m.x
+		#~ print m.y
 		
 	def calc_pos(self, tx, ty):
 		"""Calcula la nueva posicion."""
 		self.x, self.y = (tx-(self.size[0]/2),ty-(self.size[1]/2))
+		#~ print self.x, self.y
+		#~ print "Calc pos"
 		
 	def on_touch_down(self, touch):
 		if self.edit_position:
@@ -333,7 +343,7 @@ class MakeFilePos(Widget):
 		#~ self.size = Window.size
 		self.size_hint_y= None
 		self.size_hint_x= None
-		self.size = 900, 150
+		#~ self.size = 900, 150
 		self.pos = 0,0
 		key = self.motas2.keys()[0]
 		l = MDLabel(text="Ingrese posición de la mota: "+str(key), 
