@@ -41,6 +41,11 @@ def get_session(url, username, password):
     token = response.json()['token']
     session.auth = (token, None)
     return session
+    
+def get_session_by_qr(token):
+    session = requests.Session()
+    session.auth = (token, None)
+    return session
 
 
 def register_user(url, username, password):

@@ -48,6 +48,8 @@ class Login(MDTabbedPanel):
 	"""Clase de inicio de sesion/coneccion al servidor de influx mediante wenuapi"""
 	usr = ObjectProperty(None)
 	password = ObjectProperty(None)
+	server_ip = ObjectProperty(None)
+	cam = None
 
 	def conectar(self, user, password, server):
 		"""Conecta al servidor"""
@@ -67,7 +69,7 @@ class Login(MDTabbedPanel):
 			self.parent.parent.client = wenuclient.Client(server, session)
 		except requests.exceptions.RequestException as e:
 			print("Error al efectuar la conexion")
-			self.error_dialog()
+			self.error_dialog("Error al conectar. Verifique el usuario y contraseña.")
 		else:
 			self.parent.parent.current = 'progressbar'
 			#~ self.parent.parent.iniciar("bottomsheet","piso_1", self.client, self)
@@ -76,20 +78,34 @@ class Login(MDTabbedPanel):
 			
 	def read_qr(self):
 		"""Abre la camara para leer un codigo de QR"""
-		self.cam=Camera(resolution=(640,480), size=(400,400), play=True)
+		if self.cam == None:
+			self.cam=Camera(resolution=(640,480), size=(400,400), play=True)
+		else:
+			self.cam.play=True
+		self.content = Widget()
+		self.content.size_hint = None, None
+		self.content.height = dp(400)
+		self.content.add_widget(self.cam)
 		#~ self.add_widget(self.cam)
 		self.check_qr = Clock.schedule_interval(self.detect_qr, 1)
-		content = Widget()
-		content.size_hint = None, None
-		content.height = dp(400)
-		content.add_widget(self.cam)
-		self.dialog = MDDialog(title="Enfoque el codigo QR",content=content, size_hint=(.8, None),height=dp(500),auto_dismiss=False)
-		self.dialog.add_action_button("Cerrar", action= self.close_dialog)
+		self.dialog = MDDialog(title="Enfoque el codigo QR",content=self.content, size_hint=(.8, None),height=dp(500),auto_dismiss=False)
+		self.dialog.add_action_button("Cerrar", action= lambda x: self.dialog.dismiss())
 		self.dialog.open()
 		
-	def close_dialog(self, *evt):
-		self.dialog.dismiss()
-		self.check_qr.cancel()
+	def connect_qr(self, token):
+		try:
+			session = wenuclient.get_session_by_qr(token)
+			self.parent.parent.client = wenuclient.Client(self.server_ip, session)
+		except requests.exceptions.RequestException as e:
+			print("Error al efectuar la conexion")
+			self.error_dialog("Token incorrecto")
+		else:
+			self.parent.parent.current = 'progressbar'
+			#~ self.parent.parent.iniciar("bottomsheet","piso_1", self.client, self)
+			#~ self.parent.parent.current = 'main'
+			self.parent.remove_widget(self)
+		
+		
 		
 	def detect_qr(self,*largs):
 		self.cam.export_to_png("qrtests.png")
@@ -102,25 +118,20 @@ class Login(MDTabbedPanel):
 		if codes != None:
 			self.dialog.dismiss()
 			self.check_qr.cancel()
-			self.remove_widget(self.cam)
-			codes = codes[0].split('\n')
-			try:
-				self.usr.text = codes[0]
-				self.password.text = codes[1]
-			except:
-				content = MDLabel(font_style='Body1',theme_text_color='Secondary', text="Código QR incorrecto.", size_hint_y=None, valign='top')
-				content.bind(texture_size=content.setter('size'))
-				self.dialog = MDDialog(title="Error",content=content, size_hint=(.8, None),height=dp(200),auto_dismiss=False)
-				self.dialog.add_action_button("Cerrar", action=lambda x: self.dialog.dismiss())
-				self.dialog.open()
+			self.content.remove_widget(self.cam)
+			self.remove_widget(self.content)
+			self.cam.play = False
+			self.connect_qr(codes[0])
 
-	def error_dialog(self):
+	def error_dialog(self, txt):
 		"""Muestra un dialogo de error en caso de no poder conectarse."""
-		content = MDLabel(font_style='Body1',theme_text_color='Secondary', text="Error al conectar. Verifique el usuario y contraseña.", size_hint_y=None, valign='top')
+		content = MDLabel(font_style='Body1',theme_text_color='Secondary', text=txt, size_hint_y=None, valign='top')
 		content.bind(texture_size=content.setter('size'))
 		self.dialog = MDDialog(title="Error",content=content, size_hint=(.8, None),height=dp(200),auto_dismiss=False)
 		self.dialog.add_action_button("Cerrar", action=lambda x: self.dialog.dismiss())
 		self.dialog.open()
+		
+	
 
 class Load(Screen):
 	"""Clase de progressbar mientras se cargan los pisos."""
