@@ -28,10 +28,14 @@ from kivymd.tabs import MDTabbedPanel
 from kivymd.progressbar import MDProgressBar
 
 from kivy.clock import Clock
+from kivy.uix.camera import Camera
 
 import os
 import urllib
 from piso import *
+from PIL import Image
+import zbarlight
+
 #influx
 from influxdb import InfluxDBClient
 import wenuclient
@@ -42,6 +46,8 @@ class PisosNavDrawer(MDNavigationDrawer):
 
 class Login(MDTabbedPanel):
 	"""Clase de inicio de sesion/coneccion al servidor de influx mediante wenuapi"""
+	usr = ObjectProperty(None)
+	password = ObjectProperty(None)
 
 	def conectar(self, user, password, server):
 		"""Conecta al servidor"""
@@ -67,6 +73,26 @@ class Login(MDTabbedPanel):
 			#~ self.parent.parent.iniciar("bottomsheet","piso_1", self.client, self)
 			#~ self.parent.parent.current = 'main'
 			self.parent.remove_widget(self)
+			
+	def read_qr(self):
+		self.cam=Camera(resolution=(640,480), size=(500,500), play=True)
+		self.add_widget(self.cam)
+		self.check_qr = Clock.schedule_interval(self.detect_qr, 1)
+		
+	def detect_qr(self,*largs):
+		self.cam.export_to_png("qrtests.png")
+		file_path = 'qrtests.png'
+		with open(file_path, 'rb') as image_file:
+			image = Image.open(image_file)
+			image.load()
+		codes = zbarlight.scan_codes('qrcode', image)
+		print('QR codes: %s' % codes)
+		if codes != None:
+			self.check_qr.cancel()
+			self.remove_widget(self.cam)
+			codes = codes[0].split('\n')
+			self.usr.text = codes[0]
+			self.password.text = codes[1]
 
 	def error_dialog(self):
 		"""Muestra un dialogo de error en caso de no poder conectarse."""
