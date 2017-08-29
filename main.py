@@ -104,8 +104,15 @@ class Login(MDTabbedPanel):
 			self.check_qr.cancel()
 			self.remove_widget(self.cam)
 			codes = codes[0].split('\n')
-			self.usr.text = codes[0]
-			self.password.text = codes[1]
+			try:
+				self.usr.text = codes[0]
+				self.password.text = codes[1]
+			except:
+				content = MDLabel(font_style='Body1',theme_text_color='Secondary', text="Código QR incorrecto.", size_hint_y=None, valign='top')
+				content.bind(texture_size=content.setter('size'))
+				self.dialog = MDDialog(title="Error",content=content, size_hint=(.8, None),height=dp(200),auto_dismiss=False)
+				self.dialog.add_action_button("Cerrar", action=lambda x: self.dialog.dismiss())
+				self.dialog.open()
 
 	def error_dialog(self):
 		"""Muestra un dialogo de error en caso de no poder conectarse."""
