@@ -75,9 +75,21 @@ class Login(MDTabbedPanel):
 			self.parent.remove_widget(self)
 			
 	def read_qr(self):
-		self.cam=Camera(resolution=(640,480), size=(500,500), play=True)
-		self.add_widget(self.cam)
+		"""Abre la camara para leer un codigo de QR"""
+		self.cam=Camera(resolution=(640,480), size=(400,400), play=True)
+		#~ self.add_widget(self.cam)
 		self.check_qr = Clock.schedule_interval(self.detect_qr, 1)
+		content = Widget()
+		content.size_hint = None, None
+		content.height = dp(400)
+		content.add_widget(self.cam)
+		self.dialog = MDDialog(title="Enfoque el codigo QR",content=content, size_hint=(.8, None),height=dp(500),auto_dismiss=False)
+		self.dialog.add_action_button("Cerrar", action= self.close_dialog)
+		self.dialog.open()
+		
+	def close_dialog(self, *evt):
+		self.dialog.dismiss()
+		self.check_qr.cancel()
 		
 	def detect_qr(self,*largs):
 		self.cam.export_to_png("qrtests.png")
@@ -88,6 +100,7 @@ class Login(MDTabbedPanel):
 		codes = zbarlight.scan_codes('qrcode', image)
 		print('QR codes: %s' % codes)
 		if codes != None:
+			self.dialog.dismiss()
 			self.check_qr.cancel()
 			self.remove_widget(self.cam)
 			codes = codes[0].split('\n')
