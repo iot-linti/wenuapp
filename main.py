@@ -33,8 +33,9 @@ from kivy.uix.camera import Camera
 import os
 import urllib
 from piso import *
-from PIL import Image
-import zbarlight
+#~ from PIL import Image
+#~ import zbarlight
+from zbarQrCode import ZbarQrcodeDetector
 
 #influx
 from influxdb import InfluxDBClient
@@ -78,21 +79,28 @@ class Login(MDTabbedPanel):
 			
 	def read_qr(self):
 		"""Abre la camara para leer un codigo de QR"""
-		if self.cam == None:
-			self.cam=Camera(resolution=(640,480), size=(400,400), play=True)
-		else:
-			self.cam.play=True
+		#~ if self.cam == None:
+			#~ self.cam=Camera(resolution=(640,480), size=(400,400), play=True)
+		#~ else:
+			#~ self.cam.play=True
 		self.content = Widget()
-		self.content.size_hint = None, None
-		self.content.height = dp(400)
-		self.content.add_widget(self.cam)
+		#~ self.content.size_hint = None, None
+		#~ self.content.height = dp(400)
+		#~ self.content.add_widget(self.cam)
 		#~ self.add_widget(self.cam)
-		self.check_qr = Clock.schedule_interval(self.detect_qr, 1)
+		#~ self.check_qr = Clock.schedule_interval(self.detect_qr, 1)
+		self.detector = ZbarQrcodeDetector()
+		self.detector.bind(symbols=conect_qr)
+		self.content.add_widget(self.detector)
 		self.dialog = MDDialog(title="Enfoque el codigo QR",content=self.content, size_hint=(.8, None),height=dp(500),auto_dismiss=False)
 		self.dialog.add_action_button("Cerrar", action= lambda x: self.dialog.dismiss())
 		self.dialog.open()
+		self.detector.start()
 		
-	def connect_qr(self, token):
+	def connect_qr(self, *args):#, token):
+		self.dialog.dismiss()
+		token = self.detector.symbols[2]
+		self.detector.stop()
 		try:
 			session = wenuclient.get_session_by_qr(token)
 			self.parent.parent.client = wenuclient.Client(self.server_ip, session)
