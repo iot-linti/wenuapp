@@ -93,7 +93,7 @@ class Login(MDTabbedPanel):
 		#~ self.add_widget(self.cam)
 		#~ self.check_qr = Clock.schedule_interval(self.detect_qr, 1)
 		self.detector = ZbarQrcodeDetector()
-		self.detector.bind(symbols=conect_qr)
+		self.detector.bind(symbols=self.conect_qr)
 		self.content.add_widget(self.detector)
 		self.dialog = MDDialog(title="Enfoque el codigo QR",content=self.content, size_hint=(.8, None),height=dp(500),auto_dismiss=False)
 		self.dialog.add_action_button("Cerrar", action= lambda x: self.dialog.dismiss())
