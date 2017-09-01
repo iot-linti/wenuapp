@@ -222,7 +222,7 @@ class ZbarQrcodeDetector(AnchorLayout):
     '''Widget that use the AndroidCamera and zbar to detect qrcode.
     When found, the `symbols` will be updated
     '''
-    camera_size = ListProperty([320, 240])
+    camera_size = ListProperty([640, 480])
 
     symbols = ListProperty([])
 

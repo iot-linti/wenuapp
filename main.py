@@ -38,7 +38,7 @@ from piso import *
 try:
 	from zbarQrCode import ZbarQrcodeDetector
 except Exception as e:
-	print "Error al importar ZbarQrcodeDetector: "+e
+	print e
 
 #influx
 #~ from influxdb import InfluxDBClient
@@ -101,9 +101,14 @@ class Login(MDTabbedPanel):
 		self.detector.start()
 		
 	def connect_qr(self, *args):#, token):
-		self.dialog.dismiss()
-		token = self.detector.symbols[2]
 		self.detector.stop()
+		self.dialog.dismiss()
+		try:
+			token = self.detector.symbols[2]
+		except IndexError:
+			print self.detector.symbols
+			token = []
+		print token
 		try:
 			session = wenuclient.get_session_by_qr(token)
 			self.parent.parent.client = wenuclient.Client(self.server_ip, session)
