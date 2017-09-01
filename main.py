@@ -35,7 +35,10 @@ import urllib
 from piso import *
 #~ from PIL import Image
 #~ import zbarlight
-from zbarQrCode import ZbarQrcodeDetector
+try:
+	from zbarQrCode import ZbarQrcodeDetector
+except Exception as e:
+	print "Error al importar ZbarQrcodeDetector: "+e
 
 #influx
 from influxdb import InfluxDBClient
