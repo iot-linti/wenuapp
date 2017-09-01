@@ -41,7 +41,7 @@ except Exception as e:
 	print "Error al importar ZbarQrcodeDetector: "+e
 
 #influx
-from influxdb import InfluxDBClient
+#~ from influxdb import InfluxDBClient
 import wenuclient
 import requests
 
