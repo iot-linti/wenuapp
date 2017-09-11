@@ -96,9 +96,14 @@ class Login(MDTabbedPanel):
 		self.detector.bind(symbols=self.connect_qr)
 		self.content.add_widget(self.detector)
 		self.dialog = MDDialog(title="Enfoque el codigo QR",content=self.content, size_hint=(.8, None),height=dp(500),auto_dismiss=False)
-		self.dialog.add_action_button("Cerrar", action= lambda x: self.dialog.dismiss())
+		self.dialog.add_action_button("Cerrar", action= lambda x: self.close_dialog())
 		self.dialog.open()
 		self.detector.start()
+		
+	def close_dialog(self):
+		self.dialog.dismiss()
+		self.detector.stop()
+		self.content.remove_widget(self.detector)
 		
 	def connect_qr(self, *args):#, token):
 		self.detector.stop()
