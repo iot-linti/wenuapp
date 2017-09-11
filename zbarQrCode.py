@@ -13,7 +13,7 @@ Featuring:
   detect Qrcode.
 
 '''
-
+from kivy.core.window import Window
 
 __version__ = '1.0'
 
@@ -94,9 +94,9 @@ class AndroidWidgetHolder(Widget):
 
     def __init__(self, **kwargs):
         self._old_view = None
-        from kivy.core.window import Window
         self._window = Window
         kwargs['size_hint'] = (None, None)
+        self.pos = 500,500
         super(AndroidWidgetHolder, self).__init__(**kwargs)
 
     def on_view(self, instance, view):
@@ -146,6 +146,7 @@ class AndroidCamera(Widget):
         super(AndroidCamera, self).__init__(**kwargs)
         self._holder = AndroidWidgetHolder(size=self.size, pos=self.pos)
         self.add_widget(self._holder)
+        self.pos = 500,500
 
     @run_on_ui_thread
     def stop(self):
@@ -209,7 +210,7 @@ class AndroidCamera(Widget):
     def on_preview_frame(self, camera, data):
         pass
 
-    def on_size(self, instance, size):
+    def on_size(self, insstance, size):
         if self._holder:
             self._holder.size = size
 
@@ -222,7 +223,7 @@ class ZbarQrcodeDetector(AnchorLayout):
     '''Widget that use the AndroidCamera and zbar to detect qrcode.
     When found, the `symbols` will be updated
     '''
-    camera_size = ListProperty([640, 480])
+    camera_size = ListProperty([1280, 720])
 
     symbols = ListProperty([])
 
@@ -239,6 +240,9 @@ class ZbarQrcodeDetector(AnchorLayout):
                 size_hint=(None, None))
         self._camera.bind(on_preview_frame=self._detect_qrcode_frame)
         self.add_widget(self._camera)
+        #~ self.pos = 700,500
+        #~ self.pos = container.pos
+        self.pos = Window.size[0]/2,Window.size[1]/2
 
         # create a scanner used for detecting qrcode
         self._scanner = ImageScanner()
