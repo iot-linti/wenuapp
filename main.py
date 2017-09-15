@@ -35,13 +35,14 @@ from kivy.utils import platform
 import os
 import urllib
 from piso import *
-#~ from PIL import Image
-#~ import zbarlight
-try:
-	from zbarQrCode import ZbarQrcodeDetector
-except Exception as e:
-	print e
-
+from PIL import Image as ImagePil
+if platform == 'android':
+	try:
+		from zbarQrCode import ZbarQrcodeDetector
+	except Exception as e:
+		print e
+else:
+	import zbarlight
 #influx
 #~ from influxdb import InfluxDBClient
 import wenuclient
@@ -74,8 +75,8 @@ class Login(MDTabbedPanel):
                         )
 			self.parent.parent.client = wenuclient.Client(server, session)
 		except requests.exceptions.RequestException as e:
-			print("Error al efectuar la conexion")
 			print e
+			print("Error al efectuar la conexion")
 			self.error_dialog("Error al conectar. Verifique el usuario y contraseña.")
 		else:
 			self.parent.parent.current = 'progressbar'
@@ -85,38 +86,47 @@ class Login(MDTabbedPanel):
 			
 	def read_qr(self):
 		"""Abre la camara para leer un codigo de QR"""
-		#~ if self.cam == None:
-			#~ self.cam=Camera(resolution=(640,480), size=(400,400), play=True)
-		#~ else:
-			#~ self.cam.play=True
 		self.content = Widget()
-		#~ self.content.size_hint = None, None
-		#~ self.content.height = dp(400)
-		#~ self.content.add_widget(self.cam)
-		#~ self.add_widget(self.cam)
-		#~ self.check_qr = Clock.schedule_interval(self.detect_qr, 1)
-		self.detector = ZbarQrcodeDetector()
-		self.detector.bind(symbols=self.connect_qr)
-		self.content.add_widget(self.detector)
+		if platform == 'android':
+			self.detector = ZbarQrcodeDetector()
+			self.detector.bind(symbols=self.connect_qr)
+			self.content.add_widget(self.detector)
+			#~ self.dialog = MDDialog(title="Enfoque el codigo QR",content=self.content, size_hint=(.8, None),height=dp(500),auto_dismiss=False)
+			#~ self.dialog.add_action_button("Cerrar", action= lambda x: self.close_dialog())
+			#~ self.dialog.open()
+			self.detector.start()
+		else:
+			if self.cam == None:
+				self.cam=Camera(resolution=(640,480), size=(400,400), play=True)
+				#~ self.add_widget(self.cam)
+			else:
+				self.cam.play=True
+			self.content.size_hint = None, None
+			self.content.height = dp(400)
+			self.content.add_widget(self.cam)
+			self.check_qr = Clock.schedule_interval(self.detect_qr, 1)
 		self.dialog = MDDialog(title="Enfoque el codigo QR",content=self.content, size_hint=(.8, None),height=dp(500),auto_dismiss=False)
 		self.dialog.add_action_button("Cerrar", action= lambda x: self.close_dialog())
 		self.dialog.open()
-		self.detector.start()
 		
 	def close_dialog(self):
 		self.dialog.dismiss()
-		self.detector.stop()
-		self.content.remove_widget(self.detector)
+		if platform == 'android':
+			self.detector.stop()
+			self.content.remove_widget(self.detector)
 		
 	def connect_qr(self, *args):#, token):
-		self.detector.stop()
+		if platform == 'android':
+			self.detector.stop()
+			try:
+				token = self.detector.symbols[2]
+			except IndexError:
+				print self.detector.symbols
+				token = []
+			print token
+		else:
+			token = args[0]
 		self.dialog.dismiss()
-		try:
-			token = self.detector.symbols[2]
-		except IndexError:
-			print self.detector.symbols
-			token = []
-		print token
 		try:
 			session = wenuclient.get_session_by_qr(token)
 			self.parent.parent.client = wenuclient.Client(self.server_ip, session)
@@ -135,7 +145,7 @@ class Login(MDTabbedPanel):
 		self.cam.export_to_png("qrtests.png")
 		file_path = 'qrtests.png'
 		with open(file_path, 'rb') as image_file:
-			image = Image.open(image_file)
+			image = ImagePil.open(image_file)
 			image.load()
 		codes = zbarlight.scan_codes('qrcode', image)
 		print('QR codes: %s' % codes)
