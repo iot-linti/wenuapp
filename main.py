@@ -30,6 +30,8 @@ from kivymd.progressbar import MDProgressBar
 from kivy.clock import Clock
 from kivy.uix.camera import Camera
 
+from kivy.utils import platform
+
 import os
 import urllib
 from piso import *
@@ -73,6 +75,7 @@ class Login(MDTabbedPanel):
 			self.parent.parent.client = wenuclient.Client(server, session)
 		except requests.exceptions.RequestException as e:
 			print("Error al efectuar la conexion")
+			print e
 			self.error_dialog("Error al conectar. Verifique el usuario y contraseña.")
 		else:
 			self.parent.parent.current = 'progressbar'

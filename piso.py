@@ -156,16 +156,16 @@ class Mota(Button):
 		self.historial = self.client.Measurement.where(mota_id=self.name)
 		
 		bs = MDListBottomSheet()
-		for re in self.historial:
-			for r in re:
-				mov = "Si" if r["movimiento"] == True else "No"
-				text = '{:^10}'.format(str(r['temperatura']))+'{:^50}'.format(str(r["corriente"]))+'{:^50}'.format(str(r["time"]))+'{:^20}'.format(mov)
-				if (self.temp_amb + 5 < r['temperatura']):
-					bs.add_item(text, lambda x: x, icon='weather-hail')#self.callbaack(x))
-				elif (self.temp_amb - 5 < r['temperatura']):
-					bs.add_item(text, lambda x: x, icon='weather-sunny')#, icon='alert-circle-outline')
-				else:
-					bs.add_item(text, lambda x: x)
+		for r in self.historial:
+			mov = "Si" if r.movement == True else "No"
+			print r
+			text = '{:^10}'.format(str(r.temperature))+'{:^50}'.format(str(r.current))+'{:^50}'.format(str(r._updated))+'{:^20}'.format(mov)
+			if (self.temp_amb.temperature + 5 < r.temperature):
+				bs.add_item(text, lambda x: x, icon='weather-hail')#self.callbaack(x))
+			elif (self.temp_amb.temperature - 5 < r.temperature):
+				bs.add_item(text, lambda x: x, icon='weather-sunny')#, icon='alert-circle-outline')
+			else:
+				bs.add_item(text, lambda x: x)
 		bs.add_item("Cambiar posicion", self.set_edit, icon='map-marker')
 		bs.add_item("Apagar aire", self.apagar_mota, icon='clipboard-account')
 		bs.add_item("Ver imagen", self.get_picture, icon='camera')
@@ -295,6 +295,7 @@ class Piso(Screen):
 		self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
 
 	def actualizar_mapa(self):
+		#FIXME: ADAPTAR A WENUCLIENT
 		"""Deprecated (cambiar con wenuapi). Actualiza los valores/datos de las motas del piso."""
 		try:
 			#~ query = []
