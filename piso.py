@@ -70,9 +70,6 @@ class Mota(Button):
                 # self.date = data.time # FIXME: porque esta esta
 		self.client = client #Cliente de la bd
 		self.historial = [] #Historial de la mota (temperaturas).
-		#~ print "historial"
-		#~ print historial
-		#~ print list(historial)
 		self.text = str(historial[0])
 		self.temperature = historial[0]
 		self.temp_amb = temp_amb
@@ -158,7 +155,8 @@ class Mota(Button):
 		bs = MDListBottomSheet()
 		for r in self.historial:
 			mov = "Si" if r.movement == True else "No"
-			print r
+			#~ print r
+			#~ print self.temp_amb
 			text = '{:^10}'.format(str(r.temperature))+'{:^50}'.format(str(r.current))+'{:^50}'.format(str(r._updated))+'{:^20}'.format(mov)
 			if (self.temp_amb.temperature + 5 < r.temperature):
 				bs.add_item(text, lambda x: x, icon='weather-hail')#self.callbaack(x))
@@ -200,8 +198,6 @@ class Mota(Button):
 	def posicionar(self, pos, *evt):
 		"""Actualiza la posicion de la mota en bd."""
 		mote = self.client.Mote.first_where(mote_id=self.getName(), level_id = self.get_piso())
-		#~ print mote.x
-		#~ print mote.y
 		mote.x = int(pos[0]);
 		mote.y = int(pos[1]);
 		mote.resolution = str(Window.size)
@@ -209,9 +205,6 @@ class Mota(Button):
 		self.calc_pos(int(pos[0]),int(pos[1]))
 		Snackbar(text="Posicion guardada.").show()
 		#~ m = self.client.Mote.first_where(mote_id=self.getName(), level_id = self.get_piso())
-		#~ print m
-		#~ print m.x
-		#~ print m.y
 		
 	def calc_pos(self, tx, ty):
 		"""Calcula la nueva posicion."""
@@ -281,7 +274,8 @@ class Piso(Screen):
 		temperature = historial[0].temperature if len(historial) > 0 else 0#float('nan')
 		historial = historial if len(historial) > 0 else [0]
 		#~ historial = [15]  #QUITAR HARDCODEO
-		self.info_motas[control.mote_id] = Mota(control, historial, temperature, self.client)
+		#~ self.info_motas[control.mote_id] = Mota(control, historial, temperature, self.client)
+		self.info_motas[control.mote_id] = Mota(control, historial, historial[0], self.client)
 		for sen in self.sensores:
 			#~ print "\nProcesando un sensor\n"
 			historial = list(self.client.Measurement.where(mota_id=sen.mote_id)) #NO DEVUELVE NADA
