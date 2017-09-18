@@ -25,6 +25,7 @@ def conexion():
 			print "Error de conexion."
 
 def leer_datos_motas(cli, ctrl):
+	#Cambiar para monitorear las alertas.
 	motas = cli.Mote.list()
 	control = cli.Mote.first_where(mote_id='linti_control')
 	control_temp = cli.Measurement.first_where(mote_id=mote_id)
