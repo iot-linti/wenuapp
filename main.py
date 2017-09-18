@@ -119,7 +119,7 @@ class Login(MDTabbedPanel):
 		if platform == 'android':
 			self.detector.stop()
 			try:
-				token = self.detector.symbols[2]
+				token = self.detector.symbols[0][1]
 			except IndexError:
 				print self.detector.symbols
 				token = []
@@ -129,7 +129,7 @@ class Login(MDTabbedPanel):
 		self.dialog.dismiss()
 		try:
 			session = wenuclient.get_session_by_qr(token)
-			self.parent.parent.client = wenuclient.Client(self.server_ip, session)
+			self.parent.parent.client = wenuclient.Client(self.server_ip.text, session)
 		except requests.exceptions.RequestException as e:
 			print("Error al efectuar la conexion")
 			self.error_dialog("Token incorrecto")
@@ -218,9 +218,6 @@ class MainBox(ScreenManager):
 
 	def iniciar(self, actual_screen, next_screen, sig=0):
 		"""Crea un piso a la vez. Cuando creó todos pasa al siguiente screen."""
-		#~ print "----------------------aaaaaaaaaaaaaaaaaaaa-------------------------------------"
-		#p_imgs = ["imagenes/plano-2piso.jpg","imagenes/primer_piso.jpg"]
-
 		cant_p = len(self.client.Level.list())
 		#~ for piso in self.client.Level.list():
 		#-------------------------------------------------------------------------#
@@ -278,7 +275,8 @@ class DatosSensoresApp(App):
 	def build(self):
 		self.configuration = self.config
 		Builder.load_file('datosSensores.kv')
-		return MainBox(self.config)
+		self.mb = MainBox(self.config)
+		return self.mb
 
 	########################################################################
 	def build_config(self, config):
