@@ -135,6 +135,10 @@ class Login(MDTabbedPanel):
 			self.error_dialog("Token incorrecto")
 		else:
 			self.parent.parent.current = 'progressbar'
+			a = open('token.txt','w')
+			a.write(token)
+			a.write(self.server_ip.text)
+			a.close()
 			#~ self.parent.parent.iniciar("bottomsheet","piso_1", self.client, self)
 			#~ self.parent.parent.current = 'main'
 			self.parent.remove_widget(self)
@@ -208,8 +212,36 @@ class MainBox(ScreenManager):
          'text': 'Actualizar'}#,
          #'on_release': self.cambiar_piso},
          	]
-
-		self.current = 'login'
+		
+		if os.path.isfile('token.txt'):
+			t = open('token.txt','r')
+			token, ip = t.readlines()
+			print token, ip
+			#El siguiente codigo empieza a repetirse un par de veces (creo)-> refactorizar (?).
+			try:
+				session = wenuclient.get_session_by_qr(token)
+				print session
+				print session.auth
+				print session.get(ip)
+				self.client = wenuclient.Client(ip, session)
+			except requests.exceptions.RequestException as e:
+				print("Error al efectuar la conexion")
+				print e
+				#~ self.error_dialog("Token incorrecto")
+				
+				#~ content = MDLabel(font_style='Body1',theme_text_color='Secondary', text="Token expirado o incorrecto.", size_hint_y=None, valign='top')
+				#~ content.bind(texture_size=content.setter('size'))
+				#~ self.dialog = MDDialog(title="Error",content=content, size_hint=(.8, None),height=dp(200),auto_dismiss=False)
+				#~ self.dialog.add_action_button("Cerrar", action=lambda x: self.dialog.dismiss())
+				#~ self.dialog.open()
+				#No lo muestra por alguna razon.
+				
+				self.current = 'login'
+			#
+			else:
+				self.current = 'progressbar'
+		else:
+			self.current = 'login'
 
 	def log(self):
 		"""Cambia al screen de login."""
