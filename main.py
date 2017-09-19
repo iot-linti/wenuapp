@@ -79,6 +79,11 @@ class Login(MDTabbedPanel):
 			print("Error al efectuar la conexion")
 			self.error_dialog("Error al conectar. Verifique el usuario y contraseña.")
 		else:
+			token = session.auth[0]
+			a = open('token.txt','w')
+			a.write(token)
+			a.write('\n'+self.server_ip.text)
+			a.close()
 			self.parent.parent.current = 'progressbar'
 			#~ self.parent.parent.iniciar("bottomsheet","piso_1", self.client, self)
 			#~ self.parent.parent.current = 'main'
@@ -215,11 +220,11 @@ class MainBox(ScreenManager):
 		
 		if os.path.isfile('token.txt'):
 			t = open('token.txt','r')
-			token, ip = t.readlines()
-			print token, ip
 			#El siguiente codigo empieza a repetirse un par de veces (creo)-> refactorizar (?).
 			try:
-				session = wenuclient.get_session_by_qr(token)
+				token, ip = t.readlines()
+				print token, ip
+				session = wenuclient.get_session_by_qr(token[:-1])
 				print session
 				print session.auth
 				print session.get(ip)
