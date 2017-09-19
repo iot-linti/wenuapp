@@ -115,12 +115,14 @@ class Login(MDTabbedPanel):
 		self.dialog.open()
 		
 	def close_dialog(self):
+		"""Cierra el dialogo de mensajes de error."""
 		self.dialog.dismiss()
 		if platform == 'android':
 			self.detector.stop()
 			self.content.remove_widget(self.detector)
 		
 	def connect_qr(self, *args):#, token):
+		"""Se loguea con el token leido por el qr"""
 		if platform == 'android':
 			self.detector.stop()
 			try:
@@ -151,6 +153,7 @@ class Login(MDTabbedPanel):
 		
 		
 	def detect_qr(self,*largs):
+		"""Detecta el qr, en caso de estar en una pc/notebook."""
 		self.cam.export_to_png("qrtests.png")
 		file_path = 'qrtests.png'
 		with open(file_path, 'rb') as image_file:
@@ -218,6 +221,7 @@ class MainBox(ScreenManager):
          #'on_release': self.cambiar_piso},
          	]
 		
+		#Si ya se logueo antes, no pide contraseña/usuario/qr, usa el token del ultimo login.
 		if os.path.isfile('token.txt'):
 			t = open('token.txt','r')
 			#El siguiente codigo empieza a repetirse un par de veces (creo)-> refactorizar (?).
@@ -242,6 +246,7 @@ class MainBox(ScreenManager):
 			else:
 				self.current = 'progressbar'
 		else:
+			#Si no habia archivo de token de una sesion previa, paso a la pantalla de login.
 			self.current = 'login'
 
 	def log(self):
@@ -321,6 +326,7 @@ class DatosSensoresApp(App):
 
 
 	def on_pause(self):
+		"""Al pausar la app si se encuentra en android ejecuta el servicio de chequeo de alertas."""
 		if platform == 'android':
 			from android import AndroidService
 			service = AndroidService('Datos Sensores', 'running')
@@ -329,6 +335,7 @@ class DatosSensoresApp(App):
 		return True
 	
 	def on_resume(self):
+		"""Al volver a abrir la aplicacion pausada previamente, detiene el servicio de alertas"""
 		self.service.stop()
 		self.service = None
 ########################################################################
