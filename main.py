@@ -223,11 +223,7 @@ class MainBox(ScreenManager):
 			#El siguiente codigo empieza a repetirse un par de veces (creo)-> refactorizar (?).
 			try:
 				token, ip = t.readlines()
-				print token, ip
 				session = wenuclient.get_session_by_qr(token[:-1])
-				print session
-				print session.auth
-				print session.get(ip)
 				self.client = wenuclient.Client(ip, session)
 			except requests.exceptions.RequestException as e:
 				print("Error al efectuar la conexion")
