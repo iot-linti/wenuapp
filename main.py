@@ -35,7 +35,6 @@ from kivy.utils import platform
 import os
 import urllib
 from piso import *
-from PIL import Image as ImagePil
 if platform == 'android':
 	try:
 		from zbarQrCode import ZbarQrcodeDetector
@@ -43,10 +42,12 @@ if platform == 'android':
 		print e
 else:
 	import zbarlight
+	from PIL import Image as ImagePil
 #influx
 #~ from influxdb import InfluxDBClient
 import wenuclient
 import requests
+from plyer import notification
 
 class PisosNavDrawer(MDNavigationDrawer):
 	pass
@@ -245,6 +246,7 @@ class MainBox(ScreenManager):
 			#
 			else:
 				self.current = 'progressbar'
+				#~ self.check_alert = Clock.schedule_interval(self.alert, 60)
 		else:
 			#Si no habia archivo de token de una sesion previa, paso a la pantalla de login.
 			self.current = 'login'
@@ -288,6 +290,7 @@ class MainBox(ScreenManager):
 			self.ids["scr_mngr"].current = next_screen
 			self.current = 'main'
 			self.pisos[1].on_enter()
+			#~ self.check_alert = Clock.schedule_interval(self.alert, 60)
 
 	def cambiar_piso(self, name, evnt):
 		"""Cambia de piso (Screen)"""
@@ -299,7 +302,13 @@ class MainBox(ScreenManager):
 		#~ print piso_id
 		#~ print self.pisos.keys()
 		self.pisos[piso_id].config_mota_pos()
-
+		
+	def alert(self):
+		alertas = self.client.Alerta.where(estado="new")
+		for a in alertas:
+			notification.notify(app_name='Datos sensores', title=a.algo,message=' temperatura demasiado alta - '+str(a['temperature'])+'C')
+			#marcar la alerta como vista? que se marque sola despues de un tiempo predefinido?
+			
 class LoginScreen(Screen):
 	pass
 

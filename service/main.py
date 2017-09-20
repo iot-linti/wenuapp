@@ -26,25 +26,31 @@ def conexion():
 
 def leer_datos_motas(cli, ctrl):
 	#Cambiar para monitorear las alertas.
-	motas = cli.Mote.list()
-	control = cli.Mote.first_where(mote_id='linti_control')
-	control_temp = cli.Measurement.first_where(mote_id=mote_id)
-	try:
-		for m in motas:
-			mota = cli.Mote.first_where(mote_id=m.mote_id)
-			measure = cli.Measurement.first_where(mote_id=mota.mote_id)
-			if (measure['temperature'] > 1000):
-				notification.notify(app_name='Datos sensores - medición', title=m.mote_id,message='Low battery')
-				time.sleep(1)
-			elif (measure['temperature'] > (control['temperature'] + 5)):
-				notification.notify(app_name='Datos sensores - medición', title=m.mote_id,message=' esta overheating - '+str(m['temperature'])+'C')
-				time.sleep(1)
+	
+	alertas = self.client.Alerta.where(estado="new")
+	for a in alertas:
+		notification.notify(app_name='Datos sensores', title=a.algo,message=' temperatura demasiado alta - '+str(a['temperature'])+'C')
+		#marcar la alerta como vista? que se marque sola despues de un tiempo predefinido?
+	
+	#~ motas = cli.Mote.list()
+	#~ control = cli.Mote.first_where(mote_id='linti_control')
+	#~ control_temp = cli.Measurement.first_where(mote_id=mote_id)
+	#~ try:
+		#~ for m in motas:
+			#~ mota = cli.Mote.first_where(mote_id=m.mote_id)
+			#~ measure = cli.Measurement.first_where(mote_id=mota.mote_id)
+			#~ if (measure['temperature'] > 1000):
+				#~ notification.notify(app_name='Datos sensores - medición', title=m.mote_id,message='Low battery')
+				#~ time.sleep(1)
+			#~ elif (measure['temperature'] > (control['temperature'] + 5)):
+				#~ notification.notify(app_name='Datos sensores - medición', title=m.mote_id,message=' esta overheating - '+str(m['temperature'])+'C')
+				#~ time.sleep(1)
 			#~ else:
 				#~ notification.notify('InfluxDB', mota.items()[0][1].next()['mota_id']+' todo OK - '+str(mota.items()[0][1].next()['temperatura'])+'C')
 		#~ notification.notify('influxdb', 'anda semi-bien')
-	except Exception as e:
-		print e
-		notification.notify('influxError',str(e))
+	#~ except Exception as e:
+		#~ print e
+		#~ notification.notify('influxError',str(e))
 	#~ notification.notify('llama','leer')
 
 
