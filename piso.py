@@ -170,21 +170,11 @@ class Mota(Button):
 		bs.open()
 
 	def apagar_mota(self, evt):
-		"""Pone en la bd que hay que apagar el aire donde se encuentra la mota (cambiar a wenuapi)."""
-		json_body = [
-			{
-				"measurement": "accion",
-				"tags": {
-					"mota_id": self.name,
-					"piso_id": self.piso
-				},
-				#~ "time": '2016-10-04T20:26:34Z',
-				"fields": {
-					"apagar": "true"
-				}
-			}
-		]
-		self.client.write_points(json_body)
+		"""Pone en la bd que hay que apagar el aire donde se encuentra la mota."""
+		print self.mote_id
+		print type(self.mote_id)
+		a = self.client.Action(mote_id=self.mote_id, command="turn_off", viewed=False)
+		a.create()
 
 	def calcular_color(self, temp, temp_amb):
 		"""Calcula el color de la mota segun su temperatura y la del ambiente."""

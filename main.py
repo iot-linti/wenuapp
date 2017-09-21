@@ -40,6 +40,7 @@ if platform == 'android':
 		from zbarQrCode import ZbarQrcodeDetector
 	except Exception as e:
 		print e
+	from plyer import notification
 else:
 	import zbarlight
 	from PIL import Image as ImagePil
@@ -47,7 +48,6 @@ else:
 #~ from influxdb import InfluxDBClient
 import wenuclient
 import requests
-from plyer import notification
 
 class PisosNavDrawer(MDNavigationDrawer):
 	pass
@@ -233,17 +233,8 @@ class MainBox(ScreenManager):
 			except requests.exceptions.RequestException as e:
 				print("Error al efectuar la conexion")
 				print e
-				#~ self.error_dialog("Token incorrecto")
-				
-				#~ content = MDLabel(font_style='Body1',theme_text_color='Secondary', text="Token expirado o incorrecto.", size_hint_y=None, valign='top')
-				#~ content.bind(texture_size=content.setter('size'))
-				#~ self.dialog = MDDialog(title="Error",content=content, size_hint=(.8, None),height=dp(200),auto_dismiss=False)
-				#~ self.dialog.add_action_button("Cerrar", action=lambda x: self.dialog.dismiss())
-				#~ self.dialog.open()
 				#No lo muestra por alguna razon.
-				
 				self.current = 'login'
-			#
 			else:
 				self.current = 'progressbar'
 				#~ self.check_alert = Clock.schedule_interval(self.alert, 60)
