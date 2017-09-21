@@ -171,8 +171,6 @@ class Mota(Button):
 
 	def apagar_mota(self, evt):
 		"""Pone en la bd que hay que apagar el aire donde se encuentra la mota."""
-		print self.mote_id
-		print type(self.mote_id)
 		a = self.client.Action(mote_id=self.mote_id, command="turn_off", viewed=False)
 		a.create()
 

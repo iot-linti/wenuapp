@@ -294,11 +294,13 @@ class MainBox(ScreenManager):
 		#~ print self.pisos.keys()
 		self.pisos[piso_id].config_mota_pos()
 		
-	def alert(self):
-		alertas = self.client.Alerta.where(estado="new")
+	def alert(self, *evnt):
+		print "alerta entra"
+		alertas = self.client.Alerta.where(resuelta=False)
 		for a in alertas:
-			notification.notify(app_name='Datos sensores', title=a.algo,message=' temperatura demasiado alta - '+str(a['temperature'])+'C')
-			#marcar la alerta como vista? que se marque sola despues de un tiempo predefinido?
+			if (a.time.today()+datetime.timedelta(days=1)) <= (a.time.today() - datetime.datetime.now()):
+				notification.notify(app_name='Datos sensores', title=a.algo,message=' temperatura demasiado alta - '+str(a['temperature'])+'C')
+		#marcar la alerta como vista? que se marque sola despues de un tiempo predefinido?
 			
 class LoginScreen(Screen):
 	pass
