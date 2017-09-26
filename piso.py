@@ -277,32 +277,26 @@ class Piso(Screen):
 		self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
 
 	def actualizar_mapa(self):
-		#FIXME: ADAPTAR A WENUCLIENT
-		"""Deprecated (cambiar con wenuapi). Actualiza los valores/datos de las motas del piso."""
-		try:
-			#~ query = []
-			query = {}
-
-			for s in self.info_motas.keys():
-				query[s] = "SELECT mota_id, temperatura, movimiento, corriente, time FROM medicion WHERE mota_id = '"+s+"' ORDER BY time desc LIMIT 50"
-			res = {}
-			for q in query.items():
-				#~ res.append(self.client.query(q)) #Consulta meramente de prueba
-				res[q[0]] = self.client.query(q[1])
+		#Adaptando a wenuapi, todavia sin testear.
+		"""Actualiza los valores/datos de las motas del piso."""
+		res = {}
+		for s in self.info_motas.keys():
 			try:
-				self.temp_amb = res['linti_control']['temperatura']#[0][('climatizacion', None)].next()['temperature']
-			except:
-				print "Error x"
+				res[s] = list(self.client.Measurement.where(mote_id=s)) #No retorna nada
+			except Exception, e:
+				print("Error al efectuar la consulta 1 "+str(e))
+		try:
+			self.temp_amb = self.client.Measurement.first_where(mote_id='linti_control')
 		except Exception, e:
 			print("Error al efectuar la consulta 1 "+str(e))
-		else:
-			#~ self.temp_amb = res['linti_control']['temperature']#[('climatizacion', None)].next()['temperature']
-			for s in self.info_motas.items():
-				temp_color = s[1].calcular_color(res[s[0]].items()[0][1].next()['temperatura'], self.temp_amb)
-				s[1].text = temp_color
-				s[1].texture_update()
-				s[1].bind(on_release=partial(s[1].historial_mota,res[s[0]]))
-			self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
+		print res[s]
+		for s in self.info_motas.items():
+			print s
+			temp_color = s[1].calcular_color(res[s[0]], self.temp_amb)
+			s[1].text = temp_color
+			s[1].texture_update()
+			s[1].bind(on_release=partial(s[1].historial_mota,res[s[0]]))
+		self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
 	
 	
 	def config_mota_pos(self):
