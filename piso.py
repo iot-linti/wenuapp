@@ -47,9 +47,11 @@ class MotaImage(Widget):
 	def __init__(self, src, *args, **kwargs):
 		super(MotaImage, self).__init__(**kwargs)
 		self.size = 300,300
+		#~ self.pos_hint = {'top': .5,'right': .5}
 
 		self.video = mjpegviewer.MjpegViewer(url=src, size=(300,300))
 		self.video.start()
+		self.video.pos = (Window.size[0]/2)-(self.size[0]/2), (Window.size[1]/2)-(self.size[1]/2)
 		self.add_widget(self.video)
 
 			
@@ -95,8 +97,10 @@ class Mota(Button):
 	def get_picture(self, *evt):
 		"""Instancia la clase MotaImage para mostrar el video."""
 		self.image = MotaImage(self.ipv)
+		#~ self.image.pos_hint = {'top': .5,'right': .5}
 		#~ self.add_widget(self.image)
 		self.parent.add_widget(self.image)
+		#~ self.image.pos_hint = {'top': .5,'right': .5}
 		
 	def set_edit(self, val=True):
 		"""Cambia si se esta editando la posicion de la mota o no (permite ver el historial al presionar)."""
@@ -277,8 +281,8 @@ class Piso(Screen):
 		self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
 
 	def actualizar_mapa(self):
-		#Adaptando a wenuapi, todavia sin testear.
-		"""Actualiza los valores/datos de las motas del piso."""
+		"""Actualiza los valores/datos de las motas del piso.
+		   Adaptando a wenuapi, todavia sin testear con datos."""
 		res = {}
 		for s in self.info_motas.keys():
 			try:
@@ -289,9 +293,8 @@ class Piso(Screen):
 			self.temp_amb = self.client.Measurement.first_where(mote_id='linti_control')
 		except Exception, e:
 			print("Error al efectuar la consulta 1 "+str(e))
-		print res[s]
+		
 		for s in self.info_motas.items():
-			print s
 			temp_color = s[1].calcular_color(res[s[0]], self.temp_amb)
 			s[1].text = temp_color
 			s[1].texture_update()
