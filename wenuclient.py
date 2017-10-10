@@ -149,7 +149,9 @@ class Entity(object):
 
     def remove(self):
         response = self.server.delete(
-        '{}/{}'.format(self.link, self.fields['_id']))
+            '{}/{}'.format(self.link, self.fields['_id']),
+            etag=self.fields.get('_etag', None),
+        )
         return response
 
     def create(self):
@@ -169,7 +171,7 @@ class Entity(object):
         response = self.server.put(
             '{}/{}'.format(self.link, self.fields['_id']),
             json=self.regular_fields(),
-            etag=self.fields['_etag'],
+            etag=self.fields.get('_etag', None),
         )
         return response
 
@@ -250,20 +252,34 @@ class Client(object):
 
     @validate_and_jsonify
     def put(self, route, json, etag):
-        return self.session.put(
-            '/'.join((self.url, route)),
-            json=json,
-            headers={'If-Match': etag}
-        )
+        if etag is not None:
+            return self.session.put(
+                '/'.join((self.url, route)),
+                json=json,
+                headers={'If-Match': etag}
+            )
+        else:
+            return self.session.put(
+                '/'.join((self.url, route)),
+                json=json,
+            )
 
     @validate_and_jsonify
     def post(self, route, json):
         return self.session.post('/'.join((self.url, route)), json=json)
 
     @validate_and_jsonify
-    def delete(self, route):
+    def delete(self, route, etag):
         response = self.session.get('/'.join((self.url, route)))
-        r = self.session.delete('/'.join((self.url, route)))
+        if etag is not None:
+            r = self.session.delete(
+                '/'.join((self.url, route)),
+                headers={'If-Match': etag},
+            )
+        else:
+            r = self.session.delete(
+                '/'.join((self.url, route)),
+            )
         delete_response = Response()
         delete_response.status_code = r.status_code
         delete_response._content = response._content
