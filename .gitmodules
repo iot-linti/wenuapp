@@ -1,0 +1,3 @@
+[submodule "wenuclient"]
+	path = wenuclient
+	url = git@gitlab.linti.unlp.edu.ar:lihuen/wenuclient.git
