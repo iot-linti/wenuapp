@@ -47,6 +47,7 @@ class MotaImage(Widget):
 	def __init__(self, src, *args, **kwargs):
 		super(MotaImage, self).__init__(**kwargs)
 		self.size = 300,300
+		#~ self.size_hint=(1,1)
 		#~ self.pos_hint = {'top': .5,'right': .5}
 
 		self.video = mjpegviewer.MjpegViewer(url=src, size=(300,300))
@@ -77,7 +78,10 @@ class Mota(Button):
 		self.temp_amb = temp_amb
 		#~ try:
 		res = data.resolution.split(",")
-		res = int(res[0][1:]),int(res[1][:-1])
+		try:
+			res = int(res[0][1:]),int(res[1][:-1])
+		except:
+			res = (800,600)
 		self.orig_size = res#eval(data["resolucion"])#Window.size#(1280, 960)
 		#~ orig_size = Window.size#(1280, 960)
 		#~ img.size = translate(orig_size, Window.size, *img.size)

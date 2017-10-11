@@ -28,7 +28,7 @@ def conexion():
 def leer_datos_motas(cli, ctrl):
 	#Cambiar para monitorear las alertas.
 	
-	alertas = self.client.Alerta.where(resuelta=False)
+	alertas = self.client.Alerta.where(state=False)
 	for a in alertas:
 		if (a.time.today()+datetime.timedelta(days=1)) <= (a.time.today() - datetime.datetime.now()):
 			notification.notify(app_name='Datos sensores', title=a.algo,message=' temperatura demasiado alta - '+str(a['temperature'])+'C')

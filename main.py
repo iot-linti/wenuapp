@@ -282,6 +282,7 @@ class MainBox(ScreenManager):
 			self.current = 'main'
 			self.pisos[1].on_enter()
 			#~ self.check_alert = Clock.schedule_interval(self.alert, 5)
+			#~ alertas = self.client.Alert.where(result=False)
 
 	def cambiar_piso(self, name, evnt):
 		"""Cambia de piso (Screen)"""
@@ -296,7 +297,7 @@ class MainBox(ScreenManager):
 		
 	def alert(self, *evnt):
 		print "alerta entra"
-		alertas = self.client.Alert.where(resuelta=False)
+		alertas = self.client.Alert.where(state=False)
 		for a in alertas:
 			if (a.time.today()+datetime.timedelta(days=1)) <= (a.time.today() - datetime.datetime.now()):
 				notification.notify(app_name='Datos sensores', title=a.algo,message=' temperatura demasiado alta - '+str(a['temperature'])+'C')
