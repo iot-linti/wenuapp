@@ -184,12 +184,14 @@ class Mota(Button):
 
 	def calcular_color(self, temp, temp_amb):
 		"""Calcula el color de la mota segun su temperatura y la del ambiente."""
-		if temp > 1000:
+		#print temp.temperature
+		#print temp_amb.temperature
+		if temp.temperature > 1000:
 			return "[color=FFD800]Low battery[/color]"
-		elif temp > temp_amb + 5:
-			return "[color=f10000]" + str(temp)+"[/color]"
+		elif temp.temperature > temp_amb.temperature + 5:
+			return "[color=f10000]" + str(temp.temperature)+"[/color]"
 		else:
-			return "[color=13E400]"+str(temp)+"[/color]"
+			return "[color=13E400]"+str(temp.temperature)+"[/color]"
 			
 	def posicionar(self, pos, *evt):
 		"""Actualiza la posicion de la mota en bd."""

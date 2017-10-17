@@ -230,7 +230,8 @@ class MainBox(ScreenManager):
 				token, ip = t.readlines()
 				session = wenuclient.get_session_by_qr(token[:-1])
 				self.client = wenuclient.Client(ip, session)
-			except requests.exceptions.RequestException as e:
+				#~ except requests.exceptions.RequestException as e:
+			except Exception as e:
 				print("Error al efectuar la conexion")
 				print e
 				#No lo muestra por alguna razon.
