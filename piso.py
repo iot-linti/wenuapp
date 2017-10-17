@@ -158,9 +158,10 @@ class Mota(Button):
 		layout.bind(minimum_height=layout.setter('height'))
 		
 		#~ if len(self.historial) == 0:
-		self.historial = self.client.Measurement.where(mota_id=self.name)
+		self.historial = self.client.Measurement.where(mote_id=self.name)
 		
 		bs = MDListBottomSheet()
+		#~ bs.add_item(self.name)
 		for r in self.historial:
 			mov = "Si" if r.movement == True else "No"
 			#~ print r
@@ -187,11 +188,11 @@ class Mota(Button):
 		#print temp.temperature
 		#print temp_amb.temperature
 		if temp.temperature > 1000:
-			return "[color=FFD800]Low battery[/color]"
+			return "[color=FFD800]Low battery"+ self.name + "[/color]"
 		elif temp.temperature > temp_amb.temperature + 5:
-			return "[color=f10000]" + str(temp.temperature)+"[/color]"
+			return "[color=f10000]" + str(temp.temperature) + " - " + self.name + "[/color]"
 		else:
-			return "[color=13E400]"+str(temp.temperature)+"[/color]"
+			return "[color=13E400]"+str(temp.temperature)+ " - " + self.name + "[/color]"
 			
 	def posicionar(self, pos, *evt):
 		"""Actualiza la posicion de la mota en bd."""
@@ -289,10 +290,11 @@ class Piso(Screen):
 	def actualizar_mapa(self):
 		"""Actualiza los valores/datos de las motas del piso.
 		   Adaptando a wenuapi, todavia sin testear con datos."""
-		res = {}
-		for s in self.info_motas.keys():
+		# res = {}
+		for name, mote in self.info_motas.items():
 			try:
-				res[s] = list(self.client.Measurement.where(mote_id=s)) #No retorna nada
+				mote.temperature = list(self.client.Measurement.where(mote_id=name))[0]
+				# res[s] = list(self.client.Measurement.where(mote_id=s)) #No retorna nada
 			except Exception, e:
 				print("Error al efectuar la consulta 1 "+str(e))
 		try:
@@ -301,10 +303,14 @@ class Piso(Screen):
 			print("Error al efectuar la consulta 1 "+str(e))
 		
 		for s in self.info_motas.items():
-			temp_color = s[1].calcular_color(res[s[0]], self.temp_amb)
+			print s
+			#print res[s[0]]
+			#print res[s[1]]
+			print(str(s[1].temperature))
+			temp_color = s[1].calcular_color(s[1].temperature, self.temp_amb)
 			s[1].text = temp_color
 			s[1].texture_update()
-			s[1].bind(on_release=partial(s[1].historial_mota,res[s[0]]))
+			s[1].bind(on_release=partial(s[1].historial_mota,s[1]))
 		self.ids['fecha'].text = 'Ultima actualización: '+datetime.datetime.strftime(datetime.datetime.now(), '%d-%m-%Y %H:%M')
 	
 	
